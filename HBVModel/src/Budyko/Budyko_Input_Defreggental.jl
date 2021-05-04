@@ -79,9 +79,13 @@ function aridity_evaporative_index_Defreggental()
         Elevation_Zone_Catchment, Temperature_Elevation_Catchment, Total_Elevationbands_Catchment = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily)
         # # get the temperature data at the mean elevation to calculate the mean potential evaporation
         Temperature_Mean_Elevation = Temperature_Elevation_Catchment[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment)]
-        Epot_obs = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Dates_Temperature_Daily, Sunhours_Vienna)
-        Epot_observed = Array{Float64,1}[]
-        Epot_observed = Epot_obs
+        Epot_obs_tw = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Dates_Temperature_Daily, Sunhours_Vienna)
+        Epot_observed_tw = Array{Float64,1}[]
+        Epot_observed_tw = Epot_obs_tw
+
+        Epot_obs_hg = epot_hargreaves(Temperature_Mean_Elevation, Dates_Temperature_Daily, Sunhours_Vienna)
+        Epot_observed_tw = Array{Float64,1}[]
+        Epot_observed_tw = Epot_obs_tw
 
         # ------------ LOAD OBSERVED DISCHARGE DATA ----------------
         Discharge = CSV.read(local_path*"HBVModel/Defreggental/Q-Tagesmittel-212100.csv", DataFrame, header= false, skipto=26, decimal=',', delim = ';', types=[String, Float64])

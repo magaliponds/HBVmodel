@@ -14,6 +14,7 @@ function epot_hargreaves(Temp_min::Float64, Temp::Float64, Temp_max::Float64, KT
     Rs = KT * ((Temp_max - Temp_min)^0.5) * Radiation #global solar radiation in mm/day
     Epot = 0.0135 * Rs * (Temp + 17.8)  #potential Evaporation in mm/day
     #Epot = 0.0135 * Rs * ((Temp_max + Temp_min)/2 + 17.8)
+
     return Epot, Rs
 
 end
@@ -41,6 +42,9 @@ function getEpot(Temp_min::Array{Float64, 1}, Temp::Array{Float64, 1}, Temp_max:
         Day = Dates.dayofyear(current_date)
         Current_Radiation = radiation(Latitude, Day)
         Current_Evaporation, Current_Rs = epot_hargreaves(Temp_min[t], Temp[t], Temp_max[t], KT, Current_Radiation)
+        if isless(Current_Evaporation,0)
+            Current_Evaporation = 0
+        end
         push!(Evaporation, Current_Evaporation)
         push!(Radiation, Current_Radiation)
     end

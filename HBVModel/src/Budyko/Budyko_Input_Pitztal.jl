@@ -170,6 +170,15 @@ function aridity_evaporative_index_Pitztal()
         # ---------------- CALCULATE OBSERVED OBJECTIVE FUNCTIONS -------------------------------------
         # calculate the sum of precipitation of all precipitation zones to calculate objective functions
         P_observed = Total_Precipitation = Precipitation_All_Zones[1][:,1]*Area_Zones_Percent[1] + Precipitation_All_Zones[2][:,1]*Area_Zones_Percent[2]
+        # index_spinup = findfirst(x -> Dates.year(x) == firstyear + 2 && Dates.month(x) == 10, Timeseries)
+        # # evaluations chouls alsways contain whole year
+        # index_lastdate = findfirst(x -> Dates.year(x) == lastyear && Dates.month(x) == 10, Timeseries) - 1
+        #
+        # delete_days = readdlm(local_path*"HBVModel/Pitztal/Delete_Days.csv", ',', Int)
+        # Timeseries_Obj = Timeseries[index_spinup: index_lastdate]
+        # deleteat!(Timeseries_Obj, delete_days)
+        # Observed_Discharge_Obj = Q_observed[index_spinup: index_lastdate]
+        # deleteat!(Observed_Discharge_Obj, delete_days)
         # end of spin up time is 3 years after the start of the calibration and start in the month October
         # index_spinup = findfirst(x -> Dates.year(x) == firstyear + 2 && Dates.month(x) == 10, Timeseries)
         # # evaluations chouls alsways contain whole year
@@ -189,6 +198,7 @@ function aridity_evaporative_index_Pitztal()
         #print(Aridity_Index_observed)
 
         Evaporative_Index_observed = Float64[]
+        # Evaporative_Index_ = 1 - (mean(Observed_Discharge_Obj) / mean(P_observed))
         Evaporative_Index_ = 1 - (mean(Q_observed) / mean(P_observed))
         append!(Evaporative_Index_observed, Evaporative_Index_)
         # println(Evaporative_Index_observed)
