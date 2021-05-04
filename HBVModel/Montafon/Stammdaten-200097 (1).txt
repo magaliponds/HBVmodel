@@ -1,0 +1,28 @@
+Messstelle:                ;Bürs (Brücke L82)
+HZB-Nummer:                ;200097
+HD-Nummer:                 ;
+DBMS-Nummer:               ;8001009
+Gewässer:                  ;Alvier
+Sachgebiet:                ;OWF
+Dienststelle:              ;HD-Vorarlberg
+Messstellenbetreiber:      ;Hydrographischer Dienst
+orogr.Einzugsgebiet [km²]: ;72,2
+
+Pegelnullpunkt:
+  gültig seit:             ;Höhe [m ü.A.]:
+   01.01.1976              ;564,42
+   01.01.1989              ;564,44
+
+Geographische Koordinaten (Referenzellipsoid: Bessel 1841):
+  gültig seit:             ;Länge (Grad,Min,Sek):    ;Breite  (Grad,Min,Sek):
+   01.01.1926              ;09 48 10                 ;47 09 05
+
+Messgrößen/Messart:
+  gültig seit:  gültig bis:;MessCode/Parameter/Messart:
+   01.01.1926              ;2111001110-1/OWF-W/Pegellatte-händische Messung
+   01.01.1926    01.01.1976;2111002220-2/OWF-W/Schwimmer (analog)-Schreibstreifen manuell
+   23.09.2009              ;2111005310-4/OWF-W/Drucksonde (direkt)-Datensammler
+   01.01.1976              ;2111006420-3/OWF-W/Pneumatic (analog)-digitalisiert
+   01.01.1990              ;2141004810-1/OWF-Q/Pegelschlüssel-händische Messung
+   23.09.2009              ;2161001110-1/OWF-WT/Fl (normal)-händische Messung
+   23.09.2009              ;2161003320-4/OWF-WT/Hleiter-Datensammler

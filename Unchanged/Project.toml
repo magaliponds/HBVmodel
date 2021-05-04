@@ -1,0 +1,6 @@
+authors = ["Sarah Hanus <sarah.hanus@posteo.de>"]
+name = "HBVModel"
+uuid = "fce40730-693c-11ea-2fb3-eba25019db79"
+version = "0.1.0"
+
+[deps]

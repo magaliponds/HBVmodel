@@ -1,0 +1,25 @@
+Messstelle:                ;Lorüns-Äule
+HZB-Nummer:                ;231662
+HD-Nummer:                 ;
+DBMS-Nummer:               ;8001054
+Gewässer:                  ;Ill
+Sachgebiet:                ;OWF
+Dienststelle:              ;HD-Vorarlberg
+Messstellenbetreiber:      ;Vorarlberger Illwerke-AG.
+orogr.Einzugsgebiet [km²]: ;535,2
+
+Pegelnullpunkt:
+  gültig seit:             ;Höhe [m ü.A.]:
+   01.01.1985              ;578,53
+
+Geographische Koordinaten (Referenzellipsoid: Bessel 1841):
+  gültig seit:             ;Länge (Grad,Min,Sek):    ;Breite  (Grad,Min,Sek):
+   01.01.1985              ;09 50 53                 ;47 08 00
+
+Messgrößen/Messart:
+  gültig seit:  gültig bis:;MessCode/Parameter/Messart:
+   01.01.1985              ;2111001110-1/OWF-W/Pegellatte-händische Messung
+   26.06.2012              ;2111002240-9/OWF-W/Schwimmer (Winkelcod.)-Datensammler -> DFÜ
+   01.01.1998              ;2111005310-9/OWF-W/Drucksonde (direkt)-Datensammler -> DFÜ
+   01.01.1985              ;2111006420-3/OWF-W/Pneumatic (analog)-digitalisiert
+   01.01.1985              ;2141004810-1/OWF-Q/Pegelschlüssel-händische Messung
