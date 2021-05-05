@@ -15,7 +15,8 @@ function aridity_evaporative_index_Paltental()
             Area_Zones = [198175943.0, 56544073.0, 115284451.3]
             Area_Catchment = sum(Area_Zones)
             Area_Zones_Percent = Area_Zones / Area_Catchment
-
+            Latitude = 47.516231 #Austria general
+            Latitude_paltental = 47.483
             Mean_Elevation_Catchment = 1300 # in reality 1314
             Elevations_Catchment = Elevations(200.0, 600.0, 2600.0, 648.0, 648.0)
             Sunhours_Vienna = [8.83, 10.26, 11.95, 13.75, 15.28, 16.11, 15.75, 14.36, 12.63, 10.9, 9.28, 8.43]
@@ -57,10 +58,15 @@ function aridity_evaporative_index_Paltental()
             Temperature = dropmissing(Temperature)
             Temperature_Array = Temperature.t / 10
             Precipitation_9900 = Temperature.nied / 10
+            Temperature_Min = Temperature.tmin /10
+            Temperature_Max = Temperature.tmax/10
+
             Timeseries_Temp = Date.(Temperature.datum, Dates.DateFormat("yyyymmdd"))
             startindex = findfirst(isequal(Date(startyear, 1, 1)), Timeseries_Temp)
             endindex = findfirst(isequal(Date(endyear, 12, 31)), Timeseries_Temp)
             Temperature_Daily = Temperature_Array[startindex[1]:endindex[1]]
+            Temperature_Daily_Min = Temperature_Min[startindex[1]:endindex[1]]
+            Temperature_Daily_Max = Temperature_Max[startindex[1]:endindex[1]]
             #Timeseries_Temp = Timeseries[startindex[1]:endindex[1]]
             Dates_Temperature_Daily = Timeseries_Temp[startindex[1]:endindex[1]]
             Dates_missing_Temp = Dates_Temperature_Daily[findall(x-> x == 999.9, Temperature_Daily)]
@@ -84,15 +90,24 @@ function aridity_evaporative_index_Paltental()
             Temperature_13120 = CSV.read(local_path*"HBVModel/Palten/prenner_tag_13120.dat", DataFrame, header = true, skipto = 3, delim = ' ', ignorerepeated = true)
             Temperature_13120 = dropmissing(Temperature_13120)
             Temperature_Array_13120 = Temperature_13120.t / 10
+            Temperature_Array_13120_min = Temperature_13120.tmin / 10
+            Temperature_Array_13120_max = Temperature_13120.tmax / 10
             Timeseries_13120 = Date.(Temperature_13120.datum, Dates.DateFormat("yyyymmdd"))
             index = Int[]
             for i in 1:length(Dates_missing_Temp)
                     append!(index, findall(x -> x == Dates_missing_Temp[i], Timeseries_13120))
             end
             Temperature_13120_missing_data = Temperature_Array_13120[index] + ones(length(index))*0.6
+            Temperature_13120_missing_data_min = Temperature_Array_13120_min[index] + ones(length(index))*0.6
+            Temperature_13120_missing_data_max = Temperature_Array_13120_max[index] + ones(length(index))*0.6
+
             Temperature_Daily[findall(x-> x == 999.9, Temperature_Daily)] .= Temperature_13120_missing_data
+            Temperature_Daily_Min[findall(x-> x == 999.9, Temperature_Daily_Min)] .= Temperature_13120_missing_data_min
+            Temperature_Daily_Max[findall(x-> x == 999.9, Temperature_Daily_Max)] .= Temperature_13120_missing_data_max
 
             Temperature_Daily_all = Array{Float64,1}(undef, 0)
+            Temperature_Daily_all_min = Array{Float64,1}(undef, 0)
+            Temperature_Daily_all_max = Array{Float64,1}(undef, 0)
             # index where Dates are missing
             index = findall(x -> x == Date(2003,3,17) - Day(1), Dates_Temperature_Daily)[1]
             index_missing_dataset = Int[]
@@ -104,7 +119,17 @@ function aridity_evaporative_index_Paltental()
             append!(Temperature_Daily_all, Temperature_Array_13120[index_missing_dataset] + ones(length(index_missing_dataset))*0.6)
             append!(Temperature_Daily_all, Temperature_Daily[index+1:end])
 
+            append!(Temperature_Daily_all_min, Temperature_Daily_Min[1:index])
+            append!(Temperature_Daily_all_min, Temperature_Array_13120_min[index_missing_dataset] + ones(length(index_missing_dataset))*0.6)
+            append!(Temperature_Daily_all_min, Temperature_Daily_Min[index+1:end])
+
+            append!(Temperature_Daily_all_max, Temperature_Daily_Max[1:index])
+            append!(Temperature_Daily_all_max, Temperature_Array_13120_max[index_missing_dataset] + ones(length(index_missing_dataset))*0.6)
+            append!(Temperature_Daily_all_max, Temperature_Daily_Max[index+1:end])
+
             Temperature_Daily = Temperature_Daily_all
+            Temperature_Daily_Min = Temperature_Daily_all_min
+            Temperature_Daily_Max = Temperature_Daily_all_max
             # ---------- Precipitation Data for Zone 9900 -------------------
 
             Precipitation_9900 = Precipitation_9900[startindex[1]:endindex[1]]
@@ -133,9 +158,23 @@ function aridity_evaporative_index_Paltental()
             # Dates_Temperature_Daily, Temperature_Daily = daily_mean(Temperature_Array)
             # get the temperature data at each elevation
             Elevation_Zone_Catchment, Temperature_Elevation_Catchment, Total_Elevationbands_Catchment = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily)
+            Elevation_Zone_Catchment_Min, Temperature_Elevation_Catchment_Min, Total_Elevationbands_Catchment_Min = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily_Min)
+            Elevation_Zone_Catchment_Max, Temperature_Elevation_Catchment_Max, Total_Elevationbands_Catchment_Max = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily_Max)
             # get the temperature data at the mean elevation to calculate the mean potential evaporation
             Temperature_Mean_Elevation = Temperature_Elevation_Catchment[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment)]
-            Epot_observed = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna)
+            Temperature_Mean_Elevation_Min = Temperature_Elevation_Catchment_Min[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Min)]
+            Temperature_Mean_Elevation_Max = Temperature_Elevation_Catchment_Max[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Max)]
+
+            Epot_observed_tw = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna)
+            Epot_observed_hg, radiation = getEpot(Temperature_Mean_Elevation_Min, Temperature_Mean_Elevation, Temperature_Mean_Elevation_Max, 0.162, Dates_Temperature_Daily_all, Latitude)
+            Plots.plot()
+            plot!(Dates_Temperature_Daily_all, Epot_observed_hg, label="Hargreaves")
+            plot!(Dates_Temperature_Daily_all, Epot_observed_tw, label="Thorthwaite")
+
+            xlabel!("Date")
+            ylabel!("Epot")
+
+            Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/PotentialEvaporation/Paltental_Epot_past.png")
 
             # ------------ LOAD OBSERVED DISCHARGE DATA ----------------
             Discharge = CSV.read(local_path*"HBVModel/Palten/Q-Tagesmittel-210815.csv", DataFrame, header= false, skipto=21, decimal=',', delim = ';', types=[String, Float64])
@@ -251,17 +290,24 @@ function aridity_evaporative_index_Paltental()
         # observed_AC_90day = autocorrelationcurve(Observed_Discharge_Obj, 90)[1]
         # observed_monthly_runoff = monthlyrunoff(Area_Catchment, Total_Precipitation_Obj, Observed_Discharge_Obj, Timeseries_Obj)[1]
 
-        Aridity_Index_observed = Float64[]
-        Aridity_Index_ = mean(Epot_observed) / mean(P_observed)
-        append!(Aridity_Index_observed, Aridity_Index_)
+        Aridity_Index_observed_tw = Float64[]
+        Aridity_Index_tw = mean(Epot_observed_tw) / mean(P_observed)
+        append!(Aridity_Index_observed_tw, Aridity_Index_tw)
+        #print(Aridity_Index_observed)
+
+        Aridity_Index_observed_hg = Float64[]
+        Aridity_Index_hg = mean(Epot_observed_hg) / mean(P_observed)
+        append!(Aridity_Index_observed_hg, Aridity_Index_hg)
         #print(Aridity_Index_observed)
 
         Evaporative_Index_observed = Float64[]
         Evaporative_Index_ = 1 - (mean(Q_observed) / mean(P_observed))
         append!(Evaporative_Index_observed, Evaporative_Index_)
-        # println(Evaporative_Index_observed)
-        # println(Aridity_Index_observed)
-        return Aridity_Index_, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
+        println("AI_hg: ", Aridity_Index_hg)
+        println("AI_tw: ", Aridity_Index_tw)
+        println("EI: ", Evaporative_Index_)
+
+        return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 
-print(aridity_evaporative_index_Paltental())
+aridity_evaporative_index_Paltental()

@@ -36,7 +36,8 @@ function aridity_evaporative_index_Silbertal()
         Area_Catchment = sum(Area_Zones)
         Area_Zones_Percent = Area_Zones / Area_Catchment
         #mean elevation needs to be determiend
-
+        Latitude = 47.516231 #Austria general
+        Latitude_silbertal = 47.0951
         Mean_Elevation_Catchment = 1700 #in reality 1776 # in reality 1842.413038
         Elevations_Catchment = Elevations(200.0, 600.0, 2800.0, 670.0, 670.0) # take Vadans for temp 670
         Sunhours_Vienna = [8.83, 10.26, 11.95, 13.75, 15.28, 16.11, 15.75, 14.36, 12.63, 10.9, 9.28, 8.43]
@@ -61,16 +62,39 @@ function aridity_evaporative_index_Silbertal()
         #hydrological year 13577:20881
         Temperature = dropmissing(Temperature)
         Temperature_Array = Temperature.t / 10
+        Temperature_Min = Temperature.tmin /10
+        Temperature_Max = Temperature.tmax/10
+
         Timeseries_Temp = Date.(Temperature.datum, Dates.DateFormat("yyyymmdd"))
         startindex = findfirst(isequal(Date(startyear, 1, 1)), Timeseries_Temp)
         endindex = findfirst(isequal(Date(endyear, 12, 31)), Timeseries_Temp)
         Temperature_Daily = Temperature_Array[startindex[1]:endindex[1]]
+        Temperature_Daily_Min = Temperature_Min[startindex[1]:endindex[1]]
+        Temperature_Daily_Max = Temperature_Max[startindex[1]:endindex[1]]
+
         Dates_Temperature_Daily = Timeseries_Temp[startindex[1]:endindex[1]]
         Dates_missing_Temp = Dates_Temperature_Daily[findall(x-> x == 999.9, Temperature_Daily)]
         Elevation_Zone_Catchment, Temperature_Elevation_Catchment, Total_Elevationbands_Catchment = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily)
+        Elevation_Zone_Catchment_Min, Temperature_Elevation_Catchment_Min, Total_Elevationbands_Catchment_Min = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily_Min)
+        Elevation_Zone_Catchment_Max, Temperature_Elevation_Catchment_Max, Total_Elevationbands_Catchment_Max = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily_Max)
+
         # get the temperature data at the mean elevation to calculate the mean potential evaporation
         Temperature_Mean_Elevation = Temperature_Elevation_Catchment[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment)]
-        Epot_observed = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Dates_Temperature_Daily, Sunhours_Vienna)
+        Temperature_Mean_Elevation_Min = Temperature_Elevation_Catchment_Min[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Min)]
+        Temperature_Mean_Elevation_Max = Temperature_Elevation_Catchment_Max[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Max)]
+
+        Epot_observed_tw = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna)
+        Epot_observed_hg, radiation = getEpot(Temperature_Mean_Elevation_Min, Temperature_Mean_Elevation, Temperature_Mean_Elevation_Max, 0.162, Dates_Temperature_Daily, Latitude)
+
+        Plots.plot()
+        plot!(Dates_Temperature_Daily, Epot_observed_hg, label="Hargreaves")
+        plot!(Dates_Temperature_Daily, Epot_observed_tw, label="Thorthwaite")
+
+        xlabel!("Date")
+        ylabel!("Epot")
+        #vline!([0.406])
+
+        Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/PotentialEvaporation/Silbertal_Epot_past.png")
 
         # ------------ LOAD OBSERVED DISCHARGE DATA ----------------
         Discharge = CSV.read(local_path*"HBVModel/Silbertal/Q-Tagesmittel-200048.csv", DataFrame, header= false, skipto=24, decimal=',', delim = ';', types=[String, Float64])
@@ -200,16 +224,24 @@ function aridity_evaporative_index_Silbertal()
         # observed_AC_90day = autocorrelationcurve(Observed_Discharge_Obj, 90)[1]
         # observed_monthly_runoff = monthlyrunoff(Area_Catchment, Total_Precipitation_Obj, Observed_Discharge_Obj, Timeseries_Obj)[1]
 
-        Aridity_Index_observed = Float64[]
-        Aridity_Index_ = mean(Epot_observed) / mean(P_observed)
-        append!(Aridity_Index_observed, Aridity_Index_)
-        #print(Aridity_Index_observed)
+    Aridity_Index_observed_tw = Float64[]
+    Aridity_Index_tw = mean(Epot_observed_tw) / mean(P_observed)
+    append!(Aridity_Index_observed_tw, Aridity_Index_tw)
+    #print(Aridity_Index_observed)
 
-        Evaporative_Index_observed = Float64[]
-        Evaporative_Index_ = 1 - (mean(Q_observed) / mean(P_observed))
-        append!(Evaporative_Index_observed, Evaporative_Index_)
-        # println(Evaporative_Index_observed)
-        # println(Aridity_Index_observed)
-        return Aridity_Index_, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
+    Aridity_Index_observed_hg = Float64[]
+    Aridity_Index_hg = mean(Epot_observed_hg) / mean(P_observed)
+    append!(Aridity_Index_observed_hg, Aridity_Index_hg)
+    #print(Aridity_Index_observed)
+
+    Evaporative_Index_observed = Float64[]
+    Evaporative_Index_ = 1 - (mean(Q_observed) / mean(P_observed))
+    append!(Evaporative_Index_observed, Evaporative_Index_)
+    # println(Evaporative_Index_observed)
+    # println(Aridity_Index_observed)
+    println("AI_hg: ", Aridity_Index_hg)
+    println("AI_tw: ", Aridity_Index_tw)
+    println("EI: ", Evaporative_Index_)
+    return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
-print(aridity_evaporative_index_Silbertal())
+aridity_evaporative_index_Silbertal()

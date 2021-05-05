@@ -37,7 +37,9 @@ function aridity_evaporative_index_Defreggental()
         Area_Zones_Percent = Area_Zones / Area_Catchment
         Snow_Threshold = 600
         Height_Threshold = 2700
-
+        #Latitude = 47+52/66
+        Latitude = 47.516231 #Austria general
+        Latitude_defreggental =46.9215#° N, 12.5196° E
         Mean_Elevation_Catchment =  2300 # in reality 2233.399986
         Elevations_Catchment = Elevations(200.0, 1000.0, 3600.0, 1385., 1385.) # take temp at 17700
         Sunhours_Vienna = [8.83, 10.26, 11.95, 13.75, 15.28, 16.11, 15.75, 14.36, 12.63, 10.9, 9.28, 8.43]
@@ -62,12 +64,21 @@ function aridity_evaporative_index_Defreggental()
         #hydrological year 13577:20881
         Temperature = dropmissing(Temperature)
         Temperature_Array = Temperature.t / 10
+        Temperature_Min = Temperature.tmin /10
+        Temperature_Max = Temperature.tmax/10
+
+
         Precipitation_17700 = Temperature.nied / 10
         Timeseries_Temp = Date.(Temperature.datum, Dates.DateFormat("yyyymmdd"))
         startindex = findfirst(isequal(Date(startyear, 1, 1)), Timeseries_Temp)
         endindex = findfirst(isequal(Date(endyear, 12, 31)), Timeseries_Temp)
+
         Temperature_Daily = Temperature_Array[startindex[1]:endindex[1]]
+        Temperature_Min_Daily = Temperature_Min[startindex[1]:endindex[1]]
+        Temperature_Max_Daily = Temperature_Max[startindex[1]:endindex[1]]
+
         Dates_Temperature_Daily = Timeseries_Temp[startindex[1]:endindex[1]]
+
         Precipitation_17700 = Precipitation_17700[startindex[1]:endindex[1]]
         Precipitation_17700[findall(x -> x == -0.1, Precipitation_17700)] .= 0.0
         # P_zone1 = Precipitation_17700
@@ -78,14 +89,35 @@ function aridity_evaporative_index_Defreggental()
         # # get the temperature data at each elevation
         Elevation_Zone_Catchment, Temperature_Elevation_Catchment, Total_Elevationbands_Catchment = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily)
         # # get the temperature data at the mean elevation to calculate the mean potential evaporation
+        Elevation_Zone_Catchment_Min, Temperature_Elevation_Catchment_Min, Total_Elevationbands_Catchment_Min = gettemperatureatelevation(Elevations_Catchment, Temperature_Min_Daily)
+        Elevation_Zone_Catchment_Max, Temperature_Elevation_Catchment_Max, Total_Elevationbands_Catchment_Max = gettemperatureatelevation(Elevations_Catchment, Temperature_Max_Daily)
+
         Temperature_Mean_Elevation = Temperature_Elevation_Catchment[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment)]
+        Temperature_Mean_Elevation_Min = Temperature_Elevation_Catchment_Min[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Min)]
+        Temperature_Mean_Elevation_Max = Temperature_Elevation_Catchment_Max[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Max)]
+
         Epot_obs_tw = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Dates_Temperature_Daily, Sunhours_Vienna)
         Epot_observed_tw = Array{Float64,1}[]
         Epot_observed_tw = Epot_obs_tw
 
-        Epot_obs_hg = epot_hargreaves(Temperature_Mean_Elevation, Dates_Temperature_Daily, Sunhours_Vienna)
-        Epot_observed_tw = Array{Float64,1}[]
-        Epot_observed_tw = Epot_obs_tw
+        # KT 0.162 for interior regions where land mass dominates, and
+        # 0.190 for coastal regions, where air masses are influenced by a nearby water body
+        # 0.17 for Salt Lake City
+        # Epot_obs_hg, radiation = getEpot(Temp_min::Array{Float64, 1}, Temp::Array{Float64, 1}, Temp_max::Array{Float64, 1}, KT::Float64, Timeseries::Array{Date, 1}, Latitude::Float64)
+        Epot_observed_hg, radiation = getEpot(Temperature_Mean_Elevation_Min, Temperature_Mean_Elevation, Temperature_Mean_Elevation_Max, 0.162, Dates_Temperature_Daily, Latitude)
+        Plots.plot()
+        plot!(Dates_Temperature_Daily, Epot_observed_hg, label="Hargreaves")
+        plot!(Dates_Temperature_Daily, Epot_observed_tw, label="Thorthwaite")
+
+        xlabel!("Date")
+        ylabel!("Epot")
+        #vline!([0.406])
+
+        Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/PotentialEvaporation/Defreggental_Epot_past.png")
+
+        # Epot_obs_hg =
+        # Epot_observed_hg = Array{Float64,1}[]
+        # Epot_observed_hg = Epot_obs_tw
 
         # ------------ LOAD OBSERVED DISCHARGE DATA ----------------
         Discharge = CSV.read(local_path*"HBVModel/Defreggental/Q-Tagesmittel-212100.csv", DataFrame, header= false, skipto=26, decimal=',', delim = ';', types=[String, Float64])
@@ -217,16 +249,26 @@ function aridity_evaporative_index_Defreggental()
         # observed_AC_90day = autocorrelationcurve(Observed_Discharge_Obj, 90)[1]
         # observed_monthly_runoff = monthlyrunoff(Area_Catchment, Total_Precipitation_Obj, Observed_Discharge_Obj, Timeseries_Obj)[1]
 
-        Aridity_Index_observed = Float64[]
-        Aridity_Index_ = mean(Epot_observed) / mean(P_observed)
-        append!(Aridity_Index_observed, Aridity_Index_)
+        Aridity_Index_observed_tw = Float64[]
+        Aridity_Index_tw = mean(Epot_observed_tw) / mean(P_observed)
+        append!(Aridity_Index_observed_tw, Aridity_Index_tw)
         #print(Aridity_Index_observed)
+
+        Aridity_Index_observed_hg = Float64[]
+        Aridity_Index_hg = mean(Epot_observed_hg) / mean(P_observed)
+        append!(Aridity_Index_observed_hg, Aridity_Index_hg)
+        #print(Aridity_Index_observed)
+        println("HGmean:", mean(Epot_observed_hg))
+        println("TWmean:", mean(Epot_observed_tw))
 
         Evaporative_Index_observed = Float64[]
         Evaporative_Index_ = 1 - (mean(Q_observed) / mean(P_observed))
         append!(Evaporative_Index_observed, Evaporative_Index_)
         # println(Evaporative_Index_observed)
         # println(Aridity_Index_observed)
-        return Aridity_Index_, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
+        println("AI_hg: ", Aridity_Index_hg)
+        println("AI_tw: ",Aridity_Index_tw)
+        println("EI: ", Evaporative_Index_)
+        return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
-print(aridity_evaporative_index_Defreggental())
+aridity_evaporative_index_Defreggental()

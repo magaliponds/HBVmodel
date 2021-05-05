@@ -15,6 +15,8 @@ function aridity_evaporative_index_Gailtal()
         Area_Catchment = sum(Area_Zones)
         Area_Zones_Percent = Area_Zones / Area_Catchment
 
+        Latitude = 47.516231 #Austria general
+        Latitude_gailtal = 46.633888888889
         Mean_Elevation_Catchment = 1500 # in reality 1476
         Elevations_Catchment = Elevations(200.0, 400.0, 2800.0,1140.0, 1140.0)
         Sunhours_Vienna = [8.83, 10.26, 11.95, 13.75, 15.28, 16.11, 15.75, 14.36, 12.63, 10.9, 9.28, 8.43]
