@@ -233,9 +233,9 @@ function aridity_evaporative_index_Pitztal()
     append!(Evaporative_Index_observed, Evaporative_Index_)
     # println(Evaporative_Index_observed)
     # println(Aridity_Index_observed)
-    println("AI_hg: ", Aridity_Index_hg)
-    println("AI_tw: ", Aridity_Index_tw)
-    println("EI: ", Evaporative_Index_)
+    # println("AI_hg: ", Aridity_Index_hg)
+    # println("AI_tw: ", Aridity_Index_tw)
+    # println("EI: ", Evaporative_Index_)
     return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 aridity_evaporative_index_Pitztal()

@@ -100,6 +100,7 @@ function aridity_evaporative_index_Gailtal()
                 df = dropmissing(df)
                 Precipitation_Array = Matrix(df)
 
+
                 Elevation_HRUs, Precipitation, Nr_Elevationbands = getprecipitationatelevation(Elevations_All_Zones[i], Precipitation_Gradient, Precipitation_Array[:,2])
                 push!(Precipitation_All_Zones, Precipitation)
                 push!(Nr_Elevationbands_All_Zones, Nr_Elevationbands)

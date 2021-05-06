@@ -258,17 +258,17 @@ function aridity_evaporative_index_Defreggental()
         Aridity_Index_hg = mean(Epot_observed_hg) / mean(P_observed)
         append!(Aridity_Index_observed_hg, Aridity_Index_hg)
         #print(Aridity_Index_observed)
-        println("HGmean:", mean(Epot_observed_hg))
-        println("TWmean:", mean(Epot_observed_tw))
+        # println("HGmean:", mean(Epot_observed_hg))
+        # println("TWmean:", mean(Epot_observed_tw))
 
         Evaporative_Index_observed = Float64[]
         Evaporative_Index_ = 1 - (mean(Q_observed) / mean(P_observed))
         append!(Evaporative_Index_observed, Evaporative_Index_)
         # println(Evaporative_Index_observed)
         # println(Aridity_Index_observed)
-        println("AI_hg: ", Aridity_Index_hg)
-        println("AI_tw: ",Aridity_Index_tw)
-        println("EI: ", Evaporative_Index_)
+        # println("AI_hg: ", Aridity_Index_hg)
+        # println("AI_tw: ",Aridity_Index_tw)
+        # println("EI: ", Evaporative_Index_)
         return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 aridity_evaporative_index_Defreggental()

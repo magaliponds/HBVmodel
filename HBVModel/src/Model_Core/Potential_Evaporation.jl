@@ -43,7 +43,8 @@ function getEpot(Temp_min::Array{Float64, 1}, Temp::Array{Float64, 1}, Temp_max:
         Current_Radiation = radiation(Latitude, Day)
         Current_Evaporation, Current_Rs = epot_hargreaves(Temp_min[t], Temp[t], Temp_max[t], KT, Current_Radiation)
         if isless(Current_Evaporation,0)
-            Current_Evaporation = 0
+             # print("Succesful less")
+             Current_Evaporation = 0
         end
         push!(Evaporation, Current_Evaporation)
         push!(Radiation, Current_Radiation)

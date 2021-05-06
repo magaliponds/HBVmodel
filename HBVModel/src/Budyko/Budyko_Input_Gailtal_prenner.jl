@@ -1,3 +1,21 @@
+using Plotly
+using DelimitedFiles
+using Plots
+using Statistics
+using StatsPlots
+using Plots.PlotMeasures
+using CSV
+
+using DocStringExtensions
+using SpecialFunctions
+# using JuMP
+# using GLPK
+# using Ipopt
+# using Optim
+# using Optim: converged, maximum, maximizer, minimizer, iterations
+using NLsolve
+using DataFrames
+using Dates
 
 """
 Calculates the aridity and evaporative index for all climate projections with best parameter sets for the given path.
@@ -34,18 +52,58 @@ function aridity_evaporative_index_Gailtal()
 
         #------------ TEMPERATURE AND POT. EVAPORATION CALCULATIONS ---------------------
         #Temperature is the same in whole catchment
-        Temperature = CSV.read(local_path*"HBVModel/Gailtal/LTkont113597.csv", DataFrame, header=false, skipto = 20, missingstring = "L\xfccke", decimal='.', delim = ';')
-        Temperature_Array = Matrix(Temperature)
-        startindex = findfirst(isequal("01.01."*string(startyear)*" 07:00:00"), Temperature_Array)
-        endindex = findfirst(isequal("31.12."*string(endyear)*" 23:00:00"), Temperature_Array)
-        Temperature_Array = Temperature_Array[startindex[1]:endindex[1],:]
-        Temperature_Array[:,1] = Date.(Temperature_Array[:,1], Dates.DateFormat("d.m.y H:M:S"))
-        Dates_Temperature_Daily, Temperature_Daily = daily_mean(Temperature_Array)
-        # get the temperature data at each elevation
+        Temperature = CSV.read(local_path*"HBVModel/Gailtal/prenner_tag_19710.dat", DataFrame, header = true, skipto = 3, delim = ' ', ignorerepeated = true)
+        Temperature_Array = dropmissing(Temperature)
+
+        # startindex = findfirst(isequal("01.01."*string(startyear)*" 07:00:00"), Temperature_Array)
+        # endindex = findfirst(isequal("31.12."*string(endyear)*" 23:00:00"), Temperature_Array)
+        # Temperature_Array = Temperature_Array[startindex[1]:endindex[1],:]
+        # Temperature_Array[:,1] = Date.(Temperature_Array[:,1], Dates.DateFormat("d.m.y H:M:S"))
+        # Dates_Temperature_Daily, Temperature_Daily = daily_mean(Temperature_Array)
+        # # get the temperature data at each elevation
+        # Elevation_Zone_Catchment, Temperature_Elevation_Catchment, Total_Elevationbands_Catchment = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily)
+        # # get the temperature data at the mean elevation to calculate the mean potential evaporation
+        # Temperature_Mean_Elevation = Temperature_Elevation_Catchment[:,findfirst(x-> x==1500, Elevation_Zone_Catchment)]
+        # Epot_observed = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Dates_Temperature_Daily, Sunhours_Vienna)
+        Temperature_Array = Temperature.t / 10
+        Temperature_Min = Temperature.tmin /10
+        Temperature_Max = Temperature.tmax/10
+        Temperature_date = Temperature.datum
+        Timeseries_Temp = Date.(Temperature_date, Dates.DateFormat("yyyymmdd"))
+        startindex = findfirst(isequal(Date(startyear, 1, 1)), Timeseries_Temp)
+        endindex = findfirst(isequal(Date(endyear, 12, 31)), Timeseries_Temp)
+
+        Temperature_Daily = Temperature_Array[startindex[1]:endindex[1]]
+        Temperature_Daily_Min = Temperature_Min[startindex[1]:endindex[1]]
+        Temperature_Daily_Max = Temperature_Max[startindex[1]:endindex[1]]
+
+
+        #Timeseries_Temp = Timeseries[startindex[1]:endindex[1]]
+        Dates_Temperature_Daily = Timeseries_Temp[startindex[1]:endindex[1]]
+
+        # Dates_missing_Temp = Dates_Temperature_Daily[findall(x-> x == 999.9, Temperature_Daily)]
+        # @assert Dates_Temperature_Daily == Timeseries
         Elevation_Zone_Catchment, Temperature_Elevation_Catchment, Total_Elevationbands_Catchment = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily)
+        Elevation_Zone_Catchment_Min, Temperature_Elevation_Catchment_Min, Total_Elevationbands_Catchment_Min = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily_Min)
+        Elevation_Zone_Catchment_Max, Temperature_Elevation_Catchment_Max, Total_Elevationbands_Catchment_Max = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily_Max)
+
         # get the temperature data at the mean elevation to calculate the mean potential evaporation
-        Temperature_Mean_Elevation = Temperature_Elevation_Catchment[:,findfirst(x-> x==1500, Elevation_Zone_Catchment)]
-        Epot_observed = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Dates_Temperature_Daily, Sunhours_Vienna)
+        Temperature_Mean_Elevation = Temperature_Elevation_Catchment[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment)]
+        Temperature_Mean_Elevation_Min = Temperature_Elevation_Catchment_Min[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Min)]
+        Temperature_Mean_Elevation_Max = Temperature_Elevation_Catchment_Max[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Max)]
+
+        Epot_observed_tw = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna)
+        Epot_observed_hg, radiation = getEpot(Temperature_Mean_Elevation_Min, Temperature_Mean_Elevation, Temperature_Mean_Elevation_Max, 0.162, Dates_Temperature_Daily, Latitude)
+
+        Plots.plot()
+        plot!(Dates_Temperature_Daily, Epot_observed_hg, label="Hargreaves")
+        plot!(Dates_Temperature_Daily, Epot_observed_tw, label="Thorthwaite")
+
+        xlabel!("Date")
+        ylabel!("Epot")
+        #vline!([0.406])
+
+        Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/PotentialEvaporation/Pitztal_Epot_past.png")
 
         # ------------ LOAD OBSERVED DISCHARGE DATA ----------------
         Discharge = CSV.read(local_path*"HBVModel/Gailtal/Q-Tagesmittel-212670.csv", DataFrame, header= false, skipto=23, decimal=',', delim = ';', types=[String, Float64])
