@@ -105,15 +105,15 @@ function aridity_evaporative_index_Defreggental()
         # 0.17 for Salt Lake City
         # Epot_obs_hg, radiation = getEpot(Temp_min::Array{Float64, 1}, Temp::Array{Float64, 1}, Temp_max::Array{Float64, 1}, KT::Float64, Timeseries::Array{Date, 1}, Latitude::Float64)
         Epot_observed_hg, radiation = getEpot(Temperature_Mean_Elevation_Min, Temperature_Mean_Elevation, Temperature_Mean_Elevation_Max, 0.162, Dates_Temperature_Daily, Latitude)
-        Plots.plot()
-        plot!(Dates_Temperature_Daily, Epot_observed_hg, label="Hargreaves")
-        plot!(Dates_Temperature_Daily, Epot_observed_tw, label="Thorthwaite")
-
-        xlabel!("Date")
-        ylabel!("Epot")
-        #vline!([0.406])
-
-        Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/PotentialEvaporation/Defreggental_Epot_past.png")
+        # Plots.plot()
+        # plot!(Dates_Temperature_Daily, Epot_observed_hg, label="Hargreaves")
+        # plot!(Dates_Temperature_Daily, Epot_observed_tw, label="Thorthwaite")
+        #
+        # xlabel!("Date")
+        # ylabel!("Epot")
+        # #vline!([0.406])
+        #
+        # Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/PotentialEvaporation/Defreggental_Epot_past.png")
 
         # Epot_obs_hg =
         # Epot_observed_hg = Array{Float64,1}[]

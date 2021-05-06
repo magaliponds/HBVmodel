@@ -24,7 +24,7 @@ $(SIGNATURES)
 The function returns the past and future aridity index (Array length: Number of climate projections) and past and future evaporative index (Array Length: Number Climate Projections x Number Parameter Sets).
     It takes as input the path to the projections.
 """
-function aridity_evaporative_index_Gailtal()
+function aridity_evaporative_index_Gailtal_prenner()
 
     local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
     ID_Prec_Zones = [113589, 113597, 113670, 114538]
@@ -217,4 +217,4 @@ function aridity_evaporative_index_Gailtal()
         return Aridity_Index_, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 
-print(aridity_evaporative_index_Gailtal())
+print(aridity_evaporative_index_Gailtal_prenner())

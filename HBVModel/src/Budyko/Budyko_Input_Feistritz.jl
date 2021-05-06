@@ -70,15 +70,15 @@ function aridity_evaporative_index_Feistritz()
     Epot_observed_tw= getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna)
     Epot_observed_hg, radiation = getEpot(Temperature_Mean_Elevation_Min, Temperature_Mean_Elevation, Temperature_Mean_Elevation_Max, 0.162, Timeseries_Temp, Latitude)
 
-    Plots.plot()
-    plot!(Timeseries_Temp, Epot_observed_hg, label="Hargreaves")
-    plot!(Timeseries_Temp, Epot_observed_tw, label="Thorthwaite")
-
-    xlabel!("Date")
-    ylabel!("Epot")
-    #vline!([0.406])
-
-    Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/PotentialEvaporation/Feistritz_Epot_past.png")
+    # Plots.plot()
+    # plot!(Timeseries_Temp, Epot_observed_hg, label="Hargreaves")
+    # plot!(Timeseries_Temp, Epot_observed_tw, label="Thorthwaite")
+    #
+    # xlabel!("Date")
+    # ylabel!("Epot")
+    # #vline!([0.406])
+    #
+    # Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/PotentialEvaporation/Feistritz_Epot_past.png")
 
     # ------------ LOAD OBSERVED DISCHARGE DATA ----------------
     Discharge = CSV.read(local_path*"HBVModel/Feistritz/Q-Tagesmittel-214353.csv", DataFrame, header= false, skipto=388, decimal=',', delim = ';', types=[String, Float64])
