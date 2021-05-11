@@ -1,11 +1,31 @@
+using Plotly
+using DelimitedFiles
+using Plots
+using Statistics
+using StatsPlots
+using Plots.PlotMeasures
+using CSV
+using Dates
+using DocStringExtensions
+using SpecialFunctions
+# using JuMP
+# using GLPK
+# using Ipopt
+# using Optim
+# using Optim: converged, maximum, maximizer, minimizer, iterations
+using NLsolve
+using DataFrames
 
 """
 Calculates the aridity and evaporative index for all climate projections with best parameter sets for the given path.
 For the calculations the mean discharge, potential evaporation and precipitation over the whole time period is taken.
+
 $(SIGNATURES)
+
 The function returns the past and future aridity index (Array length: Number of climate projections) and past and future evaporative index (Array Length: Number Climate Projections x Number Parameter Sets).
     It takes as input the path to the projections.
 """
+
 function aridity_evaporative_index_Gailtal()
 
     local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
@@ -161,3 +181,129 @@ function aridity_evaporative_index_Gailtal()
 end
 
 print(aridity_evaporative_index_Gailtal())
+
+function runoff_coefficient_Gailtal(path_to_projection)
+
+    local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
+    ID_Prec_Zones = [113589, 113597, 113670, 114538]
+        # size of the area of precipitation zones
+    Area_Zones = [98227533.0, 184294158.0, 83478138.0, 220613195.0]
+    Area_Catchment = sum(Area_Zones)
+    Area_Zones_Percent = Area_Zones / Area_Catchment
+
+    Latitude = 47.516231 #Austria general
+    Latitude_gailtal = 46.633888888889
+    Mean_Elevation_Catchment = 1500 # in reality 1476
+    Elevations_Catchment = Elevations(200.0, 400.0, 2800.0,1140.0, 1140.0)
+    Sunhours_Vienna = [8.83, 10.26, 11.95, 13.75, 15.28, 16.11, 15.75, 14.36, 12.63, 10.9, 9.28, 8.43]
+    # where to skip to in data file of precipitation measurements
+    Skipto = [24, 22, 22, 22]
+    # get the areal percentage of all elevation zones in the HRUs in the precipitation zones
+    Areas_HRUs =  CSV.read(local_path*"HBVModel/Gailtal/HBV_Area_Elevation.csv", DataFrame, skipto=2, decimal=',', delim = ';')
+    # get the percentage of each HRU of the precipitation zone
+    Percentage_HRU = CSV.read(local_path*"HBVModel/Gailtal/HRUPercentage.csv", DataFrame, header=[1], decimal=',', delim = ';')
+    Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
+
+# ------------ LOAD TIMESERIES DATA AS DATES ------------------
+    # load the timeseries and get indexes of start and end
+    Timeseries = readdlm(path_to_projection*"pr_model_timeseries.txt")
+    Timeseries = Date.(Timeseries, Dates.DateFormat("y,m,d"))
+    indexstart_Proj = findfirst(x-> x == startyear, Dates.year.(Timeseries))[1]
+    indexend_Proj = findlast(x-> x == endyear, Dates.year.(Timeseries))[1]
+    Timeseries = Timeseries[indexstart_Proj:indexend_Proj]
+    firstyear = Dates.year(Timeseries[1])
+    lastyear = Dates.year(Timeseries[end])
+
+
+    #------------ TEMPERATURE AND POT. EVAPORATION CALCULATIONS ---------------------
+    #Temperature is the same in whole catchment
+    # Temperature Measurements are taken at Maria Luggau
+    Projections_Temperature = readdlm(path_to_projection*"tas_113597_sim1.txt", ',')
+    Temperature_Daily = Projections_Temperature[indexstart_Proj:indexend_Proj] ./ 10
+    Temperature_Daily = Temperature_Daily[:,1]
+
+    # get the temperature data at each elevation
+    Elevation_Zone_Catchment, Temperature_Elevation_Catchment, Total_Elevationbands_Catchment = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily)
+    # get the temperature data at the mean elevation to calculate the mean potential evaporation
+    Temperature_Mean_Elevation = Temperature_Elevation_Catchment[:,findfirst(x-> x==1500, Elevation_Zone_Catchment)]
+    Epot_projected_tw = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna)
+
+    # ------------ LOAD TIMESERIES DATA AS DATES ------------------
+    #Timeseries = Date.(Discharge[startindex[1]:endindex[1],1], Dates.DateFormat("d.m.y H:M:S"))
+    firstyear = Dates.year(Timeseries[1])
+    lastyear = Dates.year(Timeseries[end])
+
+# ------------- LOAD PRECIPITATION DATA OF EACH PRECIPITATION ZONE ----------------------
+    # get elevations at which precipitation was measured in each precipitation zone
+    # changed to 1400 in 2003
+    Elevations_113589 = Elevations(200., 1000., 2600., 1430.,1140)
+    Elevations_113597 = Elevations(200, 800, 2800, 1140, 1140)
+    Elevations_113670 = Elevations(200, 400, 2400, 635, 1140)
+    Elevations_114538 = Elevations(200, 600, 2400, 705, 1140)
+    Elevations_All_Zones = [Elevations_113589, Elevations_113597, Elevations_113670, Elevations_114538]
+
+    #initiate the the arrays for saving relevant data
+    Total_Discharge = zeros(length(Temperature_Daily))
+    Inputs_All_Zones = Array{HRU_Input, 1}[]
+    Storages_All_Zones = Array{Storages, 1}[]
+    Precipitation_All_Zones = Array{Float64, 2}[]
+    Precipitation_Gradient = 0.0
+    Elevation_Percentage = Array{Float64, 1}[]
+    Nr_Elevationbands_All_Zones = Int64[]
+    Elevations_Each_Precipitation_Zone = Array{Float64, 1}[]
+
+    for i in 1: length(ID_Prec_Zones)
+            # get precipitation projections for the precipitation measurement
+        Precipitation_Zone = readdlm(path_to_projection*"pr_"*string(ID_Prec_Zones[i])*"_sim1.txt", ',')
+        Precipitation_Zone = Precipitation_Zone[indexstart_Proj:indexend_Proj] ./ 10
+
+        Elevation_HRUs, Precipitation, Nr_Elevationbands = getprecipitationatelevation(Elevations_All_Zones[i], Precipitation_Gradient, Precipitation_Zone)
+        push!(Precipitation_All_Zones, Precipitation)
+        push!(Nr_Elevationbands_All_Zones, Nr_Elevationbands)
+        push!(Elevations_Each_Precipitation_Zone, Elevation_HRUs)
+        end
+
+
+
+    # ---------------- CALCULATE OBSERVED OBJECTIVE FUNCTIONS -------------------------------------
+    # calculate the sum of precipitation of all precipitation zones to calculate objective functions
+    P_projected= Precipitation_All_Zones[1][:,1]*Area_Zones_Percent[1] + Precipitation_All_Zones[2][:,1]*Area_Zones_Percent[2] + Precipitation_All_Zones[3][:,1]*Area_Zones_Percent[3] + Precipitation_All_Zones[4][:,1]*Area_Zones_Percent[4]
+    w_tw=Float64[]
+    #w_hg=Float64[]
+    Catchment_data =  CSV.read(local_path*"Results/Projections/Budyko/Past/All_catchments_omega_all.csv", DataFrame, header= true, decimal='.', delim = ',', types=[String, Float64, Float64, Float64, Float64, Float64])
+    for i in 1:length(Catchment_data[:,1])
+        if Catchment_data.Catchment[i] == "Gailtal"
+            append!(w_tw, Catchment_data.w_specific_tw[i])
+            #append!(w_hg, Catchment_data.w_specific_hg[i])
+        end
+    end
+
+    Epot_Prec = collect(0:0.1:5)
+    Budyko_Eact_P_fu = (ones(length(Epot_Prec))) + Epot_Prec .* ones(length(Epot_Prec)) - ((ones(length(Epot_Prec)))+ Epot_Prec.^w_tw).^(1/w_tw)
+
+
+    Aridity_Index_projected_tw = Float64[]
+    Aridity_Index_tw = mean(Epot_projected_tw) / mean(P_projected)
+    append!(Aridity_Index_projected_tw, Aridity_Index_tw)
+
+    # Aridity_Index_projected_hg = Float64[]
+    # Aridity_Index_hg = mean(Epot_projected_hg) / mean(P_projected)
+    # append!(Aridity_Index_projected_hg, Aridity_Index_hg)
+
+    Evaporative_Index_projected_tw =  (ones(length(Aridity_Index_tw))) + Aridity_Index_tw .* ones(length(Aridity_Index_tw)) - ((ones(length(Aridity_Index_tw)))+ Aridity_Index_tw.^w_tw).^(1/w_tw)
+    # Evaporative_Index_projected_hg =  (ones(length(Aridity_Index_hg))) + Aridity_Index_hg .* ones(length(Aridity_Index_hg)) - ((ones(length(Aridity_Index_hg)))+ Aridity_Index_hg.^w_hg).^(1/w_hg)
+    #
+    # Runoff_coefficient_hg = 1-Evaporative_Index_projected_hg[1]
+    Runoff_coefficient_tw = 1-Evaporative_Index_projected_tw[1]
+    # Aridity_Index_observed_hg = Float64[]
+    # Aridity_Index_hg = mean(Epot_observed_hg) / mean(P_observed)
+    # append!(Aridity_Index_observed_hg, Aridity_Index_hg)
+    #
+    # Evaporative_Index_observed = Float64[]
+    # Evaporative_Index_ = 1 - (mean(Q_observed) / mean(P_observed))
+    # append!(Evaporative_Index_observed, Evaporative_Index_)
+    return Aridity_Index_tw, Evaporative_Index_projected_tw[1], Runoff_coefficient_tw
+    # return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
+end
+
+print(runoff_coefficient_Gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/climate_simulations/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Gailtal/"))

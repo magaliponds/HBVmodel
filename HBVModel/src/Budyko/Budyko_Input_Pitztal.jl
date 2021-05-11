@@ -233,15 +233,15 @@ function aridity_evaporative_index_Pitztal()
     Evaporative_Index_ = 1 - (mean(Q_observed) / mean(P_observed))
     append!(Evaporative_Index_observed, Evaporative_Index_)
 
-    daily_WB, WB, Total_WB, Annual_Prec, Annual_Epot, Annual_Discharge = checkwaterbalance(P_observed, Observed_Discharge, Epot_observed_tw, Area_Catchment)
-      println("Daily WB ",daily_WB)
-      println("WB ",WB)
-      println("TotalWB ",Total_WB)
-      println("annual Prec ",Annual_Prec)
-      println("Annual Epot ",Annual_Epot)
-      println("Annual Discharge ",Annual_Discharge)
-
-      println(Total_WB/sum(Annual_Discharge))
+    # daily_WB, WB, Total_WB, Annual_Prec, Annual_Epot, Annual_Discharge = checkwaterbalance(P_observed, Observed_Discharge, Epot_observed_tw, Area_Catchment)
+    #   println("Daily WB ",daily_WB)
+    #   println("WB ",WB)
+    #   println("TotalWB ",Total_WB)
+    #   println("annual Prec ",Annual_Prec)
+    #   println("Annual Epot ",Annual_Epot)
+    #   println("Annual Discharge ",Annual_Discharge)
+    #
+    #   println(Total_WB/sum(Annual_Discharge))
     # WB = Float64[]
     # Waterbalance = Float64[]
     # WB_Pitztal_loss = zeros(length(P_observed))
