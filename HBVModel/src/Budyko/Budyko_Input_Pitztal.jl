@@ -116,7 +116,8 @@ function aridity_evaporative_index_Pitztal()
         Observed_Discharge = Array{Float64,1}[]
         push!(Observed_Discharge, Discharge[startindex[1]:endindex[1],2])
         Observed_Discharge = Observed_Discharge[1]
-        Q_observed = Observed_Discharge * 1000 / Area_Catchment * (3600 * 24)
+        #scale_factor_Discharge = 1.02
+        Q_observed = Observed_Discharge * 1000 / Area_Catchment * (3600 * 24) #* scale_factor_Discharge
 
         # ------------ LOAD TIMESERIES DATA AS DATES ------------------
         #Timeseries = Date.(Discharge[startindex[1]:endindex[1],1], Dates.DateFormat("d.m.y H:M:S"))
@@ -195,7 +196,7 @@ function aridity_evaporative_index_Pitztal()
         # end
         # ---------------- CALCULATE OBSERVED OBJECTIVE FUNCTIONS -------------------------------------
         # calculate the sum of precipitation of all precipitation zones to calculate objective functions
-        P_observed = Total_Precipitation = Precipitation_All_Zones[1][:,1]*Area_Zones_Percent[1] + Precipitation_All_Zones[2][:,1]*Area_Zones_Percent[2]
+        P_observed = Precipitation_All_Zones[1][:,1]*Area_Zones_Percent[1] + Precipitation_All_Zones[2][:,1]*Area_Zones_Percent[2]
         # index_spinup = findfirst(x -> Dates.year(x) == firstyear + 2 && Dates.month(x) == 10, Timeseries)
         # # evaluations chouls alsways contain whole year
         # index_lastdate = findfirst(x -> Dates.year(x) == lastyear && Dates.month(x) == 10, Timeseries) - 1
@@ -218,7 +219,7 @@ function aridity_evaporative_index_Pitztal()
         # observed_AC_90day = autocorrelationcurve(Observed_Discharge_Obj, 90)[1]
         # observed_monthly_runoff = monthlyrunoff(Area_Catchment, Total_Precipitation_Obj, Observed_Discharge_Obj, Timeseries_Obj)[1]
 
-        Aridity_Index_observed_tw = Float64[]
+    Aridity_Index_observed_tw = Float64[]
     Aridity_Index_tw = mean(Epot_observed_tw) / mean(P_observed)
     append!(Aridity_Index_observed_tw, Aridity_Index_tw)
     #print(Aridity_Index_observed)
@@ -231,11 +232,59 @@ function aridity_evaporative_index_Pitztal()
     Evaporative_Index_observed = Float64[]
     Evaporative_Index_ = 1 - (mean(Q_observed) / mean(P_observed))
     append!(Evaporative_Index_observed, Evaporative_Index_)
+
+    daily_WB, WB, Total_WB, Annual_Prec, Annual_Epot, Annual_Discharge = checkwaterbalance(P_observed, Observed_Discharge, Epot_observed_tw, Area_Catchment)
+      println("Daily WB ",daily_WB)
+      println("WB ",WB)
+      println("TotalWB ",Total_WB)
+      println("annual Prec ",Annual_Prec)
+      println("Annual Epot ",Annual_Epot)
+      println("Annual Discharge ",Annual_Discharge)
+
+      println(Total_WB/sum(Annual_Discharge))
+    # WB = Float64[]
+    # Waterbalance = Float64[]
+    # WB_Pitztal_loss = zeros(length(P_observed))
+    # Evaporative_Index_corrected= Float64[]
+    # Ea_P_corrected = zeros(length(P_observed))
+    # scale = ones(length(P_observed))
+    # count=0
+    # for i in 1:length(P_observed)
+    #
+    #     if P_observed[i] <= 0
+    #         WB_tw = 1
+    #     else
+    #         WB_tw = 1 - Q_observed[i]/P_observed[i]
+    #     end
+    #
+    #     append!(WB, WB_tw)
+    #
+    #
+    #     if WB[i] <=0
+    #         WB[i] =0
+    #     end
+    #     # println(WB[i])
+    # end
+
+    # WB_pot = P_observed[i] .- Q_observed[i] .- Epot_observed_tw[i]
+    # append!(Waterbalance, WB_pot)
+    # if WB_pot <=0
+    #     scale[i] = (Q_observed[i] + WB_pot) /Q_observed[i]
+    # end
+    # if Epot_observed_tw[i] <=0
+    #     count+=1
+    # end
+    # # print(mean(WB))
+    # # print(WB_Pitztal_loss[100:200])
+    #
+    # end
+    # print(count[1])
+    #print(scale[1:100])
     # println(Evaporative_Index_observed)
     # println(Aridity_Index_observed)
     # println("AI_hg: ", Aridity_Index_hg)
     # println("AI_tw: ", Aridity_Index_tw)
     # println("EI: ", Evaporative_Index_)
-    return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
+    return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_#, Evaporative_Index_c #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 aridity_evaporative_index_Pitztal()

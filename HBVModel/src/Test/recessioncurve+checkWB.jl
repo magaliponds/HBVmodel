@@ -1,4 +1,4 @@
-/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/HBVModelusing DataFrames
+using DataFrames
 using Plots
 using GLM
 using DocStringExtensions
@@ -164,8 +164,8 @@ function checkwaterbalance(Total_Precipitation, Discharge, Potential_Evaporation
         Annual_Precipitation = Float64[]
         Observed_Discharge_mm = Discharge
         Observed_Discharge_mm = convertDischarge(Discharge, Area)
-        print(sum(Observed_Discharge_mm))
-        for i in 1:6
+        println(sum(Observed_Discharge_mm))
+        for i in 1:20
                 year = 1985 + i
                 if i > 1
                         startday = 1 + total_days
@@ -184,16 +184,25 @@ function checkwaterbalance(Total_Precipitation, Discharge, Potential_Evaporation
                 append!(Annual_Precipitation, Current_Annual_Precipitation)
                 total_days += days
         end
-        Average_Annual_Precipitation = mean(Annual_Precipitation)
+        #annual precipitaiton is sum of precipitation in a year, 6 years
+        Average_Annual_Precipitation = mean(Annual_Precipitation) #mean yearly sum precipitation
         Average_Annual_Discharge = mean(Annual_Discharge)
         Average_Annual_Pot_Evap_Thorn_Daily = mean(Annual_Pot_Evap_Thorn_Daily)
-        println(Average_Annual_Discharge, " ", Average_Annual_Precipitation, " ", Average_Annual_Pot_Evap_Thorn_Daily)
+        #println(Average_Annual_Discharge, " ", Average_Annual_Precipitation, " ", Average_Annual_Pot_Evap_Thorn_Daily)
         #Average_Annual_Pot_Evap_Hagreaves = mean(Annual_Pot_Evap_Hagreaves)
         Waterbalance_Thorn_Daily = Average_Annual_Precipitation - Average_Annual_Discharge - Average_Annual_Pot_Evap_Thorn_Daily
-        println(Waterbalance_Thorn_Daily)
-        println(sum(Annual_Discharge))
+        #println(Waterbalance_Thorn_Daily)
+        #println(sum(Annual_Discharge))
         Waterbalance_Yearly = Annual_Precipitation - Annual_Discharge - Annual_Pot_Evap_Thorn_Daily
-        Total_Waterbalance = sum(Annual_Precipitation) - sum(Annual_Discharge) - sum(Annual_Pot_Evap_Thorn_Daily)
+        Total_Waterbalance = sum(Annual_Precipitation) - sum(Annual_Discharge) - sum(Annual_Pot_Evap_Thorn_Daily) #Sum of all years inlcuded
+
+        current_discharge = Average_Annual_Discharge./Average_Annual_Precipitation
+        print("compared discharges",current_discharge)
+        D1,D2,D3,D4=budyko_discharge(Average_Annual_Pot_Evap_Thorn_Daily, Average_Annual_Precipitation)
+        println("Budyko discharges", D1," ",D2," ",D3," ",D4)
+
+        scalefactor = current_discharge/D1
+        println("scale", scalefactor)
         return Waterbalance_Thorn_Daily, Waterbalance_Yearly, Total_Waterbalance, Annual_Precipitation, Annual_Pot_Evap_Thorn_Daily, Annual_Discharge
 end
 

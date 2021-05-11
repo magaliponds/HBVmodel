@@ -83,7 +83,6 @@ function aridity_evaporative_index_Paltental()
             append!(Dates_Temperature_Daily_all, Dates_Temperature_Daily[index+1:end])
 
 
-
             @assert Dates_Temperature_Daily_all == Timeseries
             # ----------- add Temperature for missing temperature -------------------
             # station 13120 is 100 m higher than station 9900, so 0.6 °C colder
@@ -186,7 +185,6 @@ function aridity_evaporative_index_Paltental()
             Observed_Discharge = Observed_Discharge[1]
             # transfer Observed Discharge to mm/d
             Q_observed = Observed_Discharge * 1000 / Area_Catchment * (3600 * 24)
-
             # ------------ LOAD TIMESERIES DATA AS DATES ------------------
             #Timeseries = Date.(Discharge[startindex[1]:endindex[1],1], Dates.DateFormat("d.m.y H:M:S"))
             firstyear = Dates.year(Timeseries[1])
@@ -307,7 +305,16 @@ function aridity_evaporative_index_Paltental()
         # println("AI_tw: ", Aridity_Index_tw)
         # println("EI: ", Evaporative_Index_)
 
-        return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
+    # daily_WB, WB, Total_WB, Annual_Prec, Annual_Epot, Annual_Discharge = checkwaterbalance(P_observed, Observed_Discharge, Epot_observed_tw, Area_Catchment)
+    # println("Daily WB ",daily_WB)
+    # println("WB ",WB)
+    # println("TotalWB ",Total_WB)
+    # println("annual Prec ",Annual_Prec)
+    # println("Annual Epot ",Annual_Epot)
+    # println("Annual Discharge ",Annual_Discharge)
+
+
+    return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 
 aridity_evaporative_index_Paltental()
