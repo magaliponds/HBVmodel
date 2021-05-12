@@ -15,6 +15,7 @@ using SpecialFunctions
 # using Optim: converged, maximum, maximizer, minimizer, iterations
 using NLsolve
 using DataFrames
+#using PlotlyBase
 
 """
 Calculates the aridity and evaporative index for all climate projections with best parameter sets for the given path.
@@ -177,9 +178,9 @@ function aridity_evaporative_index_Defreggental()
 
         return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
-aridity_evaporative_index_Defreggental()
+#aridity_evaporative_index_Defreggental()
 
-function runoff_coefficient_Defreggental(path_to_projection)
+function runoff_coefficient_Defreggental(path_to_projection, startyear, endyear)
 
     local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
 
@@ -205,8 +206,8 @@ function runoff_coefficient_Defreggental(path_to_projection)
         Percentage_HRU = CSV.read(local_path*"HBVModel/Defreggental/HRU_Prec_Zones.csv", DataFrame, header=[1], decimal='.', delim = ',')
         Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
         scale_factor_Discharge = 0.65
-        startyear = 1983
-        endyear = 2005
+        # startyear = 1983
+        # endyear = 2005
         # ------------ LOAD TIMESERIES DATA AS DATES ------------------
         # load the timeseries and get indexes of start and end
         Timeseries = readdlm(path_to_projection*"pr_model_timeseries.txt")
@@ -325,4 +326,4 @@ function runoff_coefficient_Defreggental(path_to_projection)
         # return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 
-print(runoff_coefficient_Defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/"))
+#print(runoff_coefficient_Defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/"))

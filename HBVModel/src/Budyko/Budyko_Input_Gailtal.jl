@@ -180,9 +180,9 @@ function aridity_evaporative_index_Gailtal()
         return Aridity_Index_, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 
-print(aridity_evaporative_index_Gailtal())
+#print(aridity_evaporative_index_Gailtal())
 
-function runoff_coefficient_Gailtal(path_to_projection)
+function runoff_coefficient_Gailtal(path_to_projection, startyear, endyear)
 
     local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
     ID_Prec_Zones = [113589, 113597, 113670, 114538]
@@ -228,11 +228,7 @@ function runoff_coefficient_Gailtal(path_to_projection)
     Temperature_Mean_Elevation = Temperature_Elevation_Catchment[:,findfirst(x-> x==1500, Elevation_Zone_Catchment)]
     Epot_projected_tw = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna)
 
-    # ------------ LOAD TIMESERIES DATA AS DATES ------------------
-    #Timeseries = Date.(Discharge[startindex[1]:endindex[1],1], Dates.DateFormat("d.m.y H:M:S"))
-    firstyear = Dates.year(Timeseries[1])
-    lastyear = Dates.year(Timeseries[end])
-
+    
 # ------------- LOAD PRECIPITATION DATA OF EACH PRECIPITATION ZONE ----------------------
     # get elevations at which precipitation was measured in each precipitation zone
     # changed to 1400 in 2003
@@ -306,4 +302,4 @@ function runoff_coefficient_Gailtal(path_to_projection)
     # return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 
-print(runoff_coefficient_Gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/climate_simulations/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Gailtal/"))
+#print(runoff_coefficient_Gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/climate_simulations/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Gailtal/"))
