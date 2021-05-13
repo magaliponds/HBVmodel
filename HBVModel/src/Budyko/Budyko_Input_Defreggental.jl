@@ -206,8 +206,8 @@ function runoff_coefficient_Defreggental(path_to_projection, startyear, endyear)
         Percentage_HRU = CSV.read(local_path*"HBVModel/Defreggental/HRU_Prec_Zones.csv", DataFrame, header=[1], decimal='.', delim = ',')
         Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
         scale_factor_Discharge = 0.65
-        # startyear = 1983
-        # endyear = 2005
+        startyear = 1983
+        endyear = 2005
         # ------------ LOAD TIMESERIES DATA AS DATES ------------------
         # load the timeseries and get indexes of start and end
         Timeseries = readdlm(path_to_projection*"pr_model_timeseries.txt")
@@ -327,3 +327,5 @@ function runoff_coefficient_Defreggental(path_to_projection, startyear, endyear)
 end
 
 #print(runoff_coefficient_Defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/"))
+
+runoff_coefficient_Defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/MOHC-HadGEM2-ES_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/", 2071,2099)

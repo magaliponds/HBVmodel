@@ -228,7 +228,7 @@ function runoff_coefficient_Gailtal(path_to_projection, startyear, endyear)
     Temperature_Mean_Elevation = Temperature_Elevation_Catchment[:,findfirst(x-> x==1500, Elevation_Zone_Catchment)]
     Epot_projected_tw = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna)
 
-    
+
 # ------------- LOAD PRECIPITATION DATA OF EACH PRECIPITATION ZONE ----------------------
     # get elevations at which precipitation was measured in each precipitation zone
     # changed to 1400 in 2003

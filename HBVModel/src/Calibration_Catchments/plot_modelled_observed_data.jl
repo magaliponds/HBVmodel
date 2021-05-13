@@ -2513,7 +2513,7 @@ function plot_snow_elevation(All_Snow_Elevations, Timeseries, min_elevation, max
         savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Calibration/"*Catchment_Name*"/Snow_Storage_Elevation/201_300_bestruns.png")
 end
 
-plot_hydrographs_final_report(All_Discharges, Total_Precipitation, Temperature_Mean_Elevation, Timeseries, Catchment_Name, 27, Area_Catchment_Defreggental, 2)
+#plot_hydrographs_final_report(All_Discharges, Total_Precipitation, Temperature_Mean_Elevation, Timeseries, Catchment_Name, 27, Area_Catchment_Defreggental, 2)
 #plot_snow_elevation(All_Snow_Elevations, Timeseries, 1100, 3500, Catchment_Name)
 #Timeseries = collect(Date(1986,1,1):Day(1):Date(2009,12, 31))
 # change function

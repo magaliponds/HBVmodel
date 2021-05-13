@@ -1,7 +1,7 @@
-/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarahusing CSV
+using CSV
 using DelimitedFiles
 using Plots
-include("loadfunctions.jl")
+#include("loadfunctions.jl")
 
 function runmodelprecipitationzones_all_output_glacier(Potential_Evaporation::Array{Float64,1}, Glacier::Array{Array{Float64,2},1}, Precipitation_All_Zones::Array{Array{Float64,2},1}, Temperature_Elevation_Catchment::Array{Float64,2}, Inputs_All_Zones::Array{Array{HRU_Input,1},1}, Storages_All_Zones::Array{Array{Storages,1},1}, SlowStorage::Float64, parameters::Array{Parameters,1}, slow_parameters::Slow_Paramters, Area_Zones::Array{Float64,1}, Area_Zones_Percent::Array{Float64,1}, Elevation_Percentage::Array{Array{Float64,1},1}, Elevation_Zone_Catchment::Array{Float64,1}, ID_Prec_Zones::Array{Int64,1}, Nr_Elevationbands_All_Zones::Array{Int64,1}, Elevations_Each_Precipitation_Zone)
         Total_Discharge = zeros(length(Precipitation_All_Zones[1][:,1]))
@@ -1150,24 +1150,24 @@ end
 #         # println("defr future", size(discharge_defreggenfuture))
 # end
 
-path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/new_station_data_rcp45/rcp45/"
-#14 different projections
-Name_Projections = readdir(path)
-for (i, name) in enumerate(Name_Projections)
-        @time begin
-        println("current scenario", name)
-        Discharge_present = run_projections_silbertal(path*name*"/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_Snow_Redistribution/Silbertal_Parameterfit_All_runs_snow_redistr_best_300.csv", 1981, 2010, "past_2010",3)
-        Discharge_present = run_projections_silbertal(path*name*"/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_Snow_Redistribution/Silbertal_Parameterfit_All_runs_snow_redistr_best_300.csv", 2071, 2100, "future_2100", 10)
-        # Discharge_present = run_projections_paltental(path*name*"/Palten/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_All_less_dates_unique_best_300.csv", 1981, 2010, "past_2010",3)
-        # Discharge_present = run_projections_paltental(path*name*"/Palten/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_All_less_dates_unique_best_300.csv", 2071, 2100, "future_2100", 10)
-        #Discharge_present = run_projections_gailtal(path*name*"/Gailtal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal_less_dates/Gailtal_Parameterfit_All_less_dates_best_proj.csv", 1981, 2010, "past_2010",3)
-        #Discharge_present = run_projections_gailtal(path*name*"/Gailtal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal_less_dates/Gailtal_Parameterfit_All_less_dates_best_proj.csv", 2071, 2100, "future_2100", 10)
-        # Discharge_present = run_projections_defreggental(path*name*"/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental_less_dates/Defreggental_Parameterfit_All_runs_less_dates_best_proj.csv", 1981, 2010, "past_2010",3)
-        # Discharge_present = run_projections_defreggental(path*name*"/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental_less_dates/Defreggental_Parameterfit_All_runs_less_dates_best_proj.csv", 2071, 2100, "future_2100", 10)
-        # Discharge_present = run_projections_pitztal(path*name*"/Pitztal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal_Snow_Redistribution/Pitztal_Parameterfit_All_runs_snow_redistr_best_300.csv", 1981, 2010, "past_2010",3, "85")
-        # Discharge_present = run_projections_pitztal(path*name*"/Pitztal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal_Snow_Redistribution/Pitztal_Parameterfit_All_runs_snow_redistr_best_300.csv", 2071, 2100, "future_2100", 10, "85")
-        end
-end
+# path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/new_station_data_rcp45/rcp45/"
+# #14 different projections
+# Name_Projections = readdir(path)
+# for (i, name) in enumerate(Name_Projections)
+#         @time begin
+#         println("current scenario", name)
+#         Discharge_present = run_projections_silbertal(path*name*"/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_Snow_Redistribution/Silbertal_Parameterfit_All_runs_snow_redistr_best_300.csv", 1981, 2010, "past_2010",3)
+#         Discharge_present = run_projections_silbertal(path*name*"/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_Snow_Redistribution/Silbertal_Parameterfit_All_runs_snow_redistr_best_300.csv", 2071, 2100, "future_2100", 10)
+#         # Discharge_present = run_projections_paltental(path*name*"/Palten/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_All_less_dates_unique_best_300.csv", 1981, 2010, "past_2010",3)
+#         # Discharge_present = run_projections_paltental(path*name*"/Palten/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_All_less_dates_unique_best_300.csv", 2071, 2100, "future_2100", 10)
+#         #Discharge_present = run_projections_gailtal(path*name*"/Gailtal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal_less_dates/Gailtal_Parameterfit_All_less_dates_best_proj.csv", 1981, 2010, "past_2010",3)
+#         #Discharge_present = run_projections_gailtal(path*name*"/Gailtal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal_less_dates/Gailtal_Parameterfit_All_less_dates_best_proj.csv", 2071, 2100, "future_2100", 10)
+#         # Discharge_present = run_projections_defreggental(path*name*"/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental_less_dates/Defreggental_Parameterfit_All_runs_less_dates_best_proj.csv", 1981, 2010, "past_2010",3)
+#         # Discharge_present = run_projections_defreggental(path*name*"/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental_less_dates/Defreggental_Parameterfit_All_runs_less_dates_best_proj.csv", 2071, 2100, "future_2100", 10)
+#         # Discharge_present = run_projections_pitztal(path*name*"/Pitztal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal_Snow_Redistribution/Pitztal_Parameterfit_All_runs_snow_redistr_best_300.csv", 1981, 2010, "past_2010",3, "85")
+#         # Discharge_present = run_projections_pitztal(path*name*"/Pitztal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal_Snow_Redistribution/Pitztal_Parameterfit_All_runs_snow_redistr_best_300.csv", 2071, 2100, "future_2100", 10, "85")
+#         end
+# end
 
 # path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/new_station_data_rcp85/rcp85/"
 # #14 different projections
@@ -1191,8 +1191,8 @@ end
 
 #for (i, name) in enumerate(Name_Projections[11:14])
          #print(i)
-         name = Name_Projections[1]
-         println("current scenario", name)
+         # name = Name_Projections[1]
+         # println("current scenario", name)
          # Discharge_present = run_projections_silbertal(path*name*"/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_Snow_Redistribution/Silbertal_Parameterfit_All_runs_snow_redistr_best_300.csv", 1981, 2010, "past_2010",3)
          # Discharge_present = run_projections_silbertal(path*name*"/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_Snow_Redistribution/Silbertal_Parameterfit_All_runs_snow_redistr_best_300.csv", 2071, 2100, "future_2100",10)
          #Discharge_present = run_projections_defreggental(path*name*"/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental_Snow_Redistribution/Defreggental_Parameterfit_All_runs_snow_redistr_best_300.csv", 1981, 2010, "past_2010",3)
