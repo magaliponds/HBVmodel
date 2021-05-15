@@ -15,8 +15,7 @@ using SpecialFunctions
 # using Optim: converged, maximum, maximizer, minimizer, iterations
 using NLsolve
 using DataFrames
-#using PlotlyBase
-
+using PlotlyBase
 """
 Calculates the aridity and evaporative index for all climate projections with best parameter sets for the given path.
 For the calculations the mean discharge, potential evaporation and precipitation over the whole time period is taken.
@@ -178,9 +177,9 @@ function aridity_evaporative_index_Defreggental()
 
         return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
-#aridity_evaporative_index_Defreggental()
+aridity_evaporative_index_Defreggental()
 
-function runoff_coefficient_Defreggental(path_to_projection, startyear, endyear)
+function runoff_coefficient_Defreggental(path_to_projection)
 
     local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
 
@@ -246,10 +245,6 @@ function runoff_coefficient_Defreggental(path_to_projection, startyear, endyear)
         Epot_projected_tw = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna)
         Epot_projected_hg, radiation = getEpot(Temperature_Mean_Elevation_Min, Temperature_Mean_Elevation, Temperature_Mean_Elevation_Max, 0.162, Timeseries, Latitude)
 
-        # ------------ LOAD TIMESERIES DATA AS DATES ------------------
-        #Timeseries = Date.(Discharge[startindex[1]:endindex[1],1], Dates.DateFormat("d.m.y H:M:S"))
-        firstyear = Dates.year(Timeseries[1])
-        lastyear = Dates.year(Timeseries[end])
 
         # ------------- LOAD PRECIPITATION DATA OF EACH PRECIPITATION ZONE ----------------------
         # get elevations at which precipitation was measured in each precipitation zone
@@ -326,6 +321,4 @@ function runoff_coefficient_Defreggental(path_to_projection, startyear, endyear)
         # return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 
-#print(runoff_coefficient_Defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/"))
-
-runoff_coefficient_Defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/MOHC-HadGEM2-ES_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/", 2071,2099)
+print(runoff_coefficient_Defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/"))
