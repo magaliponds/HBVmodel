@@ -1,4 +1,5 @@
-/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarahusing CSV
+/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah
+using CSV
 using DelimitedFiles
 using Plots
 using DocStringExtensions
