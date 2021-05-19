@@ -49,7 +49,7 @@ end
 """
 FUnction iterates for all catchments and plots them in the Budyko space, inlcuding Fu_curve
     $(SIGNATURES)
-Uses AI and EI from specifically defined input functions and calculates omega, to plot it"""
+Uses AI and EI from specifically defined input functions and calculates omega, to plot it. It also return mean Potential evapotranspiration values, P_observed data for the future projections"""
 
 function budyko_plot()#All_Catchment_Names, Area_Catchments)
 
@@ -71,54 +71,75 @@ function budyko_plot()#All_Catchment_Names, Area_Catchments)
     AI_all_tw = Float64[]
     AI_all_hg = Float64[]
     EI_all = Float64[]
-    EI_all_pitztal = Float64[]
     w_specific_tw = zeros(length(All_Catchments))
     w_specific_hg = zeros(length(All_Catchments))
     #wcatchments = zeros(length(All_Catchments))
     Budyko_eact_P_all_tw = zeros(length(Epot_Prec), length(All_Catchments))
     Budyko_eact_P_all_hg = zeros(length(Epot_Prec), length(All_Catchments))
+    Epot_observed_all_mean_tw = Float64[]
+    Epot_observed_all_mean_hg = Float64[]
+    P_observed_all_mean = Float64[]
+
 
     # w_catchments = Float64[]
     for (i, catchment) in enumerate(All_Catchments)
         if catchment == "Defreggental"
-            AI_tw,  AI_hg, EI = aridity_evaporative_index_Defreggental()
+            AI_tw,  AI_hg, EI, P_observed_mean, Epot_observed_mean_tw, Epot_observed_mean_hg = aridity_evaporative_index_Defreggental()
             push!(EI_all, EI)
             push!(AI_all_tw, AI_tw)
             push!(AI_all_hg, AI_hg)
+            push!(P_observed_all_mean, P_observed_mean)
+            push!(Epot_observed_all_mean_tw, Epot_observed_mean_tw)
+            push!(Epot_observed_all_mean_hg, Epot_observed_mean_hg)
             end
 
         if catchment == "Gailtal"
-            AI_tw, EI = aridity_evaporative_index_Gailtal()
+            AI_tw, EI, P_observed_mean, Epot_observed_mean_tw = aridity_evaporative_index_Gailtal()
             push!(EI_all, EI)
             push!(AI_all_tw, AI_tw)
             push!(AI_all_hg, 0)
+            push!(P_observed_all_mean, P_observed_mean)
+            push!(Epot_observed_all_mean_tw, Epot_observed_mean_tw)
+            push!(Epot_observed_all_mean_hg, 0)
             end
 
         if catchment == "Feistritz"
-            AI_tw, AI_hg, EI = aridity_evaporative_index_Feistritz()
+            AI_tw, AI_hg, EI, P_observed_mean, Epot_observed_mean_tw, Epot_observed_mean_hg = aridity_evaporative_index_Feistritz()
             push!(EI_all, EI)
             push!(AI_all_tw, AI_tw)
             push!(AI_all_hg, AI_hg)
+            push!(P_observed_all_mean, P_observed_mean)
+            push!(Epot_observed_all_mean_tw, Epot_observed_mean_tw)
+            push!(Epot_observed_all_mean_hg, Epot_observed_mean_hg)
             end
         if catchment == "Paltental"
-            AI_tw, AI_hg, EI = aridity_evaporative_index_Paltental()
+            AI_tw, AI_hg, EI, P_observed_mean, Epot_observed_mean_tw, Epot_observed_mean_hg = aridity_evaporative_index_Paltental()
             push!(EI_all, EI)
             push!(AI_all_tw, AI_tw)
             push!(AI_all_hg, AI_hg)
+            push!(P_observed_all_mean, P_observed_mean)
+            push!(Epot_observed_all_mean_tw, Epot_observed_mean_tw)
+            push!(Epot_observed_all_mean_hg, Epot_observed_mean_hg)
             end
         if catchment == "Pitztal"
-            AI_tw, AI_hg, EI = aridity_evaporative_index_Pitztal()
+            AI_tw, AI_hg, EI, P_observed_mean, Epot_observed_mean_tw, Epot_observed_mean_hg = aridity_evaporative_index_Pitztal()
             push!(EI_all, EI)
             push!(AI_all_tw, AI_tw)
             push!(AI_all_hg, AI_hg)
+            push!(P_observed_all_mean, P_observed_mean)
+            push!(Epot_observed_all_mean_tw, Epot_observed_mean_tw)
+            push!(Epot_observed_all_mean_hg, Epot_observed_mean_hg)
             #push!(EI_all_pitztal, EI_corrected)
             #print(EI_all_pitztal)
             end
         if catchment == "Silbertal"
-            AI_tw, AI_hg, EI = aridity_evaporative_index_Silbertal()
+            AI_tw, AI_hg, EI, P_observed_mean, Epot_observed_mean_tw, Epot_observed_mean_hg = aridity_evaporative_index_Silbertal()
             push!(EI_all, EI)
             push!(AI_all_tw, AI_tw)
             push!(AI_all_hg, AI_hg)
+            push!(P_observed_all_mean, P_observed_mean)
+            push!(Epot_observed_all_mean_tw, Epot_observed_mean_tw)
+            push!(Epot_observed_all_mean_hg, Epot_observed_mean_hg)
             end
 
         #print(AI_all_hg, AI_all_tw,EI)
@@ -165,6 +186,7 @@ function budyko_plot()#All_Catchment_Names, Area_Catchments)
     Catchment_data_tw = DataFrame(Catchment = All_Catchments, AI_tw=AI_all_tw, EI=EI_all, w_specific_tw= w_specific_tw)
     Catchment_data_hg = DataFrame(Catchment = All_Catchments, AI_hg=AI_all_hg, EI=EI_all, w_specific_hg= w_specific_hg)
     Catchment_data_all = DataFrame(Catchment = All_Catchments, AI_hg=AI_all_hg, AI_tw=AI_all_tw, EI = EI_all, w_specific_hg= w_specific_hg, w_specific_tw = w_specific_tw)
+    Catchment_observed_data_all = DataFrame(Catchment = All_Catchments, P_observed_mean = P_observed_all_mean, Epot_observed_tw=Epot_observed_all_mean_tw, Epot_observed_hg=Epot_observed_all_mean_hg, w_specific_hg= w_specific_hg, w_specific_tw = w_specific_tw)
 
 
 
@@ -211,7 +233,8 @@ function budyko_plot()#All_Catchment_Names, Area_Catchments)
     CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Past/All_catchments_omega_tw.csv", Catchment_data_tw)
     CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Past/All_catchments_omega_hg.csv", Catchment_data_hg)
     CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Past/All_catchments_omega_all.csv", Catchment_data_all)
-    return Catchment_data_all
+    CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Past/All_catchments_observed_meandata.csv", Catchment_observed_data_all)
+    return Catchment_observed_data_all
 end
 
 print(budyko_plot())

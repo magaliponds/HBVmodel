@@ -274,20 +274,6 @@ function aridity_evaporative_index_Paltental()
         # ---------------- CALCULATE OBSERVED OBJECTIVE FUNCTIONS -------------------------------------
         # calculate the sum of precipitation of all precipitation zones to calculate objective functions
         P_observed = Precipitation_All_Zones[1][:,1]*Area_Zones_Percent[1] + Precipitation_All_Zones[2][:,1]*Area_Zones_Percent[2] + Precipitation_All_Zones[3][:,1]*Area_Zones_Percent[3]
-
-        # end of spin up time is 3 years after the start of the calibration and start in the month October
-        # index_spinup = findfirst(x -> Dates.year(x) == firstyear + 2 && Dates.month(x) == 10, Timeseries)
-        # # evaluations chouls alsways contain whole year
-        # index_lastdate = findfirst(x -> Dates.year(x) == lastyear && Dates.month(x) == 10, Timeseries) - 1
-        # Timeseries_Obj = Timeseries[index_spinup: index_lastdate]
-        # Observed_Discharge_Obj = Observed_Discharge[index_spinup: index_lastdate] .* scale_factor_Discharge
-        # Total_Precipitation_Obj = Total_Precipitation[index_spinup: index_lastdate]
-        # #calculating the observed FDC; AC; Runoff
-        # observed_FDC = flowdurationcurve(log.(Observed_Discharge_Obj))[1]
-        # observed_AC_1day = autocorrelation(Observed_Discharge_Obj, 1)
-        # observed_AC_90day = autocorrelationcurve(Observed_Discharge_Obj, 90)[1]
-        # observed_monthly_runoff = monthlyrunoff(Area_Catchment, Total_Precipitation_Obj, Observed_Discharge_Obj, Timeseries_Obj)[1]
-
         Aridity_Index_observed_tw = Float64[]
         Aridity_Index_tw = mean(Epot_observed_tw) / mean(P_observed)
         append!(Aridity_Index_observed_tw, Aridity_Index_tw)
@@ -314,9 +300,10 @@ function aridity_evaporative_index_Paltental()
     # println("Annual Discharge ",Annual_Discharge)
 
 
-    return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
+    return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_, mean(P_observed), mean(Epot_observed_tw), mean(Epot_observed_tw)#Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 
+print(aridity_evaporative_index_Paltental())
 function runoff_coefficient_Paltental(path_to_projection, startyear, endyear)
 
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
@@ -448,6 +435,107 @@ function runoff_coefficient_Paltental(path_to_projection, startyear, endyear)
         # Evaporative_Index_ = 1 - (mean(Q_observed) / mean(P_observed))
         # append!(Evaporative_Index_observed, Evaporative_Index_)
     return Aridity_Index_tw, Evaporative_Index_projected_tw[1], Aridity_Index_hg, Evaporative_Index_projected_hg[1], Runoff_coefficient_tw, Runoff_coefficient_hg
+        # return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
+end
+
+function future_indices_Paltental(path_to_projection, startyear, endyear)
+
+        local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
+                    # ------------ CATCHMENT SPECIFIC INPUTS----------------
+        ID_Prec_Zones = [106120, 111815, 9900]
+        # size of the area of precipitation zones
+        Area_Zones = [198175943.0, 56544073.0, 115284451.3]
+        Area_Catchment = sum(Area_Zones)
+        Area_Zones_Percent = Area_Zones / Area_Catchment
+        Latitude = 47.516231 #Austria general
+        Latitude_paltental = 47.483
+        Mean_Elevation_Catchment = 1300 # in reality 1314
+        Elevations_Catchment = Elevations(200.0, 600.0, 2600.0, 648.0, 648.0)
+        Sunhours_Vienna = [8.83, 10.26, 11.95, 13.75, 15.28, 16.11, 15.75, 14.36, 12.63, 10.9, 9.28, 8.43]
+        # where to skip to in data file of precipitation measurements
+        Skipto = [22, 22]
+        # get the areal percentage of all elevation zones in the HRUs in the precipitation zones
+        Areas_HRUs =  CSV.read(local_path*"HBVModel/Palten/HBV_Area_Elevation_round.csv", DataFrame, skipto=2, decimal='.', delim = ',')
+        # get the percentage of each HRU of the precipitation zone
+        Percentage_HRU = CSV.read(local_path*"HBVModel/Palten/HRU_Prec_Zones.csv", DataFrame, header=[1], decimal='.', delim = ',')
+        Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
+        # startyear = 1983
+        # endyear = 2005
+        # timeperiod for which model should be run (look if timeseries of data has same length)
+        # ------------ LOAD TIMESERIES DATA AS DATES ------------------
+        # load the timeseries and get indexes of start and end
+        Timeseries = readdlm(path_to_projection*"pr_model_timeseries.txt")
+        Timeseries = Date.(Timeseries, Dates.DateFormat("y,m,d"))
+        indexstart_Proj = findfirst(x-> x == startyear, Dates.year.(Timeseries))[1]
+        indexend_Proj = findlast(x-> x == endyear, Dates.year.(Timeseries))[1]
+        Timeseries = Timeseries[indexstart_Proj:indexend_Proj]
+
+        firstyear = Dates.year(Timeseries[1])
+        lastyear = Dates.year(Timeseries[end])
+
+
+        #------------ TEMPERATURE AND POT. EVAPORATION CALCULATIONS ---------------------
+        #Temperature is the same in whole catchment
+        # Temperature Measurements are taken at Maria Luggau
+        Projections_Temperature = readdlm(path_to_projection*"tas_106120_sim1.txt", ',')
+        Projections_Temperature_Min = readdlm(path_to_projection*"tasmin_106120_sim1.txt", ',')
+        Projections_Temperature_Max = readdlm(path_to_projection*"tasmax_106120_sim1.txt", ',')
+
+        Temperature_Daily = Projections_Temperature[indexstart_Proj:indexend_Proj] ./ 10
+        Temperature_Daily_Min = Projections_Temperature_Min[indexstart_Proj:indexend_Proj] ./ 10
+        Temperature_Daily_Max = Projections_Temperature_Max[indexstart_Proj:indexend_Proj] ./ 10
+
+        Temperature_Daily = Temperature_Daily[:,1]
+        Temperature_Daily_Min = Temperature_Daily_Min[:,1]
+        Temperature_Daily_Max = Temperature_Daily_Max[:,1]
+
+        # get the temperature data at each elevation
+        Elevation_Zone_Catchment, Temperature_Elevation_Catchment, Total_Elevationbands_Catchment = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily)
+        Elevation_Zone_Catchment_Min, Temperature_Elevation_Catchment_Min, Total_Elevationbands_Catchment_Min = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily_Min)
+        Elevation_Zone_Catchment_Max, Temperature_Elevation_Catchment_Max, Total_Elevationbands_Catchment_Max = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily_Max)
+
+        # get the temperature data at the mean elevation to calculate the mean potential evaporation
+        Temperature_Mean_Elevation = Temperature_Elevation_Catchment[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment)]
+        Temperature_Mean_Elevation_Min = Temperature_Elevation_Catchment_Min[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Min)]
+        Temperature_Mean_Elevation_Max = Temperature_Elevation_Catchment_Max[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Max)]
+
+        Epot_projected_tw = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna)
+        Epot_projected_hg, radiation = getEpot(Temperature_Mean_Elevation_Min, Temperature_Mean_Elevation, Temperature_Mean_Elevation_Max, 0.162, Timeseries, Latitude)
+
+
+        # ------------- LOAD PRECIPITATION DATA OF EACH PRECIPITATION ZONE ----------------------
+        # get elevations at which precipitation was measured in each precipitation zone
+        # changed to 1400 in 2003
+        Elevations_106120= Elevations(200., 600., 2600., 1265.,648.)
+        Elevations_111815 = Elevations(200, 600, 2400, 890., 648.)
+        Elevations_9900 = Elevations(200, 600, 2400, 648., 648.)
+        Elevations_All_Zones = [Elevations_106120, Elevations_111815, Elevations_9900]
+
+        #get the total discharge
+        Total_Discharge = zeros(length(Temperature_Daily))
+        Inputs_All_Zones = Array{HRU_Input, 1}[]
+        Storages_All_Zones = Array{Storages, 1}[]
+        Precipitation_All_Zones = Array{Float64, 2}[]
+        Precipitation_Gradient = 0.0
+        Elevation_Percentage = Array{Float64, 1}[]
+        Nr_Elevationbands_All_Zones = Int64[]
+        Elevations_Each_Precipitation_Zone = Array{Float64, 1}[]
+        for i in 1: length(ID_Prec_Zones)
+                        #print(ID_Prec_Zones[i])
+                Precipitation_Zone = readdlm(path_to_projection*"pr_"*string(ID_Prec_Zones[i])*"_sim1.txt", ',')
+                Precipitation_Zone = Precipitation_Zone[indexstart_Proj:indexend_Proj] ./ 10
+                Elevation_HRUs, Precipitation, Nr_Elevationbands = getprecipitationatelevation(Elevations_All_Zones[i], Precipitation_Gradient, Precipitation_Zone)
+                push!(Precipitation_All_Zones, Precipitation)
+                push!(Nr_Elevationbands_All_Zones, Nr_Elevationbands)
+                push!(Elevations_Each_Precipitation_Zone, Elevation_HRUs)
+        end
+
+
+        # ---------------- CALCULATE OBSERVED OBJECTIVE FUNCTIONS -------------------------------------
+        # calculate the sum of precipitation of all precipitation zones to calculate objective functions
+        P_projected = Precipitation_All_Zones[1][:,1]*Area_Zones_Percent[1] + Precipitation_All_Zones[2][:,1]*Area_Zones_Percent[2] + Precipitation_All_Zones[3][:,1]*Area_Zones_Percent[3]
+
+        return mean(Epot_projected_tw), mean(Epot_projected_hg), mean(P_projected)
         # return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 

@@ -175,9 +175,9 @@ function aridity_evaporative_index_Defreggental()
         Evaporative_Index_ = 1 - (mean(Q_observed) / mean(P_observed))
         append!(Evaporative_Index_observed, Evaporative_Index_)
 
-        return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
+        return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_, mean(P_observed), mean(Epot_observed_tw), mean(Epot_observed_tw) #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
-aridity_evaporative_index_Defreggental()
+# print(aridity_evaporative_index_Defreggental())
 
 function runoff_coefficient_Defreggental(path_to_projection)
 
@@ -321,4 +321,103 @@ function runoff_coefficient_Defreggental(path_to_projection)
         # return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 
-print(runoff_coefficient_Defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/"))
+#print(runoff_coefficient_Defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/"))
+
+function future_indices_Defreggental(path_to_projection, startyear, endyear)
+
+    local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
+
+        # ------------ CATCHMENT SPECIFIC INPUTS----------------
+        ID_Prec_Zones = [17700, 114926]
+        # size of the area of precipitation zones
+        Area_Zones = [235811198.0, 31497403.0]
+        Area_Catchment = sum(Area_Zones)
+        Area_Zones_Percent = Area_Zones / Area_Catchment
+        Snow_Threshold = 600
+        Height_Threshold = 2700
+        #Latitude = 47+52/66
+        Latitude = 47.516231 #Austria general
+        Latitude_defreggental =46.9215#° N, 12.5196° E
+        Mean_Elevation_Catchment =  2300 # in reality 2233.399986
+        Elevations_Catchment = Elevations(200.0, 1000.0, 3600.0, 1385., 1385.) # take temp at 17700
+        Sunhours_Vienna = [8.83, 10.26, 11.95, 13.75, 15.28, 16.11, 15.75, 14.36, 12.63, 10.9, 9.28, 8.43]
+        # where to skip to in data file of precipitation measurements
+        Skipto = [0, 24]
+        # get the areal percentage of all elevation zones in the HRUs in the precipitation zones
+        Areas_HRUs =  CSV.read(local_path*"HBVModel/Defreggental/HBV_Area_Elevation_round.csv", DataFrame, skipto=2, decimal='.', delim = ',')
+        # get the percentage of each HRU of the precipitation zone
+        Percentage_HRU = CSV.read(local_path*"HBVModel/Defreggental/HRU_Prec_Zones.csv", DataFrame, header=[1], decimal='.', delim = ',')
+        Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
+        scale_factor_Discharge = 0.65
+        # ------------ LOAD TIMESERIES DATA AS DATES ------------------
+        # load the timeseries and get indexes of start and end
+        Timeseries = readdlm(path_to_projection*"pr_model_timeseries.txt")
+        Timeseries = Date.(Timeseries, Dates.DateFormat("y,m,d"))
+        indexstart_Proj = findfirst(x-> x == startyear, Dates.year.(Timeseries))[1]
+        indexend_Proj = findlast(x-> x == endyear, Dates.year.(Timeseries))[1]
+        Timeseries = Timeseries[indexstart_Proj:indexend_Proj]
+        firstyear = Dates.year(Timeseries[1])
+        lastyear = Dates.year(Timeseries[end])
+
+        #------------ TEMPERATURE AND POT. EVAPORATION CALCULATIONS ---------------------
+        #Temperature is the same in whole catchment
+        # Temperature Measurements are taken at Maria Luggau
+        Projections_Temperature = readdlm(path_to_projection*"tas_17700_sim1.txt", ',')
+        Projections_Temperature_Min = readdlm(path_to_projection*"tasmin_17700_sim1.txt", ',')
+        Projections_Temperature_Max = readdlm(path_to_projection*"tasmax_17700_sim1.txt", ',')
+
+        Temperature_Daily = Projections_Temperature[indexstart_Proj:indexend_Proj] ./ 10
+        Temperature_Daily_Min = Projections_Temperature_Min[indexstart_Proj:indexend_Proj] ./ 10
+        Temperature_Daily_Max = Projections_Temperature_Max[indexstart_Proj:indexend_Proj] ./ 10
+
+        Temperature_Daily = Temperature_Daily[:,1]
+        Temperature_Daily_Min = Temperature_Daily_Min[:,1]
+        Temperature_Daily_Max = Temperature_Daily_Max[:,1]
+
+        # get the temperature data at each elevation
+        Elevation_Zone_Catchment, Temperature_Elevation_Catchment, Total_Elevationbands_Catchment = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily)
+        Elevation_Zone_Catchment_Min, Temperature_Elevation_Catchment_Min, Total_Elevationbands_Catchment_Min = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily_Min)
+        Elevation_Zone_Catchment_Max, Temperature_Elevation_Catchment_Max, Total_Elevationbands_Catchment_Max = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily_Max)
+
+        # get the temperature data at the mean elevation to calculate the mean potential evaporation
+        Temperature_Mean_Elevation = Temperature_Elevation_Catchment[:,findfirst(x-> x==1500, Elevation_Zone_Catchment)]
+        Temperature_Mean_Elevation_Min = Temperature_Elevation_Catchment_Min[:,findfirst(x-> x==1500, Elevation_Zone_Catchment_Min)]
+        Temperature_Mean_Elevation_Max = Temperature_Elevation_Catchment_Max[:,findfirst(x-> x==1500, Elevation_Zone_Catchment_Max)]
+
+        Epot_projected_tw = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna)
+        Epot_projected_hg, radiation = getEpot(Temperature_Mean_Elevation_Min, Temperature_Mean_Elevation, Temperature_Mean_Elevation_Max, 0.162, Timeseries, Latitude)
+
+
+        # ------------- LOAD PRECIPITATION DATA OF EACH PRECIPITATION ZONE ----------------------
+        # get elevations at which precipitation was measured in each precipitation zone
+        Elevations_17700 = Elevations(200., 1200., 3600., 1385., 1140)
+        Elevations_114926 = Elevations(200, 1000, 2800, 1110., 1140)
+        Elevations_All_Zones = [Elevations_17700, Elevations_114926]
+
+        #get the total discharge
+        Total_Discharge = zeros(length(Temperature_Daily))
+        Inputs_All_Zones = Array{HRU_Input, 1}[]
+        Storages_All_Zones = Array{Storages, 1}[]
+        Precipitation_All_Zones = Array{Float64, 2}[]
+        Precipitation_Gradient = 0.0
+        Elevation_Percentage = Array{Float64, 1}[]
+        Nr_Elevationbands_All_Zones = Int64[]
+        Elevations_Each_Precipitation_Zone = Array{Float64, 1}[]
+        Glacier_All_Zones = Array{Float64, 2}[]
+
+        for i in 1: length(ID_Prec_Zones)
+                Precipitation_Zone = readdlm(path_to_projection*"pr_"*string(ID_Prec_Zones[i])*"_sim1.txt", ',')
+                Precipitation_Zone = Precipitation_Zone[indexstart_Proj:indexend_Proj] ./ 10
+                Elevation_HRUs, Precipitation, Nr_Elevationbands = getprecipitationatelevation(Elevations_All_Zones[i], Precipitation_Gradient, Precipitation_Zone)
+                push!(Precipitation_All_Zones, Precipitation)
+                push!(Nr_Elevationbands_All_Zones, Nr_Elevationbands)
+                push!(Elevations_Each_Precipitation_Zone, Elevation_HRUs)
+
+        end
+        P_projected = Precipitation_All_Zones[1][:,1]*Area_Zones_Percent[1] + Precipitation_All_Zones[2][:,1]*Area_Zones_Percent[2]
+
+
+    return mean(Epot_projected_tw), mean(Epot_projected_hg), mean(P_projected)
+end
+
+#print(future_indices_Defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/",1981,2010))
