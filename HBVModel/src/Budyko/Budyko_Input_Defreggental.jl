@@ -25,7 +25,7 @@ $(SIGNATURES)
 The function returns the past and future aridity index (Array length: Number of climate projections) and past and future evaporative index (Array Length: Number Climate Projections x Number Parameter Sets).
     It takes as input the path to the projections.
 """
-function aridity_evaporative_index_Defreggental()
+function aridity_evaporative_index_Defreggental(startyear, endyear)
 
     local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
 
@@ -50,8 +50,6 @@ function aridity_evaporative_index_Defreggental()
         # get the percentage of each HRU of the precipitation zone
         Percentage_HRU = CSV.read(local_path*"HBVModel/Defreggental/HRU_Prec_Zones.csv", DataFrame, header=[1], decimal='.', delim = ',')
         Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
-        startyear = 1983
-        endyear = 2005
         scale_factor_Discharge = 0.65
         # timeperiod for which model should be run (look if timeseries of data has same length)
         Timeseries = collect(Date(startyear, 1, 1):Day(1):Date(endyear,12,31))
@@ -96,9 +94,7 @@ function aridity_evaporative_index_Defreggental()
         Temperature_Mean_Elevation_Min = Temperature_Elevation_Catchment_Min[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Min)]
         Temperature_Mean_Elevation_Max = Temperature_Elevation_Catchment_Max[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Max)]
 
-        Epot_obs_tw = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Dates_Temperature_Daily, Sunhours_Vienna)
-        Epot_observed_tw = Array{Float64,1}[]
-        Epot_observed_tw = Epot_obs_tw
+        Epot_observed_tw = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Dates_Temperature_Daily, Sunhours_Vienna)
 
         Epot_observed_hg, radiation = getEpot(Temperature_Mean_Elevation_Min, Temperature_Mean_Elevation, Temperature_Mean_Elevation_Max, 0.162, Dates_Temperature_Daily, Latitude)
 
@@ -175,9 +171,9 @@ function aridity_evaporative_index_Defreggental()
         Evaporative_Index_ = 1 - (mean(Q_observed) / mean(P_observed))
         append!(Evaporative_Index_observed, Evaporative_Index_)
 
-        return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_, mean(P_observed), mean(Epot_observed_tw), mean(Epot_observed_tw) #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
+        return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_, mean(P_observed), mean(Epot_observed_tw), mean(Epot_observed_hg) #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
-# print(aridity_evaporative_index_Defreggental())
+print(aridity_evaporative_index_Defreggental(1983,2005))
 
 function runoff_coefficient_Defreggental(path_to_projection)
 
@@ -205,8 +201,6 @@ function runoff_coefficient_Defreggental(path_to_projection)
         Percentage_HRU = CSV.read(local_path*"HBVModel/Defreggental/HRU_Prec_Zones.csv", DataFrame, header=[1], decimal='.', delim = ',')
         Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
         scale_factor_Discharge = 0.65
-        startyear = 1983
-        endyear = 2005
         # ------------ LOAD TIMESERIES DATA AS DATES ------------------
         # load the timeseries and get indexes of start and end
         Timeseries = readdlm(path_to_projection*"pr_model_timeseries.txt")
@@ -415,8 +409,10 @@ function future_indices_Defreggental(path_to_projection, startyear, endyear)
 
         end
         P_projected = Precipitation_All_Zones[1][:,1]*Area_Zones_Percent[1] + Precipitation_All_Zones[2][:,1]*Area_Zones_Percent[2]
-
-
+        # Plots.plot()
+        # plot!(Timeseries, Epot_projected_hg, label="Hargreaves")
+        # plot!(Timeseries, Epot_projected_tw, label="Thornthwaite")
+        # Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/Defreggental/rcp45/Epot_projected.png")
     return mean(Epot_projected_tw), mean(Epot_projected_hg), mean(P_projected)
 end
 

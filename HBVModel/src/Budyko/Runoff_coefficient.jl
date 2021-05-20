@@ -11,7 +11,7 @@ final runoff coefficient is calculated here
 """
 
 function budyko_runoff_projections(rcp, modelpath, startyear_proj, endyear_proj, startyear_hist, endyear_hist)#All_Catchment_Names, Area_Catchments)
-
+    local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
     Color = palette(:tab10)
     Markers = [:rect, :circle, :dtriangle, :cross]
     p_all = Plots.plot()
@@ -80,7 +80,7 @@ function budyko_runoff_projections(rcp, modelpath, startyear_proj, endyear_proj,
             push!(w_hg, Catchment_data_historic[i,5])
 
             EI_tw = 1 + AI_pro_tw[i] - (1 + AI_pro_tw[i] .^w_tw[i]) .^(1/w_tw[i])
-            #EI_hg = 1 + AI_pro_tw[i] - (1 + AI_pro_tw[i] .^w_tw[i]) .^(1/w_tw[i])
+            #EI_hg = 1 + AI_pro_hg[i] - (1 + AI_pro_hg[i] .^w_hg[i]) .^(1/w_hg[i])
             push!(EI_pro_tw, EI_tw)
             push!(EI_pro_hg, 0)
 
@@ -122,6 +122,7 @@ function budyko_runoff_projections(rcp, modelpath, startyear_proj, endyear_proj,
             dEpot_proj_tw = Epot_proj_fut_tw - Epot_proj_hist_tw
             dP_proj = P_proj_fut - P_proj_hist
 
+
             P_observed = Catchment_data_observed[i,2]
             Epot_observed_tw = Catchment_data_observed[i,3]
             Epot_observed_hg = Catchment_data_observed[i,4]
@@ -138,13 +139,13 @@ function budyko_runoff_projections(rcp, modelpath, startyear_proj, endyear_proj,
             push!(w_tw, Catchment_data_historic[i,6])
             push!(w_hg, Catchment_data_historic[i,5])
 
-            EI_tw = 1 + AI_pro_tw[i] - (1 + AI_pro_tw[i] .^w_tw[i]) .^(1/w_tw[i])
-            EI_hg = 1 + AI_pro_hg[i] - (1 + AI_pro_hg[i] .^w_hg[i]) .^(1/w_hg[i])
+            EI_tw = 1 + AI_pro_tw[i] - (1 + (AI_pro_tw[i] .^w_tw[i])) .^(1/w_tw[i])
+            EI_hg = 1 + AI_pro_hg[i] - (1 + (AI_pro_hg[i] .^w_hg[i])) .^(1/w_hg[i])
             push!(EI_pro_tw, EI_tw)
             push!(EI_pro_hg, EI_hg)
 
-            RC_tw = 1- EI_tw
-            RC_hg = 1-EI_hg
+            RC_tw = 1 - EI_tw
+            RC_hg = 1 - EI_hg
             push!(RC_pro_tw, RC_tw)
             push!(RC_pro_hg, RC_hg)
 
@@ -153,7 +154,6 @@ function budyko_runoff_projections(rcp, modelpath, startyear_proj, endyear_proj,
             push!(Q_pro_tw, Q_tw)
             push!(Q_pro_hg, Q_hg)
         end
-
 
 
         #----------------
@@ -171,7 +171,7 @@ function budyko_runoff_projections(rcp, modelpath, startyear_proj, endyear_proj,
         ylabel!("Eact/P")
         end
 
-    Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/Combined/"*rcp*"/"*modelpath*"/"*modelpath*"_"*string(startyear)*"_"*string(endyear)*"_projections_tw.png")
+    Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/Combined/"*rcp*"/"*modelpath*"/"*modelpath*"_"*string(startyear_hist)*"_"*string(startyear_proj)*"Budyko_projections_tw.png")
 
     #--------------
 #CREATE PLOT HARGREAVES
@@ -193,7 +193,7 @@ function budyko_runoff_projections(rcp, modelpath, startyear_proj, endyear_proj,
     ylims!((0.2,1))
     xaxis!("Epot/P")
     yaxis!("Eact/P")
-    Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/Combined/"*rcp*"/"*modelpath*"/"*modelpath*"_"*string(startyear)*"_"*string(endyear)*"_projections_hg.png")
+    Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/Combined/"*rcp*"/"*modelpath*"/"*modelpath*"_"*string(startyear_hist)*"_"*string(startyear_proj)*"Budyko_projections_hg.png")
 
     #-----------CREATE PLOT BOTH HG & TW
 
@@ -216,21 +216,21 @@ function budyko_runoff_projections(rcp, modelpath, startyear_proj, endyear_proj,
         ylims!((0.2,1))
     end
 
-    Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/Combined/"*rcp*"/"*modelpath*"/"*modelpath*"_"*string(startyear)*"_"*string(endyear)*"_projections_both.png")
+    Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/Combined/"*rcp*"/"*modelpath*"/"*modelpath*"_"*string(startyear_hist)*"_"*string(startyear_proj)*"Budyko_projections_twhg.png")
 
     #---------------- CREATE PLOT PER CATCHMENT
 
     for (i,catchment) in enumerate(All_Catchments)
         p_catchment = Plots.plot()
         if catchment != "Gailtal"
-            scatter!([AI_pro_hg[i]], [EI_pro_hg[i]], label="Fu_HG", color=[Color[1]], markershape=[Markers[4]], markersize=3, markerstrokewidth=0)#, title="Catchment specific locations using Thornthwaite and Hargreaves Ep")
-            scatter!([AI_hist_hg[i]], [EI_hist[i]], label="HG_historic", color=[Color[2]], markershape=[Markers[3]], markersize=3, markerstrokewidth=0)
+            scatter!([AI_pro_hg[i]], [EI_pro_hg[i]], label="Fu_HG", color=[Color[2]], markershape=[Markers[3]], markersize=3, markerstrokewidth=0)#, title="Catchment specific locations using Thornthwaite and Hargreaves Ep")
+            scatter!([AI_hist_hg[i]], [EI_hist[i]], label="HG_historic", color=[Color[2]], markershape=[Markers[4]], markersize=3, markerstrokewidth=0)
             Budyko_eact_P_all_hg[:,i] = (ones(length(Epot_Prec))) + Epot_Prec .* ones(length(Epot_Prec)) - ((ones(length(Epot_Prec))) + Epot_Prec .^w_hg[i]) .^(1/w_hg[i])
             plot!(Epot_Prec, Budyko_eact_P_all_hg[:,i], label="HG_projected", linecolor="grey", linestyle=:solid) #no label currently
         end
         plot!(Epot_Prec, Budyko_eact_P_all_tw[:,i], label="Fu_TW", linecolor="grey", linestyle=:dot)#, title="Catchment specific locations using Thornthwaite Ep" )
         scatter!([AI_pro_tw[i]], [EI_pro_tw[i]], label="TW_projected", color=[Color[1]], markershape=[Markers[3]], markersize=3, markerstrokewidth=0)
-        scatter!([AI_hist_tw[i]], [EI_hist[i]], label="TW_historic", color=[Color[2]], markershape=[Markers[3]], markersize=3, markerstrokewidth=0)
+        scatter!([AI_hist_tw[i]], [EI_hist[i]], label="TW_historic", color=[Color[1]], markershape=[Markers[4]], markersize=3, markerstrokewidth=0)
         plot!(collect(0:5),collect(0:5), linestyle=:dot, linecolor="black", label="Energy Limit")#, size=(2200,1200))
         plot!(collect(1:5), ones(5), linestyle=:dot, linecolor="black", label="Water Limit")
         xaxis!("Epot/P")
@@ -238,7 +238,7 @@ function budyko_runoff_projections(rcp, modelpath, startyear_proj, endyear_proj,
         #vline!([0.406])
         xlims!((0,2))
         ylims!((0.2,1))
-        Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/"*catchment*"/"*rcp*"/"*catchment*"_"*modelpath*string(startyear)*"_"*string(endyear)*"_alloutput.png")
+        Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/"*catchment*"/"*rcp*"/"*catchment*"_"*modelpath*string(startyear_hist)*"_"*string(startyear_proj)*"Budyko_allcatchments_hgtw.png")
 
     end
 
@@ -248,10 +248,10 @@ function budyko_runoff_projections(rcp, modelpath, startyear_proj, endyear_proj,
     Catchment_data_pro_hg = DataFrame(Catchment = All_Catchments, AI_hg=AI_pro_hg, EI=EI_pro_hg, w_hg= w_hg)
     Catchment_data_pro_all = DataFrame(Catchment = All_Catchments, AI_hg=AI_pro_hg, AI_tw=AI_pro_tw, EI_hg = EI_pro_hg, EI_tw = EI_pro_tw, w_hg= w_hg, w_tw = w_tw)
     Runoff_coefficients = DataFrame(Catchment = All_Catchments, RC_pro_hg = RC_pro_hg, RC_pro_tw = RC_pro_tw, Q_pro_tw = Q_pro_tw, Q_pro_hg = Q_pro_hg)
-    CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/Combined/"*rcp*"/"*modelpath*"/"*modelpath*"_"*string(startyear_hist)*"_"*string(startyear_proj)*"_indices_tw.csv", Catchment_data_pro_tw)
-    CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/Combined/"*rcp*"/"*modelpath*"/"*modelpath*"_"*string(startyear_hist)*"_"*string(startyear_proj)*"_indices_hg.csv", Catchment_data_pro_hg)
-    CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/Combined/"*rcp*"/"*modelpath*"/"*modelpath*"_"*string(startyear_hist)*"_"*string(startyear_proj)*"_indices_all.csv", Catchment_data_pro_all)
-    CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/Combined/"*rcp*"/"*modelpath*"/"*modelpath*"_"*string(startyear_hist)*"_"*string(startyear_proj)*"_RC_all.csv", Runoff_coefficients)
+    CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/Combined/"*rcp*"/"*modelpath*"/"*modelpath*"_"*string(startyear_hist)*"_"*string(startyear_proj)*"_projected_budyko_tw.csv", Catchment_data_pro_tw)
+    CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/Combined/"*rcp*"/"*modelpath*"/"*modelpath*"_"*string(startyear_hist)*"_"*string(startyear_proj)*"_projected_buydko_hg.csv", Catchment_data_pro_hg)
+    CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/Combined/"*rcp*"/"*modelpath*"/"*modelpath*"_"*string(startyear_hist)*"_"*string(startyear_proj)*"_projected_budyko_hgtw.csv", Catchment_data_pro_all)
+    CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/Combined/"*rcp*"/"*modelpath*"/"*modelpath*"_"*string(startyear_hist)*"_"*string(startyear_proj)*"_projected_RC_hgtw.csv", Runoff_coefficients)
     return Runoff_coefficients
 end
 
@@ -268,9 +268,6 @@ it uses old functions and deterimines runoff coefficient respective of current o
 function Fu_run_all_projections()
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/"
         rcps=["rcp45", "rcp85"]
-        # rcms = ["CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CNRM-ALADIN53_v1_day", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_SMHI-RCA4_v1_day", "ICHEC-EC-EARTH_rcp45_r1i1p1_KNMI-RACMO22E_v1_day", "ICHEC-EC-EARTH_rcp45_r3i1p1_DMI-HIRHAM5_v1_day",
-        #                                 "ICHEC-EC-EARTH_rcp45_r12i1p1_CLMcom-CCLM4-8-17_v1_day", "ICHEC-EC-EARTH_rcp45_r12i1p1_SMHI-RCA4_v1_day", "IPSL-IPSL-CM5A-MR_rcp45_r1i1p1_IPSL-INERIS-WRF331F_v1_day", "IPSL-IPSL-CM5A-MR_rcp45_r1i1p1_SMHI-RCA4_v1_day", "MOHC-HadGEM2-ES_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day", "MOHC-HadGEM2-ES_rcp45_r1i1p1_KNMI-RACMO22E_v1_day",
-        #                                 "MOHC-HadGEM2-ES_rcp45_r1i1p1_SMHI-RCA4_v1_day", "MPI-M-MPI-ESM-LR_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day", "MPI-M-MPI-ESM-LR_rcp45_r1i1p1_SMHI-RCA4_v1_day"]
         for (i, rcp) in enumerate(rcps)
                 #rcms = readdir(local_path*rcp)
                 rcms = ["CNRM-CERFACS-CNRM-CM5_"*rcp*"_r1i1p1_CLMcom-CCLM4-8-17_v1_day", "CNRM-CERFACS-CNRM-CM5_"*rcp*"_r1i1p1_CNRM-ALADIN53_v1_day", "CNRM-CERFACS-CNRM-CM5_"*rcp*"_r1i1p1_SMHI-RCA4_v1_day", "ICHEC-EC-EARTH_"*rcp*"_r1i1p1_KNMI-RACMO22E_v1_day", "ICHEC-EC-EARTH_"*rcp*"_r3i1p1_DMI-HIRHAM5_v1_day",
@@ -293,7 +290,7 @@ function Fu_run_all_projections()
         return
 end
 
-Fu_run_all_projections()
+#Fu_run_all_projections()
 
 function Budyko_plot_catchment(startyear_hist, startyear_proj)
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/"
@@ -314,6 +311,7 @@ function Budyko_plot_catchment(startyear_hist, startyear_proj)
                                                 "MOHC-HadGEM2-ES_"*rcp*"_r1i1p1_SMHI-RCA4_v1_day", "MPI-M-MPI-ESM-LR_"*rcp*"_r1i1p1_CLMcom-CCLM4-8-17_v1_day", "MPI-M-MPI-ESM-LR_"*rcp*"_r1i1p1_SMHI-RCA4_v1_day"]
 
                 Pastdata = CSV.read(local_path*"Past/All_catchments_omega_all.csv", DataFrame, header= true, decimal='.', delim = ',')
+
                 #df_catchment[1,:]=["Catchment","AI_hg","AI_tw","EI_hg","EI_tw","w_hg","w_tw"]
                 #for (k, catchment) in enumerate(All_Catchments)
 
@@ -328,28 +326,20 @@ function Budyko_plot_catchment(startyear_hist, startyear_proj)
                         for (j,rcm) in enumerate(rcms)
 
                                 plot!(Epot_Prec, Budyko_Eact_P, label="Original Budyko", linecolor="black")
-                                # plot!(Epot_Prec, Budyko_Eact_P_fu, label="Fu", linecolor="black")
-
-                                # Projections_pastdata = CSV.read(local_path*"Projections/Combined/"*rcp*"/"*rcm*"/"*rcm*"_1981_2010_indices_all.csv", DataFrame, header= true, decimal='.', delim = ',')
-                                #
-                                # Projections_futuredata = CSV.read(local_path*"Projections/Combined/"*rcp*"/"*rcm*"/"*rcm*"_1981_2010_indices_all.csv", DataFrame, header= true, decimal='.', delim = ',')
-                                Projections = CSV.read(local_path*"Projections/Combined/"*rcp*"/"*rcm*"/"*rcm*"_"*string(startyear_hist)*"_"*string(startyear_proj)*"_indices_all.csv", DataFrame, header= true, decimal='.', delim = ',')
-                                #println(Projections_future)
+                                Projections = CSV.read(local_path*"Projections/Combined/"*rcp*"/"*rcm*"/"*rcm*"_"*string(startyear_hist)*"_"*string(startyear_proj)*"_projected_budyko_hgtw.csv", DataFrame, header= true, decimal='.', delim = ',')
                                 for (k,catchment) in enumerate(All_Catchments)
-                                    p_catchment = Plots.plot()
+                                    Plots.plot()
                                     if catchment != "Gailtal"
-                                        scatter!([Projections.AI_hg[k]], [Projections.EI_hg[k]], label="HG_projected", color=[Color[3]], markershape=[Markers[4]], markersize=3, markerstrokewidth=0)
-                                        # scatter!([Projections_futuredata.AI_hg[k]], [Projections_futuredata.EI_hg[k]], label="HG_pf"*rcm, color=[Color[2]], markershape=[Markers[3]], markersize=3, markerstrokewidth=0)#, title="Catchment specific locations using Thornthwaite and Hargreaves Ep")
-                                        scatter!([Pastdata.AI_hg[k]], [Pastdata.EI[k]], label="HG_observed", color=[Color[3]], markershape=[Markers[2]], markersize=3, markerstrokewidth=0)#, title="Catchment specific locations using Thornthwaite and Hargreaves Ep")
+                                        scatter!([Projections.AI_hg[k]], [Projections.EI_hg[k]], label="HG_projected", color=[Color[1]], markershape=[Markers[3]], markersize=3, markerstrokewidth=0)
+                                        scatter!([Pastdata.AI_hg[k]], [Pastdata.EI[k]], label="HG_observed", color=[Color[1]], markershape=[Markers[4]], markersize=3, markerstrokewidth=0)#, title="Catchment specific locations using Thornthwaite and Hargreaves Ep")
                                         Budyko_eact_P_all_hg[:,k] = (ones(length(Epot_Prec))) + Epot_Prec .* ones(length(Epot_Prec)) - ((ones(length(Epot_Prec))) + Epot_Prec .^Pastdata.w_specific_hg[k]) .^(1/Pastdata.w_specific_hg[k])
                                         plot!(Epot_Prec, Budyko_eact_P_all_hg[:,k], label="Fu_HG", linecolor="grey", linestyle=:solid) #no label currently
                                     end
-                                    Budyko_eact_P_all_tw[:,k] = (ones(length(Epot_Prec))) + Epot_Prec .* ones(length(Epot_Prec)) - ((ones(length(Epot_Prec))) + Epot_Prec .^Pastdata.w_specific_tw[k]) .^(1/Pastdata.w_specific_tw[k])
-                                    plot!(Epot_Prec, Budyko_eact_P_all_tw[:,k], label="FU_TW", linecolor="grey", linestyle=:dot)#, title="Catchment specific locations using Thornthwaite Ep" )
 
-                                    scatter!([Projections.AI_tw[k]], [Projections.EI_tw[k]], label="TW_projected", color=[Color[2]], markershape=[Markers[4]], markersize=3, markerstrokewidth=0)
-                                    # scatter!([Projections_futuredata.AI_hg[k]], [Projections_futuredata.EI_hg[k]], label="HG_pf"*rcm, color=[Color[2]], markershape=[Markers[3]], markersize=3, markerstrokewidth=0)#, title="Catchment specific locations using Thornthwaite and Hargreaves Ep")
-                                    scatter!([Pastdata.AI_tw[k]], [Pastdata.EI[k]], label="TW_observed", color=[Color[2]], markershape=[Markers[2]], markersize=3, markerstrokewidth=0)#, title="Catchment specific locations using Thornthwaite and Hargreaves Ep")
+                                    scatter!([Projections.AI_tw[k]], [Projections.EI_tw[k]], label="TW_projected", color=[Color[2]], markershape=[Markers[3]], markersize=3, markerstrokewidth=0)
+                                    scatter!([Pastdata.AI_tw[k]], [Pastdata.EI[k]], label="TW_observed", color=[Color[2]], markershape=[Markers[4]], markersize=3, markerstrokewidth=0)#, title="Catchment specific locations using Thornthwaite and Hargreaves Ep")
+                                    Budyko_eact_P_all_tw[:,k] = (ones(length(Epot_Prec))) + Epot_Prec .* ones(length(Epot_Prec)) - ((ones(length(Epot_Prec))) + Epot_Prec .^Pastdata.w_specific_tw[k]) .^(1/Pastdata.w_specific_tw[k])
+                                    plot!(Epot_Prec, Budyko_eact_P_all_tw[:,k], label="Fu_TW", linecolor="grey", linestyle=:dot)#, title="Catchment specific locations using Thornthwaite Ep" )
 
                                     plot!(collect(0:5),collect(0:5), linestyle=:dot, linecolor="black", label="Energy Limit")#, size=(2200,1200))
                                     plot!(collect(1:5), ones(5), linestyle=:dot, linecolor="black", label="Water Limit")
@@ -358,7 +348,7 @@ function Budyko_plot_catchment(startyear_hist, startyear_proj)
                                     #vline!([0.406])
                                     xlims!((0,2))
                                     ylims!((0.2,1))
-                                    Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/"*catchment*"/"*rcp*"/"*catchment*"_"*rcm*string(startyear_hist)*"_"*string(startyear_proj)*"_alloutput.png")
+                                    Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Projections/"*catchment*"/"*rcp*"/"*catchment*"_"*rcm*string(startyear_hist)*"_"*string(startyear_proj)*"_Budyko_plot_projected_2methods.png")
 
                                 end
                                 end

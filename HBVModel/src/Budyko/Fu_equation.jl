@@ -13,8 +13,8 @@ using Plots
 using PyPlot
 
 
-startyear = 1983
-endyear = 2005
+# startyear = 1983
+# endyear = 2005
 local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
 
 """

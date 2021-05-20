@@ -6,7 +6,7 @@ $(SIGNATURES)
 The function returns the past and future aridity index (Array length: Number of climate projections) and past and future evaporative index (Array Length: Number Climate Projections x Number Parameter Sets).
     It takes as input the path to the projections.
 """
-function aridity_evaporative_index_Paltental()
+function aridity_evaporative_index_Paltental(startyear,endyear)
 
     local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
             # ------------ CATCHMENT SPECIFIC INPUTS----------------
@@ -27,8 +27,7 @@ function aridity_evaporative_index_Paltental()
             # get the percentage of each HRU of the precipitation zone
             Percentage_HRU = CSV.read(local_path*"HBVModel/Palten/HRU_Prec_Zones.csv", DataFrame, header=[1], decimal='.', delim = ',')
             Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
-            startyear = 1983
-            endyear = 2005
+
             # timeperiod for which model should be run (look if timeseries of data has same length)
             Timeseries = collect(Date(startyear, 1, 1):Day(1):Date(endyear,12,31))
 
@@ -300,10 +299,10 @@ function aridity_evaporative_index_Paltental()
     # println("Annual Discharge ",Annual_Discharge)
 
 
-    return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_, mean(P_observed), mean(Epot_observed_tw), mean(Epot_observed_tw)#Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
+    return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_, mean(P_observed), mean(Epot_observed_tw), mean(Epot_observed_hg)#Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 
-print(aridity_evaporative_index_Paltental())
+print(aridity_evaporative_index_Paltental(1983,2005))
 function runoff_coefficient_Paltental(path_to_projection, startyear, endyear)
 
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
@@ -325,8 +324,7 @@ function runoff_coefficient_Paltental(path_to_projection, startyear, endyear)
         # get the percentage of each HRU of the precipitation zone
         Percentage_HRU = CSV.read(local_path*"HBVModel/Palten/HRU_Prec_Zones.csv", DataFrame, header=[1], decimal='.', delim = ',')
         Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
-        # startyear = 1983
-        # endyear = 2005
+
         # timeperiod for which model should be run (look if timeseries of data has same length)
         # ------------ LOAD TIMESERIES DATA AS DATES ------------------
         # load the timeseries and get indexes of start and end
@@ -459,8 +457,7 @@ function future_indices_Paltental(path_to_projection, startyear, endyear)
         # get the percentage of each HRU of the precipitation zone
         Percentage_HRU = CSV.read(local_path*"HBVModel/Palten/HRU_Prec_Zones.csv", DataFrame, header=[1], decimal='.', delim = ',')
         Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
-        # startyear = 1983
-        # endyear = 2005
+
         # timeperiod for which model should be run (look if timeseries of data has same length)
         # ------------ LOAD TIMESERIES DATA AS DATES ------------------
         # load the timeseries and get indexes of start and end

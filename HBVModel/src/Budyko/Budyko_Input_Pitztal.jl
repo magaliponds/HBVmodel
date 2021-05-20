@@ -31,7 +31,7 @@ The function returns the past and future aridity index (Array length: Number of 
 #       loss[loss.>12.1] .= 12.1
 #       return loss
 # end
-function aridity_evaporative_index_Pitztal()
+function aridity_evaporative_index_Pitztal(startyear, endyear)
 
     local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
         # ------------ CATCHMENT SPECIFIC INPUTS----------------
@@ -58,8 +58,7 @@ function aridity_evaporative_index_Pitztal()
         # get the percentage of each HRU of the precipitation zone
         Percentage_HRU = CSV.read(local_path*"HBVModel/Pitztal/HRU_Prec_Zones.csv", DataFrame, header=[1], decimal='.', delim = ',')
         Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
-        startyear = 1983
-        endyear = 2005
+
         # timeperiod for which model should be run (look if timeseries of data has same length)
         Timeseries = collect(Date(startyear, 1, 1):Day(1):Date(endyear,12,31))
         #------------ TEMPERATURE AND POT. EVAPORATION CALCULATIONS ---------------------
@@ -285,10 +284,10 @@ function aridity_evaporative_index_Pitztal()
     # println("AI_hg: ", Aridity_Index_hg)
     # println("AI_tw: ", Aridity_Index_tw)
     # println("EI: ", Evaporative_Index_)
-    return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_, mean(P_observed), mean(Epot_observed_tw), mean(Epot_observed_tw)#, Evaporative_Index_c #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
+    return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_, mean(P_observed), mean(Epot_observed_tw), mean(Epot_observed_hg)#, Evaporative_Index_c #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 
-print(aridity_evaporative_index_Pitztal())
+print(aridity_evaporative_index_Pitztal(1983,2005))
 function runoff_coefficient_Pitztal(path_to_projection, startyear, endyear)
 
     local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
@@ -415,7 +414,7 @@ function runoff_coefficient_Pitztal(path_to_projection, startyear, endyear)
     end
 
 
-    runoff_coefficient_Pitztal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Pitztal/", startyear, endyear)
+runoff_coefficient_Pitztal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Pitztal/", 1983,2005)
 
 function future_indices_Pitztal(path_to_projection, startyear, endyear)
 
