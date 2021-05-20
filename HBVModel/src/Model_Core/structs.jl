@@ -16,7 +16,7 @@ mutable struct HRU_Input
     Total_Interception_Evaporation::Float64
 end
 
-mutable struct HRU_Input2
+mutable struct HRU_Input_srdef
     #inputs (alphabetic order)
     Area_Elevations::Array{Float64,1}
     Area_HRU:: Float64
@@ -33,6 +33,24 @@ mutable struct HRU_Input2
     Total_Effective_Precipitation::Float64
     Total_Interception_Evaporation::Float64
 end
+
+# mutable struct HRU_Input2
+#     #inputs (alphabetic order)
+#     Area_Elevations::Array{Float64,1}
+#     Area_HRU:: Float64
+#     Area_Glacier::Array{Float64,1} # smaller than 1
+#     Elevation_Count::Array{Int64}
+#     Nr_Elevationbands:: Int8
+#     Catchment_Elevation::Tuple
+#     Snow_Redistribution::Tuple
+#     #Potential_Evaporation::Array{Float64,1} #muss später auch Array werden!!! average Epot for soiL!!!
+#     Potential_Evaporation_Mean:: Float64
+#     Precipitation::Array{Float64,1}
+#     Riparian_Discharge:: Float64 #only necessary for riparian HRU
+#     Temp_Elevation::Array{Float64,1}
+#     Total_Effective_Precipitation::Float64
+#     Total_Interception_Evaporation::Float64
+# end
 
 mutable struct Parameters
     # parameters (alphabetic order)

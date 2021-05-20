@@ -111,7 +111,7 @@ $(SIGNATURES)
 The function returns the flxues leaving the HRU and the new amounts of water stored in each model component. Also it returns the Precipitation the sum of water stored in the HRU during the timestep (new_Storage-old_Storage)
 Function needs inputs to be in area independent units (e.g. mm)
 """
-function riparianHRU_future_srdef(rip::HRU_Input, storages::Storages, parameters::Parameters)
+function riparianHRU_future_srdef(rip::HRU_Input_srdef, storages::Storages, parameters::Parameters)
     # Are_Elevations gives the areal percentage of each elevation band. The sum has to be 1
     # Area_elevations, Precipitation, Temp_elevation, Snowstorage, Interceptionstorage has to be array of length Nr_Elevationbands
     # riparian HRU has no preferential flow
@@ -156,7 +156,7 @@ function riparianHRU_future_srdef(rip::HRU_Input, storages::Storages, parameters
     Total_Melt = Total_Melt * rip.Area_HRU
     Fast_Discharge = Fast_Discharge * rip.Area_HRU
     Total_Interception_Evaporation = rip.Total_Interception_Evaporation * rip.Area_HRU
-    Total_Effective_Precipitation::Float64 = (rip.Total_Effective_Precipitation + Melt) * rip.Area_HRU
+    Total_Effective_Precipitation::Float64 = rip.Total_Effective_Precipitation * rip.Area_HRU
     Soil_Evaporation = Soil_Evaporation * rip.Area_HRU
     # return water flows, evaporation, and states of the storage components
     rip_out = Outflows(Fast_Discharge, GWflow, Soil_Evaporation, Total_Interception_Evaporation)
@@ -201,7 +201,7 @@ function riparianHRU_future_srdef(rip::HRU_Input, storages::Storages, parameters
     return rip_out, rip_storages, Precipitation, All_Storages, Total_Melt::Float64, Total_Effective_Precipitation::Float64
 end
 
-function allHRU_future_srdef(bare_input::HRU_Input, forest_input::HRU_Input, grass_input::HRU_Input, rip_input::HRU_Input,
+function allHRU_future_srdef(bare_input::HRU_Input_srdef, forest_input::HRU_Input_srdef, grass_input::HRU_Input_srdef, rip_input::HRU_Input_srdef,
                 bare_storage::Storages, forest_storage::Storages, grass_storage::Storages, rip_storage::Storages,
                 bare_parameters::Parameters, forest_parameters::Parameters, grass_parameters::Parameters, rip_parameters::Parameters,
                 Slowstorage::Float64, slow_parameters::Slow_Paramters)
@@ -223,7 +223,7 @@ function allHRU_future_srdef(bare_input::HRU_Input, forest_input::HRU_Input, gra
     Total_Discharge::Float64 = bare_outflow.Fast_Discharge  + forest_outflow.Fast_Discharge + grass_outflow.Fast_Discharge  + rip_outflow.Fast_Discharge  + Slow_Discharge
     Total_Soil_Evaporation::Float64 = bare_outflow.Soil_Evaporation + forest_outflow.Soil_Evaporation + grass_outflow.Soil_Evaporation  + rip_outflow.Soil_Evaporation
     Total_Interception_Evaporation::Float64 = bare_outflow.Interception_Evaporation  + forest_outflow.Interception_Evaporation + grass_outflow.Interception_Evaporation + rip_outflow.Interception_Evaporation
-
+    #Effective_Prec::Float64 = Bare_Pe + Forest_Pe + Grass_Pe +Rip_Pe
     @assert Riparian_Discharge >= 0
     @assert Total_Discharge >= 0
     @assert Total_Interception_Evaporation >= 0
@@ -240,9 +240,49 @@ function allHRU_future_srdef(bare_input::HRU_Input, forest_input::HRU_Input, gra
     return Riparian_Discharge::Float64, Total_Discharge::Float64, Total_Interception_Evaporation::Float64, Total_Soil_Evaporation::Float64, bare_storage::Storages, forest_storage::Storages, grass_storage::Storages, rip_storage::Storages, Slowstorage_New::Float64, Waterbalance::Float64, Precipitation::Float64, Effective_Prec::Float64, Total_Melt::Float64
 end
 
+function input_timestep_srdef(Input::HRU_Input_srdef, Evaporation_Mean::Float64, Precipitation::Array{Float64,1}, Effective_Precipitation::Array{Float64,1}, Temperature::Array{Float64,1})
+    #Input.Potential_Evaporation::Array{Float64,1} = Evaporation
+    Input.Potential_Evaporation_Mean::Float64 = Evaporation_Mean
+    # get the precipitation data of the necessary elevations
+    Precipitation_HRU = Float64[]
+    Effective_Precipitation_HRU = Float64[]
+    Temperature_HRU = Float64[]
+    for i in Input.Elevation_Count
+        push!(Precipitation_HRU, Precipitation[i])
+        push!(Effective_Precipitation_HRU, Effective_Precipitation[i])
+        push!(Temperature_HRU, Temperature[i])
+    end
+    Input.Precipitation::Array{Float64,1} = Precipitation_HRU
+    Input.Effective_Precipitation::Array{Float64,1} = Effective_Precipitation_HRU
+    Input.Temp_Elevation::Array{Float64,1} = Temperature_HRU
+    return Input::HRU_Input
+end
 
-function run_model_glacier_future_srdef(Area, Evaporation_Mean::Array{Float64,1}, Glacier::Array{Float64,2}, Precipitation::Array{Float64,2}, Temp::Array{Float64,2},
-                bare_input::HRU_Input, forest_input::HRU_Input, grass_input::HRU_Input, rip_input::HRU_Input,
+function input_timestep_srdef_glacier(Input::HRU_Input_srdef, Evaporation_Mean::Float64, Glacier_Area::Array{Float64,1}, Precipitation::Array{Float64,1}, Effective_Precipitation::Array{Float64,1}, Temperature::Array{Float64,1})
+    #Input.Potential_Evaporation::Array{Float64,1} = Evaporation
+    Input.Potential_Evaporation_Mean::Float64 = Evaporation_Mean
+    # get the precipitation data of the necessary elevations
+    Precipitation_HRU = Float64[]
+    Effective_Precipitation_HRU = Float64[]
+    Temperature_HRU = Float64[]
+    Glacier_HRU = Float64[]
+    for i in Input.Elevation_Count
+        push!(Precipitation_HRU, Precipitation[i])
+        push!(Effective_Precipitation_HRU, Effective_Precipitation[i])
+        push!(Temperature_HRU, Temperature[i])
+        push!(Glacier_HRU, Glacier_Area[i])
+    end
+    Input.Precipitation::Array{Float64,1} = Precipitation_HRU
+    Input.Effective_Precipitation::Array{Float64,1} = Effective_Precipitation_HRU
+    Input.Temp_Elevation::Array{Float64,1} = Temperature_HRU
+    Input.Area_Glacier::Array{Float64,1} = Glacier_HRU
+    return Input::HRU_Input
+end
+
+
+
+function run_model_glacier_future_srdef(Area, Evaporation_Mean::Array{Float64,1}, Glacier::Array{Float64,2}, Precipitation::Array{Float64,2}, Effective_Precipitation::Array{Float64,2}, Temp::Array{Float64,2},
+                bare_input::HRU_Input_srdef, forest_input::HRU_Input_srdef, grass_input::HRU_Input_srdef, rip_input::HRU_Input_srdef,
                 bare_storage::Storages, forest_storage::Storages, grass_storage::Storages, rip_storage::Storages, Slowstorage::Float64,
                 bare_parameters::Parameters, forest_parameters::Parameters, grass_parameters::Parameters, rip_parameters::Parameters, slow_parameters::Slow_Paramters, Total_Elevationbands, Elevation_Percentage)
     # the function takes as input the parameters of each HRU, the inital storage values of each HRU, the inital value of the slow storage
@@ -276,14 +316,15 @@ function run_model_glacier_future_srdef(Area, Evaporation_Mean::Array{Float64,1}
         # gives the current precipitation, evaporation and temperature
         Evaporation_Mean_Current = Evaporation_Mean[t]
         Precipitation_Current = Precipitation[t, :]
+        Pe_Current = Effective_Precipitation[t,:]
         Temperature_Current = Temp[t, :]
         Glacier_Current = Glacier[:,t]
 
-        bare_input::HRU_Input = input_timestep_glacier(bare_input, Evaporation_Mean_Current, Glacier_Current, Precipitation_Current, Temperature_Current)
-        forest_input::HRU_Input = input_timestep(forest_input, Evaporation_Mean_Current, Precipitation_Current, Temperature_Current)
-        grass_input::HRU_Input = input_timestep(grass_input, Evaporation_Mean_Current, Precipitation_Current, Temperature_Current)
-        rip_input::HRU_Input = input_timestep(rip_input, Evaporation_Mean_Current, Precipitation_Current, Temperature_Current)
-        Riparian_Discharge::Float64, Total_Discharge::Float64, Total_Interception_Evaporation::Float64, Total_Soil_Evaporation::Float64, bare_storage::Storages, forest_storage::Storages, grass_storage::Storages, rip_storage::Storages, Slowstorage::Float64, WB::Float64, Total_Prec::Float64, Melt::Float64 = allHRU_future(bare_input, forest_input, grass_input, rip_input,
+        bare_input::HRU_Input_srdef = input_timestep_glacier_srdef(bare_input, Evaporation_Mean_Current, Glacier_Current, Precipitation_Current, Effective_Precipitation_Current, Temperature_Current)
+        forest_input::HRU_Input_srdef = input_timestep_srdef(forest_input, Evaporation_Mean_Current, Precipitation_Current, Effective_Precipitation_Current, Temperature_Current)
+        grass_input::HRU_Input_srdef = input_timestep_srdef(grass_input, Evaporation_Mean_Current, Precipitation_Current, Effective_Precipitation_Current, Temperature_Current)
+        rip_input::HRU_Input_srdef = input_timestep_srdef(rip_input, Evaporation_Mean_Current, Precipitation_Current, Effective_Precipitation_Current, Temperature_Current)
+        Riparian_Discharge::Float64, Total_Discharge::Float64, Total_Interception_Evaporation::Float64, Total_Soil_Evaporation::Float64, bare_storage::Storages, forest_storage::Storages, grass_storage::Storages, rip_storage::Storages, Slowstorage::Float64, WB::Float64, Total_Prec::Float64, Effective_Prec::Float64, Melt::Float64 = allHRU_future_srdef(bare_input, forest_input, grass_input, rip_input,
                                                                                                             bare_storage, forest_storage, grass_storage, rip_storage,
                                                                                                             bare_parameters, forest_parameters, grass_parameters, rip_parameters,
                                                                                                             Slowstorage, slow_parameters)
@@ -316,8 +357,59 @@ function run_model_glacier_future_srdef(Area, Evaporation_Mean::Array{Float64,1}
     return Discharge::Array{Float64,1}, Pe::Array{Float64,1}, Ei::Array{Float64,1},Snow_Extend::Array{Float64,2}, Snowstorage::Array{Float64,1}, Waterbalance::Float64, Total_Melt::Array{Float64,1}
 end
 
+function runmodelprecipitationzones_future(Potential_Evaporation::Array{Float64,1}, Precipitation_All_Zones::Array{Array{Float64,2},1}, Temperature_Elevation_Catchment::Array{Float64,2}, Inputs_All_Zones::Array{Array{HRU_Input,1},1}, Storages_All_Zones::Array{Array{Storages,1},1}, SlowStorage::Float64, parameters::Array{Parameters,1}, slow_parameters::Slow_Paramters, Area_Zones::Array{Float64,1}, Area_Zones_Percent::Array{Float64,1}, Elevation_Percentage::Array{Array{Float64,1},1}, Elevation_Zone_Catchment::Array{Float64,1}, ID_Prec_Zones::Array{Int64,1}, Nr_Elevationbands_All_Zones::Array{Int64,1}, Elevations_Each_Precipitation_Zone::Array{Array{Float64,1},1})
+        Total_Discharge = zeros(length(Precipitation_All_Zones[1][:,1]))
+        Total_Snow_Melt = zeros(length(Precipitation_All_Zones[1][:,1]))
+        count = zeros(length(Precipitation_All_Zones[1][:,1]), length(Elevation_Zone_Catchment))
+        Snow_Overall_Objective_Function = 0
+        snow_cover_modelled_allprec =  zeros(length(Precipitation_All_Zones[1][:,1]), length(Elevation_Zone_Catchment))
+        Denominator_All_Prec = zeros(length(Elevation_Zone_Catchment))
+        for i in 1: length(ID_Prec_Zones)
+                # take the storages and input of the specific precipitation zone
+                Inputs_HRUs = Inputs_All_Zones[i]
+                Storages_HRUs = Storages_All_Zones[i]
+                # run the model for the specific precipitation zone
+                Discharge, Snow_Extend, Snow_Storage, Waterbalance, Snow_Melt = run_model_future(Area_Zones[i], Potential_Evaporation, Precipitation_All_Zones[i], Temperature_Elevation_Catchment,
+                        Inputs_HRUs[1], Inputs_HRUs[2], Inputs_HRUs[3], Inputs_HRUs[4],
+                        Storages_HRUs[1], Storages_HRUs[2], Storages_HRUs[3], Storages_HRUs[4], SlowStorage,
+                        parameters[1], parameters[2], parameters[3], parameters[4], slow_parameters, Nr_Elevationbands_All_Zones[i], Elevation_Percentage[i])
+                # sum up the discharge of all precipitation zones
+                Total_Discharge += Discharge
+                Total_Snow_Melt += Snow_Melt * Area_Zones_Percent[i]
+                snow_cover_modelled = Snow_Extend
+                Denominator_All = Float64[]
+                for h in 1: length(snow_cover_modelled[1,:])
+                        snow_cover_modelled[:,h] = snow_cover_modelled[:,h] * Elevation_Percentage[i][h] * Area_Zones_Percent[i]
+                        Denominator = Elevation_Percentage[i][h] * Area_Zones_Percent[i]
+                        #push!(Nominator_All, Nominator)
+                        append!(Denominator_All, Denominator)
+                end
+                # make snow cover data same length for all prec zones, therefore min and max elevation of prec zone needs to be known
+                snow_cover_modelled_matrix = zeros((length(Discharge), length(Elevation_Zone_Catchment)))
+                Denominator_All_matrix = zeros(length(Elevation_Zone_Catchment))
+                #print(Elevation_Zone_Catchment)
+                #print(Elevations_Each_Precipitation_Zone[i], "\n")
+                for (j,current_elevation) in enumerate(Elevations_Each_Precipitation_Zone[i])
+                        #print(((current_elevation - Elevation_Zone_Catchment[1]) / 200)+1, "\n")
+                        snow_cover_modelled_matrix[:,Int((current_elevation - Elevation_Zone_Catchment[1]) / 200)+1] = snow_cover_modelled[:,j]
+                        Denominator_All_matrix[Int((current_elevation - Elevation_Zone_Catchment[1]) / 200)+1] = Denominator_All[j]
 
-function runmodelprecipitationzones_glacier_future_srdef(Potential_Evaporation::Array{Float64,1}, Glacier::Array{Array{Float64,2},1}, Precipitation_All_Zones::Array{Array{Float64,2},1}, Temperature_Elevation_Catchment::Array{Float64,2}, Inputs_All_Zones::Array{Array{HRU_Input,1},1}, Storages_All_Zones::Array{Array{Storages,1},1}, SlowStorage::Float64, parameters::Array{Parameters,1}, slow_parameters::Slow_Paramters, Area_Zones::Array{Float64,1}, Area_Zones_Percent::Array{Float64,1}, Elevation_Percentage::Array{Array{Float64,1},1}, Elevation_Zone_Catchment::Array{Float64,1}, ID_Prec_Zones::Array{Int64,1}, Nr_Elevationbands_All_Zones::Array{Int64,1}, Elevations_Each_Precipitation_Zone::Array{Array{Float64,1},1})
+
+                end
+                snow_cover_modelled_allprec += snow_cover_modelled_matrix
+                Denominator_All_Prec += Denominator_All_matrix
+                # #take the area weighted mean difference in snow cover
+                # Snow_Overall_Objective_Function += Mean_difference * Area_Zones_Percent[i]
+
+        end
+        #print(size(snow_cover_modelled_allprec), size(Denominator_All_Prec))
+        Snow_Cover = transpose(snow_cover_modelled_allprec) ./ Denominator_All_Prec
+        # calculate the mean difference over all precipitation zones
+        #Snow_Overall_Objective_Function = Snow_Overall_Objective_Function / length(ID_Prec_Zones)
+        return Total_Discharge::Array{Float64,1}, Snow_Cover::Array{Float64,2}, Total_Snow_Melt::Array{Float64,1}
+end
+
+function runmodelprecipitationzones_glacier_future_srdef(Potential_Evaporation::Array{Float64,1}, Glacier::Array{Array{Float64,2},1}, Precipitation_All_Zones::Array{Array{Float64,2},1}, Temperature_Elevation_Catchment::Array{Float64,2}, Inputs_All_Zones::Array{Array{HRU_Input_srdef,1},1}, Storages_All_Zones::Array{Array{Storages,1},1}, SlowStorage::Float64, parameters::Array{Parameters,1}, slow_parameters::Slow_Paramters, Area_Zones::Array{Float64,1}, Area_Zones_Percent::Array{Float64,1}, Elevation_Percentage::Array{Array{Float64,1},1}, Elevation_Zone_Catchment::Array{Float64,1}, ID_Prec_Zones::Array{Int64,1}, Nr_Elevationbands_All_Zones::Array{Int64,1}, Elevations_Each_Precipitation_Zone::Array{Array{Float64,1},1})
         Total_Discharge = zeros(length(Precipitation_All_Zones[1][:,1]))
         Total_Pe = zeros(length(Precipitation_All_Zones[1][:,1]))
         Total_Ei = zeros(length(Precipitation_All_Zones[1][:,1]))
