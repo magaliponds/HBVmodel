@@ -12,7 +12,6 @@ mutable struct HRU_Input
     Precipitation::Array{Float64,1}
     Riparian_Discharge:: Float64 #only necessary for riparian HRU
     Temp_Elevation::Array{Float64,1}
-    Total_Effective_Precipitation::Float64
     Total_Interception_Evaporation::Float64
 end
 

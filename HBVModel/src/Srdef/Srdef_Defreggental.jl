@@ -80,7 +80,7 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
 
         #get the total discharge
         Total_Discharge = zeros(length(Temperature_Daily))
-        Inputs_All_Zones = Array{HRU_Input,1}[]
+        Inputs_All_Zones = Array{HRU_Input_srdef,1}[]
         Storages_All_Zones = Array{Storages,1}[]
         Precipitation_All_Zones = Array{Float64,2}[]
         Precipitation_Gradient = 0.0
@@ -107,7 +107,7 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
                 #         current_glacier_daily = repeat(glacier_current_year, 1, Dates.daysinyear(current_year))
                 #         glacier_daily = hcat(glacier_daily, current_glacier_daily)
                 # end
-                # push!(Glacier_All_Zones, glacier_daily[:,2:end])
+                #push!(Glacier_All_Zones, glacier_daily[:,2:end])
 
                 index_HRU = (findall( x -> x == ID_Prec_Zones[i], Areas_HRUs[1, 2:end], ))
                 # for each precipitation zone get the relevant areal extentd
@@ -135,14 +135,14 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
                 Perc_Elevation = Perc_Elevation[(findall(x -> x != 0, Perc_Elevation))]
                 @assert 0.99 <= sum(Perc_Elevation) <= 1.01
                 push!(Elevation_Percentage, Perc_Elevation)
+
                 # calculate the inputs once for every precipitation zone because they will stay the same during the Monte Carlo Sampling
-                print(typeof(Area_Bare_Elevations), typeof(Current_Percentage_HRU[1]), typeof(zeros(length(Bare_Elevation_Count))), typeof(Bare_Elevation_Count), typeof(length(Bare_Elevation_Count)), typeof(( Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100)), typeof((Snow_Threshold, Height_Threshold)), typeof(0), typeof([0]), typeof([0]))
-                print(typeof(0), typeof([0]), typeof(0), typeof(0))
-                bare_input = HRU_Input_srdef(Area_Bare_Elevations, Current_Percentage_HRU[1], Glacier_All_Zones, zeros(length(Bare_Elevation_Count)), Bare_Elevation_Count, length(Bare_Elevation_Count), ( Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0], 0, 0)
-                forest_input = HRU_Input_srdef(Area_Forest_Elevations, Current_Percentage_HRU[2], Glacier_All_Zones, zeros(length(Forest_Elevation_Count)), Forest_Elevation_Count, length(Forest_Elevation_Count), ( Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100, ), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0], 0, 0)
-                grass_input = HRU_Input(Area_Grass_Elevations, Current_Percentage_HRU[3], Glacier_All_Zones, zeros(length(Grass_Elevation_Count)), Grass_Elevation_Count, length(Grass_Elevation_Count), ( Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0],0, [0], 0, 0)
-                rip_input = HRU_Input_srdef(Area_Rip_Elevations, Current_Percentage_HRU[4], Glacier_All_Zones, zeros(length(Rip_Elevation_Count)), Rip_Elevation_Count, length(Rip_Elevation_Count), ( Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0], 0, 0)
+                bare_input = HRU_Input_srdef(Area_Bare_Elevations, Current_Percentage_HRU[1], zeros(length(Bare_Elevation_Count)), Bare_Elevation_Count, length(Bare_Elevation_Count), ( Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0], 0, 0)
+                forest_input = HRU_Input_srdef(Area_Forest_Elevations, Current_Percentage_HRU[2], zeros(length(Forest_Elevation_Count)), Forest_Elevation_Count, length(Forest_Elevation_Count), ( Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0], 0, 0)
+                grass_input = HRU_Input_srdef(Area_Grass_Elevations, Current_Percentage_HRU[3], zeros(length(Grass_Elevation_Count)), Grass_Elevation_Count, length(Grass_Elevation_Count), ( Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0],0, [0], 0, 0)
+                rip_input = HRU_Input_srdef(Area_Rip_Elevations, Current_Percentage_HRU[4], zeros(length(Rip_Elevation_Count)), Rip_Elevation_Count, length(Rip_Elevation_Count), ( Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0], 0, 0)
                 all_inputs = [bare_input, forest_input, grass_input, rip_input]
+
                 #print(typeof(all_inputs))
                 push!(Inputs_All_Zones, all_inputs)
                 bare_storage = Storages( 0, zeros(length(Bare_Elevation_Count)), zeros(length(Bare_Elevation_Count)), zeros(length(Bare_Elevation_Count)), 0)
@@ -196,7 +196,7 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
         Total_Precipitation_series = Total_Precipitation[index_spinup:index_lastdate]
         Er_timeseries = zeros(length(Total_Precipitation_series))
         yearseries = zeros(endyear-(startyear+spinup))
-        print(size(yearseries))
+
         srdef = zeros(length(Total_Precipitation_series))
         srdef_cum = zeros(length(Total_Precipitation_series))
 
@@ -208,10 +208,10 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
                 Current_GWStorage = deepcopy(GWStorage)
                 # use parameter sets of the calibration as input
                 beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, Soilstoaragecapacity_Bare, Soilstoaragecapacity_Forest, Soilstoaragecapacity_Grass, Soilstoaragecapacity_Rip, Temp_Thresh = parameters_best_calibrations[n, :]
-                bare_parameters = Parameters( beta_Bare, Ce, 0, 0.0, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Bare, Temp_Thresh, )
-                forest_parameters = Parameters( beta_Forest, Ce, 0, Interceptioncapacity_Forest, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Forest, Temp_Thresh, )
-                grass_parameters = Parameters( beta_Grass, Ce, 0, Interceptioncapacity_Grass, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Grass, Temp_Thresh, )
-                rip_parameters = Parameters( beta_Rip, Ce, 0.0, Interceptioncapacity_Rip, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Rip, Temp_Thresh, )
+                bare_parameters = Parameters( beta_Bare, Ce, 0, 0.0, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Bare, Temp_Thresh)
+                forest_parameters = Parameters( beta_Forest, Ce, 0, Interceptioncapacity_Forest, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Forest, Temp_Thresh)
+                grass_parameters = Parameters( beta_Grass, Ce, 0, Interceptioncapacity_Grass, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Grass, Temp_Thresh)
+                rip_parameters = Parameters( beta_Rip, Ce, 0.0, Interceptioncapacity_Rip, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Rip, Temp_Thresh)
                 slow_parameters = Slow_Paramters(Ks, Ratio_Riparian)
 
                 parameters = [bare_parameters,forest_parameters,grass_parameters,rip_parameters,]
@@ -222,9 +222,15 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
                 All_Pe = hcat(All_Pe, Pe[index_spinup:index_lastdate])
                 All_Ei = hcat(All_Ei, Ei[index_spinup:index_lastdate])
 
+                Peplot = Plots.plot()
+                plot!(Timeseries_Obj[1000:6000], Total_Precipitation_series[1000:6000], label="P")
+                plot!(Timeseries_Obj[1000:6000], Pe[index_spinup:index_lastdate][1000:6000], label="Pe")
+                plot!(Timeseries_Obj[1000:6000], Ei[index_spinup:index_lastdate][1000:6000], label="Ei")
+
+                display(Peplot)
+
                 Pplot = Plots.plot()
                 plot!(Timeseries_Obj, Total_Precipitation_series, label="P")
-                plot!(Timeseries_Obj, Pe[index_spinup:index_lastdate], label="Pe")
                 display(Pplot)
                 # All_GWstorage = hcat(All_GWstorage, GWstorage[index_spinup: index_lastdate])
                 # All_Snowstorage = hcat(All_Snowstorage, Snowstorage[index_spinup: index_lastdate])
@@ -232,12 +238,12 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
                 #parameters, parameters_array = parameter_selection()
                 #Discharge, Snow_Cover, Snow_Melt = runmodelprecipitationzones_glacier_future(Potential_Evaporation, Glacier_All_Zones, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, Elevations_Each_Precipitation_Zone)
                 #Discharge, Snow_Cover, Snow_Melt = runmodelprecipitationzones_future(Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, Elevations_Each_Precipitation_Zone)
-                All_Discharge = hcat( All_Discharge, Discharge[index_spinup:index_lastdate], )
-                All_Snowstorage = hcat( All_Snowstorage, Snowstorage[index_spinup:index_lastdate], )
+                All_Discharge = hcat( All_Discharge, Discharge[index_spinup:index_lastdate])
+                All_Snowstorage = hcat( All_Snowstorage, Snowstorage[index_spinup:index_lastdate])
 
 
 
-
+                # print(size(All_Pe))
                 Pe_mean = mean(All_Pe[:, n+1])
                 Ei_mean = mean(All_Ei[:, n+1])
                 Ep_mean = mean(Potential_Evaporation_series)
@@ -246,7 +252,7 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
                 #print(P_mean)
                 #estimating long term transpiration as a consequence of closed water balance
                 Er_mean = Pe_mean - Q_tw
-                @assert Er_mean < 0
+                #@assertEr_mean <=0
 
                 srdef_timeseries = zeros(length(Total_Precipitation_series))
                 srdef_continuous = zeros(length(Total_Precipitation_series))
@@ -279,22 +285,26 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
                         index_month = findfirst( x -> x == startmonth, Dates.month.(Timeseries_new), )[1]
                         srdef_ = Float64[]
                         index_srdef = index_year + index_month - 1
-
+                        srdef_continuous[1]=0
                         for t = ((i-1)*365):1:(365+((i-1)*365))
 
                                 if t > 1
                                         # if srdef_timeseries[t] >= 0
                                         #         srdef_continuous[t] = 0
                                         # else
-                                                srdef_continuous[t] = srdef_timeseries[t] + srdef_continuous[t-1]
+                                        srdef_continuous[t] = srdef_timeseries[t] + srdef_continuous[t-1]
                                         # end
+                                        if srdef_continuous[t]>=0
+                                                srdef_continuous[t]=0
+                                        end
                                 end
-                                if t == index_srdef srdef_continuous[t] = 0
 
-                                end
+                                # if t == index_srdef srdef_continuous[t] = 0
+                                #
+                                # end
                         end
                         srdef_max = minimum(srdef_continuous[index_year:index_endyear])
-                        println(i, srdef_max)
+                        # println(i, srdef_max)
                         push!(years_index, year)
                         push!(srdef_max_year, srdef_max)
                         hcat(srdef, srdef_timeseries)
@@ -303,7 +313,7 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
 
 
                 end
-                print(size(srdef_max_year))
+
                 #hcat(yearseries, srdef_max_year)
 
                 maxima =DataFrame(year=years_index, srdef_max=srdef_max_year)
@@ -315,7 +325,7 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
                 scatter!(years, srdef_max_year, label = "Yearly max Srdef")
                 Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/srdef_max_years2.png", )
 
-                startplot = 3 * 365
+                startplot = 4 * 365
                 endplot = 5 * 365
 
                 Plots.plot()
@@ -338,7 +348,7 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
                 plot!( Timeseries[startplot:endplot], Er_timeseries[startplot+1:endplot+1], label = "Er", )
                 plot!( Timeseries[startplot:endplot], All_Pe[:, n+1][startplot+1:endplot+1], label = "Pe", )
                 plot!( Timeseries[startplot:endplot], srdef_timeseries[startplot:endplot], label = "Sr_def_series", )
-                plot!( Timeseries[startplot:endplot], srdef_continuous[startplot+1:endplot+1], label = "Sr_def_cum", )
+                #plot!( Timeseries[startplot:endplot], srdef_continuous[startplot+1:endplot+1], label = "Sr_def_cum", )
                 Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/all_timeseries_normal_method2" * string(n) * ".png", )
 
         end
@@ -739,13 +749,12 @@ function GEV_defreggental(path_to_folder)
 
 
         #finding frequency factor k
-        println(xt[1], xt[4])
         return xt[1], xt[4]
 end
 
 
 xt2, xt20 = GEV_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/")
-println(xt2, xt20)
+print(xt2,xt20)
 
 # function GEV_defreggental(data)
 #         f(x) = x - mean(data) + sum(data.*exp(-data/x)) / sum(exp(-data/x))

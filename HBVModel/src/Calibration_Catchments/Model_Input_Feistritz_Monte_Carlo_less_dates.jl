@@ -5,7 +5,7 @@ using Distributed
 #@everywhere using Plots
 @everywhere using Statistics
 @everywhere using DocStringExtensions
-@everywhere using DataFrames
+using DataFrames
 @everywhere using Random
 
 @everywhere module_dir = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/HBVModel/src/"
@@ -49,9 +49,9 @@ using Distributed
         # where to skip to in data file of precipitation measurements
         Skipto = [24]
         # get the areal percentage of all elevation zones in the HRUs in the precipitation zones
-        Areas_HRUs =  CSV.read(local_path*"HBVModel/Feistritz/HBV_Area_Elevation.csv", skipto=2, decimal='.', delim = ',')
+        Areas_HRUs =  CSV.read(local_path*"HBVModel/Feistritz/HBV_Area_Elevation.csv", DataFrame, skipto=2, decimal='.', delim = ',')
         # get the percentage of each HRU of the precipitation zone
-        Percentage_HRU = CSV.read(local_path*"HBVModel/Feistritz/HRU_Prec_Zones.csv", header=[1], decimal='.', delim = ',')
+        Percentage_HRU = CSV.read(local_path*"HBVModel/Feistritz/HRU_Prec_Zones.csv", DataFrame, header=[1], decimal='.', delim = ',')
         Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
         startyear = 1983
         endyear = 2005
@@ -60,7 +60,7 @@ using Distributed
 
         #------------ TEMPERATURE AND POT. EVAPORATION CALCULATIONS ---------------------
         #Temperature is the same in whole catchment
-        Temperature = CSV.read(local_path*"HBVModel/Feistritz/prenner_tag_10510.dat", header = true, skipto = 3, delim = ' ', ignorerepeated = true)
+        Temperature = CSV.read(local_path*"HBVModel/Feistritz/prenner_tag_10510.dat", DataFrame, header = true, skipto = 3, delim = ' ', ignorerepeated = true)
 
         # get data for 20 years: from 1987 to end of 2006
         # from 1986 to 2005 13669: 20973
@@ -82,7 +82,7 @@ using Distributed
         Potential_Evaporation = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna)
 
         # ------------ LOAD OBSERVED DISCHARGE DATA ----------------
-        Discharge = CSV.read(local_path*"HBVModel/Feistritz/Q-Tagesmittel-214353.csv", header= false, skipto=388, decimal=',', delim = ';', types=[String, Float64])
+        Discharge = CSV.read(local_path*"HBVModel/Feistritz/Q-Tagesmittel-214353.csv", DataFrame, header= false, skipto=388, decimal=',', delim = ';', types=[String, Float64])
         Discharge = Matrix(Discharge)
         startindex = findfirst(isequal("01.01."*string(startyear)*" 00:00:00"), Discharge)
         endindex = findfirst(isequal("31.12."*string(endyear)*" 00:00:00"), Discharge)
@@ -125,14 +125,14 @@ using Distributed
         Elevations_Each_Precipitation_Zone = Array{Float64, 1}[]
 
         for i in 1: length(ID_Prec_Zones)
-                Precipitation = CSV.read(local_path*"HBVModel/Feistritz/N-Tagessummen-"*string(ID_Prec_Zones[i])*".csv", header= false, skipto=Skipto[i], missingstring = "L\xfccke", decimal=',', delim = ';')
+                Precipitation = CSV.read(local_path*"HBVModel/Feistritz/N-Tagessummen-"*string(ID_Prec_Zones[i])*".csv", DataFrame, header= false, skipto=Skipto[i], missingstring = "L\xfccke", decimal=',', delim = ';')
                 Precipitation_Array = Matrix(Precipitation)
                 startindex = findfirst(isequal("01.01."*string(startyear)*" 07:00:00   "), Precipitation_Array)
                 endindex = findfirst(isequal("31.12."*string(endyear)*" 07:00:00   "), Precipitation_Array)
                 Precipitation_Array = Precipitation_Array[startindex[1]:endindex[1],:]
                 Precipitation_Array[:,1] = Date.(Precipitation_Array[:,1], Dates.DateFormat("d.m.y H:M:S   "))
                 # find duplicates and remove them
-                df = DataFrame(Precipitation_Array)
+                df = DataFrame(Precipitation_Array, :auto)
                 df = unique!(df)
                 # drop missing values
                 df = dropmissing(df)
@@ -176,11 +176,13 @@ using Distributed
                 Perc_Elevation = Perc_Elevation[(findall(x -> x!= 0, Perc_Elevation))]
                 @assert 0.99 <= sum(Perc_Elevation) <= 1.01
                 push!(Elevation_Percentage, Perc_Elevation)
+                #println(Current_Percentage_HRU[1], zeros(length(Bare_Elevation_Count)) , Bare_Elevation_Count, length(Bare_Elevation_Count[1]), 0, [0], 0, [0], 0, 0)
+
                 # calculate the inputs once for every precipitation zone because they will stay the same during the Monte Carlo Sampling
-                bare_input = HRU_Input(Area_Bare_Elevations, Current_Percentage_HRU[1],zeros(length(Bare_Elevation_Count)) , Bare_Elevation_Count, length(Bare_Elevation_Count), 0, [0], 0, [0], 0, 0)
-                forest_input = HRU_Input(Area_Forest_Elevations, Current_Percentage_HRU[2], zeros(length(Forest_Elevation_Count)) , Forest_Elevation_Count, length(Forest_Elevation_Count), 0, [0], 0, [0],  0, 0)
-                grass_input = HRU_Input(Area_Grass_Elevations, Current_Percentage_HRU[3], zeros(length(Grass_Elevation_Count)) , Grass_Elevation_Count,length(Grass_Elevation_Count), 0, [0], 0, [0],  0, 0)
-                rip_input = HRU_Input(Area_Rip_Elevations, Current_Percentage_HRU[4], zeros(length(Rip_Elevation_Count)) , Rip_Elevation_Count, length(Rip_Elevation_Count), 0, [0], 0, [0],  0, 0)
+                bare_input = HRU_Input(Area_Bare_Elevations, Current_Percentage_HRU[1],zeros(length(Bare_Elevation_Count)) , Bare_Elevation_Count, length(Bare_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (0,0), 0, [0], 0, [0], 0, 0)
+                forest_input = HRU_Input(Area_Forest_Elevations, Current_Percentage_HRU[2], zeros(length(Forest_Elevation_Count)) , Forest_Elevation_Count, length(Forest_Elevation_Count),(Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (0,0), 0, [0], 0, [0],  0, 0)
+                grass_input = HRU_Input(Area_Grass_Elevations, Current_Percentage_HRU[3], zeros(length(Grass_Elevation_Count)) , Grass_Elevation_Count,length(Grass_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (0,0),0, [0], 0, [0],  0, 0)
+                rip_input = HRU_Input(Area_Rip_Elevations, Current_Percentage_HRU[4], zeros(length(Rip_Elevation_Count)) , Rip_Elevation_Count, length(Rip_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (0,0), 0, [0], 0, [0],  0, 0)
 
                 all_inputs = [bare_input, forest_input, grass_input, rip_input]
                 #print(typeof(all_inputs))
@@ -292,12 +294,12 @@ using Distributed
                 end
         end
         All_Goodness = transpose(All_Goodness[:, 2:end])
-        open(local_path*"HBVModel/Feistritz_Parameterfit_"*string(ID)*".csv", "a") do io
+        open(local_path*"HBVModel/Calibrations/Feistritz/Feistritz_Parameterfit_less_dates_snow_redistr_"*string(ID)*".csv"*".csv", "a") do io
                 writedlm(io, All_Goodness,",")
         end
 end
 
-nmax = 25000
+nmax = 300
 @time begin
 #run_MC(1,700)
 pmap(ID -> run_MC(ID, nmax) , [1,2,3,4,5,6,7])
