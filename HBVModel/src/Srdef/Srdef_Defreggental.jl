@@ -214,6 +214,7 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
                 rip_parameters = Parameters( beta_Rip, Ce, 0.0, Interceptioncapacity_Rip, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Rip, Temp_Thresh)
                 slow_parameters = Slow_Paramters(Ks, Ratio_Riparian)
 
+
                 parameters = [bare_parameters,forest_parameters,grass_parameters,rip_parameters,]
                 parameters_array = parameters_best_calibrations[n, :]
                 Discharge, Pe, Ei, GWstorage, Snowstorage = runmodelprecipitationzones_future_srdef(Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, Elevations_Each_Precipitation_Zone )
@@ -222,16 +223,30 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
                 All_Pe = hcat(All_Pe, Pe[index_spinup:index_lastdate])
                 All_Ei = hcat(All_Ei, Ei[index_spinup:index_lastdate])
 
+                Total_in = Total_Precipitation_series+Snowstorage[index_spinup:index_lastdate]
                 Peplot = Plots.plot()
-                plot!(Timeseries_Obj[1000:6000], Total_Precipitation_series[1000:6000], label="P")
-                plot!(Timeseries_Obj[1000:6000], Pe[index_spinup:index_lastdate][1000:6000], label="Pe")
-                plot!(Timeseries_Obj[1000:6000], Ei[index_spinup:index_lastdate][1000:6000], label="Ei")
+                plot!(Timeseries_Obj[1000:2000], Total_Precipitation_series[1000:2000], label="P")
+                #plot!(Timeseries_Obj[1000:2000], Total_in[1000:2000], label="P+Melt", color="purple")
+                plot!(Timeseries_Obj[1000:2000], Pe[index_spinup:index_lastdate][1000:2000], label="Pe", color="darkorange")
+                plot!(Timeseries_Obj[1000:2000], Snowstorage[index_spinup:index_lastdate][1000:2000], label="Melt", color="darkblue")
+                #plot!(Timeseries_Obj[1000:6000], Ei[index_spinup:index_lastdate][1000:6000], label="Ei")
 
-                display(Peplot)
+                xaxis!("Date")
+                yaxis!("mm")
+                #display(Peplot)
+                Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/Pe_melt_timeseries_analysis.png", )
 
-                Pplot = Plots.plot()
-                plot!(Timeseries_Obj, Total_Precipitation_series, label="P")
-                display(Pplot)
+
+                Pepplot = Plots.plot()
+                # plot!(Timeseries_Obj[1000:2000], Total_Precipitation_series[1000:6000], label="P")
+                # plot!(Timeseries_Obj[1000:6000], Pe[index_spinup:index_lastdate][1000:6000], label="Pe")
+                plot!(Timeseries_Obj[1000:2000], -Ei[index_spinup:index_lastdate][1000:2000], label="Ei")
+                plot!(Timeseries_Obj[1000:2000], -Potential_Evaporation_series[1000:2000], label="Ep")
+                xaxis!("Date")
+                yaxis!("mm")
+                #display(Pepplot)
+                Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/Pep_timeseries_analysis.png", )
+
                 # All_GWstorage = hcat(All_GWstorage, GWstorage[index_spinup: index_lastdate])
                 # All_Snowstorage = hcat(All_Snowstorage, Snowstorage[index_spinup: index_lastdate])
                 # parameter ranges
@@ -239,7 +254,7 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
                 #Discharge, Snow_Cover, Snow_Melt = runmodelprecipitationzones_glacier_future(Potential_Evaporation, Glacier_All_Zones, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, Elevations_Each_Precipitation_Zone)
                 #Discharge, Snow_Cover, Snow_Melt = runmodelprecipitationzones_future(Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, Elevations_Each_Precipitation_Zone)
                 All_Discharge = hcat( All_Discharge, Discharge[index_spinup:index_lastdate])
-                All_Snowstorage = hcat( All_Snowstorage, Snowstorage[index_spinup:index_lastdate])
+                All_Snowmelt = hcat( All_Snowstorage, Snowstorage[index_spinup:index_lastdate])
 
 
 
@@ -323,6 +338,8 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
 
                 Plots.plot()
                 scatter!(years, srdef_max_year, label = "Yearly max Srdef")
+                yaxis!("mm")
+                xaxis!("Year")
                 Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/srdef_max_years2.png", )
 
                 startplot = 4 * 365
@@ -330,18 +347,26 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
 
                 Plots.plot()
                 plot!( Timeseries[index_spinup:end], srdef_timeseries, label = "Sr_def_series", )
+                yaxis!("mm")
+                xaxis!("Date")
                 Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/srdef_timeseries_normal" * string(n) * ".png", )
 
                 Plots.plot()
                 plot!( Timeseries[startplot:endplot], srdef_timeseries[startplot:endplot], label = "Sr_def_series", )
+                yaxis!("mm")
+                xaxis!("Date")
                 Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/srdef_timeseries_zoom" * string(n) * ".png", )
 
                 Plots.plot()
                 plot!( Timeseries[index_spinup:end], srdef_continuous, label = "Sr_def", )
+                yaxis!("mm")
+                xaxis!("Date")
                 Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/srdef_timeseries_cum_method2" * string(n) * ".png", )
 
                 Plots.plot()
                 plot!( Timeseries[startplot:endplot], srdef_continuous[startplot+1:endplot+1], label = "Sr_def", )
+                yaxis!("mm")
+                xaxis!("Date")
                 Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/srdef_timeseries_cum_zoom_method2" * string(n) * ".png", )
 
                 Plots.plot()
@@ -349,7 +374,30 @@ function run_srdef_defreggental( path_to_projection, path_to_best_parameter, sta
                 plot!( Timeseries[startplot:endplot], All_Pe[:, n+1][startplot+1:endplot+1], label = "Pe", )
                 plot!( Timeseries[startplot:endplot], srdef_timeseries[startplot:endplot], label = "Sr_def_series", )
                 #plot!( Timeseries[startplot:endplot], srdef_continuous[startplot+1:endplot+1], label = "Sr_def_cum", )
+                yaxis!("mm")
+                xaxis!("Date")
                 Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/all_timeseries_normal_method2" * string(n) * ".png", )
+
+                Srmax_forest = Float64[]
+                Srmax_grass = Float64[]
+                Plots.plot()
+                for n = 1:1:size(parameters_best_calibrations)[1]
+                        beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, Soilstoaragecapacity_Bare, Soilstoaragecapacity_Forest, Soilstoaragecapacity_Grass, Soilstoaragecapacity_Rip, Temp_Thresh = parameters_best_calibrations[n, :]
+                        push!(Srmax_forest, Soilstoaragecapacity_Forest)
+                        push!(Srmax_grass, Soilstoaragecapacity_Grass)
+
+                end
+                df = DataFrame(Srmax_forest = Srmax_forest, Srmax_grass = Srmax_grass)
+                #xt2, xt20 = GEV_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/")
+                boxplot!(df.Srmax_forest, color="Darkgreen", legend=false)
+                #scatter!(xt20)
+                boxplot!(df.Srmax_grass, color="Lightgreen", legend=false)
+                #scatter!(xt2)
+                xticks!([1:2;], ["Forest", "Grass"])
+                yaxis!("Sr,max [mm]")
+                Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/Parameters.png")
+                println(df)
+
 
         end
 
@@ -713,6 +761,7 @@ function GEV_defreggental(path_to_folder)
         data = CSV.read(path_to_folder * "Defreggental_sdef_max_year", DataFrame, header = true, decimal = '.', delim = ',')
         T = [2,5,10,20,50,100,120,150]
         N= length(data[!, 1])
+        print(N)
         avg = mean(data.srdef_max)
         stdv = std(data.srdef_max)
         #reduced variate yn
@@ -740,11 +789,15 @@ function GEV_defreggental(path_to_folder)
         #Recurranceinterval
         Plots.plot()
         scatter!(xt,yt)
+        xaxis!("xti")
+        yaxis!("yti")
         Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/GEVstart_defreggental_xtyt.png")
 
         Plots.plot()
         plot!(T,xt, label="GEV distribution")
         scatter!(T,xt, label="datapoints")
+        xaxis!("T")
+        yaxis!("mm")
         Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/GEVstart_defreggental_Txt.png")
 
 

@@ -198,9 +198,42 @@ function budyko_plot(startyear,endyear)#All_Catchment_Names, Area_Catchments)
 
 
     #creating output files
+    #PLOT NEUTROL BUDYKO - MIDTERM
+    p_plain = Plots.plot()
+    w = 2.65
+    w1 = 3.2
+    w2 = 2
+    Budyko_Eact_P_fu = (ones(length(Epot_Prec))) + Epot_Prec .* ones(length(Epot_Prec)) - ((ones(length(Epot_Prec)))+ Epot_Prec.^w).^(1/w)
+    Budyko_Eact_P = ( Epot_Prec .* tanh.(1 ./Epot_Prec) .* (ones(length(Epot_Prec)) - exp.(-Epot_Prec))).^0.5
+    Budyko_Eact_P_fu_1 = (ones(length(Epot_Prec))) + Epot_Prec .* ones(length(Epot_Prec)) - ((ones(length(Epot_Prec)))+ Epot_Prec.^w1).^(1/w1)
+    Budyko_Eact_P_fu_2 = (ones(length(Epot_Prec))) + Epot_Prec .* ones(length(Epot_Prec)) - ((ones(length(Epot_Prec)))+ Epot_Prec.^w2).^(1/w2)
+    # for (i, catchment) in enumerate(All_Catchments)
+    #     scatter!([AI_all_tw[i]], [EI_all[i]], label=catchment*"_tw", color=[Color[i]], markershape=[Markers[3]], markersize=3, markerstrokewidth=0)
+    #     plot!(Epot_Prec, Budyko_eact_P_all_tw[:,i],label="", linecolor=Color[i], linestyle=:solid)#, title="Catchment specific locations using Thornthwaite Ep" )
+    #
+    #     # if catchment != "Gailtal"
+    #     #     scatter!([AI_all_hg[i]], [EI_all[i]], label=catchment*"_hg", color=[Color[i]], markershape=[Markers[4]], markersize=3, markerstrokewidth=0)
+    #     #     plot!(Epot_Prec, Budyko_eact_P_all_hg[:,i], label="",linecolor=Color[i], linestyle=:dot)#, title="Catchment specific locations using Hargreaves Ep")
+    #     #
+    #     # end
+    # end
+    plot!(Epot_Prec, Budyko_Eact_P, label="Original Budyko", linecolor="black")
+    plot!(Epot_Prec, Budyko_Eact_P_fu, label="Fu Budyko", linecolor="black", linestyle=:dot)
+    plot!(Epot_Prec, Budyko_Eact_P_fu_1, label="w=3.2", linecolor="red", linestyle=:solid)
+    plot!(Epot_Prec, Budyko_Eact_P_fu_2, label="w=2", linecolor="grey",  linestyle=:solid)
+    plot!(collect(0:5),collect(0:5), linestyle=:dot, linecolor="black", label="Energy Limit")#, size=(2200,1200), )
+    plot!(collect(1:5), ones(5), linestyle=:dot, linecolor="black", label="Water Limit")
+    #vline!([0.406])
+    xlims!((0,2))
+    ylims!((0.2,1))
+    xaxis!("Epot/P")
+    yaxis!("Eact/P")
+
+    Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Results/Budyko_Parameterized_ws2.png")
 
     #Plot for only hargreaves
     p_tw = Plots.plot()
+    plot!(Epot_Prec, Budyko_Eact_P, label="Original Budyko", linecolor="black")
     plot!(Epot_Prec, Budyko_Eact_P, label="Original Budyko", linecolor="black")
     for (i, catchment) in enumerate(All_Catchments)
         if catchment != "Gailtal"
