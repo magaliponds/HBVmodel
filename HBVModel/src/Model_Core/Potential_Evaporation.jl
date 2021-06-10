@@ -77,6 +77,7 @@ end
 
 function heatindex(monthly_Temp::Array{Float64, 1})
     #calculates the annual heat index
+    #print(mod(length(monthly_Temp), 12) == 0)
     @assert mod(length(monthly_Temp), 12) == 0
     Heatindex = Float64[]
     sum = 0
@@ -116,6 +117,7 @@ end
 
 function getEpot_thornthwaite(Temp::Array{Float64, 1}, Timeseries::Array{Date, 1}, sunhours::Array{Float64, 1})
     # assertion for that the timeseries contain whole years
+
     @assert length(Timeseries) == length(Temp)
     Evaporation = Float64[]
     # calculate the mean monthly temperatures of the timeseries
