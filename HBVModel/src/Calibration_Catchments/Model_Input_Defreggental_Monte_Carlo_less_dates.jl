@@ -317,9 +317,9 @@ using Distributed
         #println(ID, "file saved")
         end
 end
-#nmax = readdlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental_less_dates/Defreggental_Parameterfit_All_runs_less_dates_best_500010.csv", ',')[:,10:29]
+#nmax = readdlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental_less_dates/Defreggental_Parameterfit_All_runs_less_dates_best_5000.csv", ',')[:,10:29]
 @time begin
-#run_MC(1,100)
+run_MC(1,100)
 nmax = 20
 #transorm collection ID using function run_MC, whereas process is distributed over all computer workers except for 1
 pmap(ID -> run_MC(ID, nmax) , [1])
