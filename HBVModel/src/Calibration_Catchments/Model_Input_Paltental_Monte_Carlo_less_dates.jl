@@ -42,15 +42,18 @@ using Distributed
         Area_Catchment = sum(Area_Zones)
         Area_Zones_Percent = Area_Zones / Area_Catchment
 
+        Snow_Threshold = 10000
+        Height_Threshold = 10000
+
         Mean_Elevation_Catchment = 1300 # in reality 1314
         Elevations_Catchment = Elevations(200.0, 600.0, 2600.0, 648.0, 648.0)
         Sunhours_Vienna = [8.83, 10.26, 11.95, 13.75, 15.28, 16.11, 15.75, 14.36, 12.63, 10.9, 9.28, 8.43]
         # where to skip to in data file of precipitation measurements
         Skipto = [22, 22]
         # get the areal percentage of all elevation zones in the HRUs in the precipitation zones
-        Areas_HRUs =  CSV.read(local_path*"HBVModel/Palten/HBV_Area_Elevation_round.csv", skipto=2, decimal='.', delim = ',')
+        Areas_HRUs =  CSV.read(local_path*"HBVModel/Palten/HBV_Area_Elevation_round.csv", DataFrame, skipto=2, decimal='.', delim = ',')
         # get the percentage of each HRU of the precipitation zone
-        Percentage_HRU = CSV.read(local_path*"HBVModel/Palten/HRU_Prec_Zones.csv", header=[1], decimal='.', delim = ',')
+        Percentage_HRU = CSV.read(local_path*"HBVModel/Palten/HRU_Prec_Zones.csv", DataFrame, header=[1], decimal='.', delim = ',')
         Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
         startyear = 1983
         endyear = 2005
@@ -59,14 +62,14 @@ using Distributed
 
         # ----------- PRECIPITATION 106120 --------------
 
-        Precipitation = CSV.read(local_path*"HBVModel/Palten/N-Tagessummen-"*string(ID_Prec_Zones[1])*".csv", header= false, skipto=Skipto[1], missingstring = "L\xfccke", decimal=',', delim = ';')
+        Precipitation = CSV.read(local_path*"HBVModel/Palten/N-Tagessummen-"*string(ID_Prec_Zones[1])*".csv", DataFrame, header= false, skipto=Skipto[1], missingstring = "L\xfccke", decimal=',', delim = ';')
         Precipitation_Array = Matrix(Precipitation)
         startindex = findfirst(isequal("01.01."*string(startyear)*" 07:00:00   "), Precipitation_Array)
         endindex = findfirst(isequal("31.12."*string(endyear)*" 07:00:00   "), Precipitation_Array)
         Precipitation_Array = Precipitation_Array[startindex[1]:endindex[1],:]
         Precipitation_Array[:,1] = Date.(Precipitation_Array[:,1], Dates.DateFormat("d.m.y H:M:S   "))
         # find duplicates and remove them
-        df = DataFrame(Precipitation_Array)
+        df = DataFrame(Precipitation_Array, :auto)
         df = unique!(df)
         # drop missing values
         df = dropmissing(df)
@@ -75,7 +78,7 @@ using Distributed
 
         #------------ TEMPERATURE AND POT. EVAPORATION CALCULATIONS ---------------------
         #Temperature is the same in whole catchment
-        Temperature = CSV.read(local_path*"HBVModel/Palten/prenner_tag_9900.dat", header = true, skipto = 3, delim = ' ', ignorerepeated = true)
+        Temperature = CSV.read(local_path*"HBVModel/Palten/prenner_tag_9900.dat", DataFrame, header = true, skipto = 3, delim = ' ', ignorerepeated = true)
 
         # get data for 20 years: from 1987 to end of 2006
         # from 1986 to 2005 13669: 20973
@@ -107,7 +110,7 @@ using Distributed
         @assert Dates_Temperature_Daily_all == Timeseries
         # ----------- add Temperature for missing temperature -------------------
         # station 13120 is 100 m higher than station 9900, so 0.6 °C colder
-        Temperature_13120 = CSV.read(local_path*"HBVModel/Palten/prenner_tag_13120.dat", header = true, skipto = 3, delim = ' ', ignorerepeated = true)
+        Temperature_13120 = CSV.read(local_path*"HBVModel/Palten/prenner_tag_13120.dat", DataFrame, header = true, skipto = 3, delim = ' ', ignorerepeated = true)
         Temperature_13120 = dropmissing(Temperature_13120)
         Temperature_Array_13120 = Temperature_13120.t / 10
         Timeseries_13120 = Date.(Temperature_13120.datum, Dates.DateFormat("yyyymmdd"))
@@ -164,7 +167,7 @@ using Distributed
         Potential_Evaporation = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna)
 
         # ------------ LOAD OBSERVED DISCHARGE DATA ----------------
-        Discharge = CSV.read(local_path*"HBVModel/Palten/Q-Tagesmittel-210815.csv", header= false, skipto=21, decimal=',', delim = ';', types=[String, Float64])
+        Discharge = CSV.read(local_path*"HBVModel/Palten/Q-Tagesmittel-210815.csv", DataFrame, header= false, skipto=21, decimal=',', delim = ';', types=[String, Float64])
         Discharge = Matrix(Discharge)
         startindex = findfirst(isequal("01.01."*string(startyear)*" 00:00:00"), Discharge)
         endindex = findfirst(isequal("31.12."*string(endyear)*" 00:00:00"), Discharge)
@@ -211,14 +214,14 @@ using Distributed
         for i in 1: length(ID_Prec_Zones)
                 if ID_Prec_Zones[i] == 106120 || ID_Prec_Zones[i] == 111815
                         #print(ID_Prec_Zones[i])
-                        Precipitation = CSV.read(local_path*"HBVModel/Palten/N-Tagessummen-"*string(ID_Prec_Zones[i])*".csv", header= false, skipto=Skipto[i], missingstring = "L\xfccke", decimal=',', delim = ';')
+                        Precipitation = CSV.read(local_path*"HBVModel/Palten/N-Tagessummen-"*string(ID_Prec_Zones[i])*".csv", DataFrame, header= false, skipto=Skipto[i], missingstring = "L\xfccke", decimal=',', delim = ';')
                         Precipitation_Array = Matrix(Precipitation)
                         startindex = findfirst(isequal("01.01."*string(startyear)*" 07:00:00   "), Precipitation_Array)
                         endindex = findfirst(isequal("31.12."*string(endyear)*" 07:00:00   "), Precipitation_Array)
                         Precipitation_Array = Precipitation_Array[startindex[1]:endindex[1],:]
                         Precipitation_Array[:,1] = Date.(Precipitation_Array[:,1], Dates.DateFormat("d.m.y H:M:S   "))
                         # find duplicates and remove them
-                        df = DataFrame(Precipitation_Array)
+                        df = DataFrame(Precipitation_Array, :auto)
                         df = unique!(df)
                         # drop missing values
                         df = dropmissing(df)
@@ -266,10 +269,10 @@ using Distributed
                 @assert 0.99 <= sum(Perc_Elevation) <= 1.01
                 push!(Elevation_Percentage, Perc_Elevation)
                 # calculate the inputs once for every precipitation zone because they will stay the same during the Monte Carlo Sampling
-                bare_input = HRU_Input(Area_Bare_Elevations, Current_Percentage_HRU[1],zeros(length(Bare_Elevation_Count)) , Bare_Elevation_Count, length(Bare_Elevation_Count), 0, [0], 0, [0], 0, 0)
-                forest_input = HRU_Input(Area_Forest_Elevations, Current_Percentage_HRU[2], zeros(length(Forest_Elevation_Count)) , Forest_Elevation_Count, length(Forest_Elevation_Count), 0, [0], 0, [0],  0, 0)
-                grass_input = HRU_Input(Area_Grass_Elevations, Current_Percentage_HRU[3], zeros(length(Grass_Elevation_Count)) , Grass_Elevation_Count,length(Grass_Elevation_Count), 0, [0], 0, [0],  0, 0)
-                rip_input = HRU_Input(Area_Rip_Elevations, Current_Percentage_HRU[4], zeros(length(Rip_Elevation_Count)) , Rip_Elevation_Count, length(Rip_Elevation_Count), 0, [0], 0, [0],  0, 0)
+                bare_input = HRU_Input(Area_Bare_Elevations, Current_Percentage_HRU[1],zeros(length(Bare_Elevation_Count)) , Bare_Elevation_Count, length(Bare_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0], 0, 0)
+                forest_input = HRU_Input(Area_Forest_Elevations, Current_Percentage_HRU[2], zeros(length(Forest_Elevation_Count)) , Forest_Elevation_Count, length(Forest_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0],  0, 0)
+                grass_input = HRU_Input(Area_Grass_Elevations, Current_Percentage_HRU[3], zeros(length(Grass_Elevation_Count)) , Grass_Elevation_Count,length(Grass_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0],  0, 0)
+                rip_input = HRU_Input(Area_Rip_Elevations, Current_Percentage_HRU[4], zeros(length(Rip_Elevation_Count)) , Rip_Elevation_Count, length(Rip_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0],  0, 0)
 
                 all_inputs = [bare_input, forest_input, grass_input, rip_input]
                 #print(typeof(all_inputs))
@@ -345,12 +348,12 @@ using Distributed
                         if size(All_Goodness)[2]-1 == 100
                                 All_Goodness = transpose(All_Goodness[:, 2:end])
                                 if count != 100
-                                        open(local_path*"HBVModel/Paltental_Parameterfit_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"/Calibrations/Palten/Paltental_Parameterfit_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count+= 1
                                 else
-                                        open(local_path*"HBVModel/Paltental_Parameterfit_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"/Calibrations/Palten/Paltental_Parameterfit_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count = 1
@@ -366,7 +369,7 @@ using Distributed
                 end
         end
         All_Goodness = transpose(All_Goodness[:, 2:end])
-        open(local_path*"HBVModel/Paltental_Parameterfit_"*string(ID)*".csv", "a") do io
+        open(local_path*"/Calibrations/Palten/Paltental_Parameterfit_"*string(ID)*".csv", "a") do io
                 writedlm(io, All_Goodness,",")
         end
 end

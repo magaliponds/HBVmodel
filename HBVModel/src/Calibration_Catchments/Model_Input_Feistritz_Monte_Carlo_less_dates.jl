@@ -42,6 +42,9 @@ using DataFrames
         Area_Catchment = sum(Area_Zones)
         Area_Zones_Percent = Area_Zones / Area_Catchment
 
+        Snow_Threshold = 10000
+        Height_Threshold = 10000
+
         Mean_Elevation_Catchment = 900 # in reality 917
         # two last entries of array are height of temp measurement
         Elevations_Catchment = Elevations(200.0, 400.0, 1600.0, 488., 488.)
@@ -154,8 +157,8 @@ using DataFrames
 
                 Area_Rip_Elevations, Rip_Elevation_Count = getelevationsperHRU(Current_Areas_HRUs[:,4], Elevation_Catchment, Elevation_HRUs)
                 #print(Bare_Elevation_Count, Forest_Elevation_Count, Grass_Elevation_Count, Rip_Elevation_Count)
-                println((Area_Bare_Elevations), " ", Bare_Elevation_Count,"\n")
-                println((Area_Forest_Elevations), " ", Forest_Elevation_Count,"\n")
+                # println((Area_Bare_Elevations), " ", Bare_Elevation_Count,"\n")
+                # println((Area_Forest_Elevations), " ", Forest_Elevation_Count,"\n")
                 Area_Bare_Elevations = [0.0]
                 Bare_Elevation_Count = [1]
                 @assert 0.999 <= sum(Area_Bare_Elevations) <= 1.0001 || sum(Area_Bare_Elevations) == 0
@@ -179,10 +182,10 @@ using DataFrames
                 #println(Current_Percentage_HRU[1], zeros(length(Bare_Elevation_Count)) , Bare_Elevation_Count, length(Bare_Elevation_Count[1]), 0, [0], 0, [0], 0, 0)
 
                 # calculate the inputs once for every precipitation zone because they will stay the same during the Monte Carlo Sampling
-                bare_input = HRU_Input(Area_Bare_Elevations, Current_Percentage_HRU[1],zeros(length(Bare_Elevation_Count)) , Bare_Elevation_Count, length(Bare_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (0,0), 0, [0], 0, [0], 0, 0)
-                forest_input = HRU_Input(Area_Forest_Elevations, Current_Percentage_HRU[2], zeros(length(Forest_Elevation_Count)) , Forest_Elevation_Count, length(Forest_Elevation_Count),(Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (0,0), 0, [0], 0, [0],  0, 0)
-                grass_input = HRU_Input(Area_Grass_Elevations, Current_Percentage_HRU[3], zeros(length(Grass_Elevation_Count)) , Grass_Elevation_Count,length(Grass_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (0,0),0, [0], 0, [0],  0, 0)
-                rip_input = HRU_Input(Area_Rip_Elevations, Current_Percentage_HRU[4], zeros(length(Rip_Elevation_Count)) , Rip_Elevation_Count, length(Rip_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (0,0), 0, [0], 0, [0],  0, 0)
+                bare_input = HRU_Input(Area_Bare_Elevations, Current_Percentage_HRU[1],zeros(length(Bare_Elevation_Count)) , Bare_Elevation_Count, length(Bare_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0], 0, 0)
+                forest_input = HRU_Input(Area_Forest_Elevations, Current_Percentage_HRU[2], zeros(length(Forest_Elevation_Count)) , Forest_Elevation_Count, length(Forest_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0],  0, 0)
+                grass_input = HRU_Input(Area_Grass_Elevations, Current_Percentage_HRU[3], zeros(length(Grass_Elevation_Count)) , Grass_Elevation_Count, length(Grass_Elevation_Count),  (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold),0, [0], 0, [0],  0, 0)
+                rip_input = HRU_Input(Area_Rip_Elevations, Current_Percentage_HRU[4], zeros(length(Rip_Elevation_Count)) , Rip_Elevation_Count, length(Rip_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0],  0, 0)
 
                 all_inputs = [bare_input, forest_input, grass_input, rip_input]
                 #print(typeof(all_inputs))
@@ -235,25 +238,27 @@ using DataFrames
         count = 1
         number_Files = 0
         # best_calibrations = readdlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Feistritz_1400000_1.csv", ',')
-        best_calibrations = readdlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz_less_dates/Feistritz_Parameterfit_All_runs_best_100000.csv", ',')
-        index = Int(round(size(best_calibrations)[1]/4))
-        parameters_best_calibrations = best_calibrations[1+((ID-1) * index):ID*index,10:29]
+        # best_calibrations = readdlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz_less_dates/Feistritz_Parameterfit_All_runs_best_100000.csv", ',')
+        # index = Int(round(size(best_calibrations)[1]/4))
+        # parameters_best_calibrations = best_calibrations[1+((ID-1) * index):ID*index,10:29]
 
-        for n in 1 : 1:size(parameters_best_calibrations)[1]
+        for n in 1 : nmax#1:size(parameters_best_calibrations)[1]
                 #print(n,"\n")
                 Current_Inputs_All_Zones = deepcopy(Inputs_All_Zones)
                 Current_Storages_All_Zones = deepcopy(Storages_All_Zones)
                 Current_GWStorage = deepcopy(GWStorage)
+                parameters, slow_parameters, parameters_array = parameter_selection_feistritz()
 
-                beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, Soilstoaragecapacity_Bare, Soilstoaragecapacity_Forest, Soilstoaragecapacity_Grass, Soilstoaragecapacity_Rip, Temp_Thresh = parameters_best_calibrations[n, :]
-                bare_parameters = Parameters(beta_Bare, Ce, 0, 0.0, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Bare, Temp_Thresh)
-                forest_parameters = Parameters(beta_Forest, Ce, 0, Interceptioncapacity_Forest, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Forest, Temp_Thresh)
-                grass_parameters = Parameters(beta_Grass, Ce, 0, Interceptioncapacity_Grass, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Grass, Temp_Thresh)
-                rip_parameters = Parameters(beta_Rip, Ce, 0.0, Interceptioncapacity_Rip, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Rip, Temp_Thresh)
-                slow_parameters = Slow_Paramters(Ks, Ratio_Riparian)
 
-                parameters = [bare_parameters, forest_parameters, grass_parameters, rip_parameters]
-                parameters_array = parameters_best_calibrations[n, :]
+                # beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, Soilstoaragecapacity_Bare, Soilstoaragecapacity_Forest, Soilstoaragecapacity_Grass, Soilstoaragecapacity_Rip, Temp_Thresh = parameters_best_calibrations[n, :]
+                # bare_parameters = Parameters(beta_Bare, Ce, 0, 0.0, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Bare, Temp_Thresh)
+                # forest_parameters = Parameters(beta_Forest, Ce, 0, Interceptioncapacity_Forest, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Forest, Temp_Thresh)
+                # grass_parameters = Parameters(beta_Grass, Ce, 0, Interceptioncapacity_Grass, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Grass, Temp_Thresh)
+                # rip_parameters = Parameters(beta_Rip, Ce, 0.0, Interceptioncapacity_Rip, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Rip, Temp_Thresh)
+                # slow_parameters = Slow_Paramters(Ks, Ratio_Riparian)
+                #
+                # parameters = [bare_parameters, forest_parameters, grass_parameters, rip_parameters]
+                # parameters_array = parameters_best_calibrations[n, :]
                 #parameters, slow_parameters, parameters_array = parameter_selection_feistritz()
 
                 # parameter ranges
@@ -273,12 +278,12 @@ using DataFrames
                         if size(All_Goodness)[2]-1 == 100
                                 All_Goodness = transpose(All_Goodness[:, 2:end])
                                 if count != 100
-                                        open(local_path*"HBVModel/Feistritz_Parameterfit_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations/Feistritz/Feistritz_Parameterfit_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count+= 1
                                 else
-                                        open(local_path*"HBVModel/Feistritz_Parameterfit_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations/Feistritz/Feistritz_Parameterfit_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count = 1
@@ -294,7 +299,7 @@ using DataFrames
                 end
         end
         All_Goodness = transpose(All_Goodness[:, 2:end])
-        open(local_path*"HBVModel/Calibrations/Feistritz/Feistritz_Parameterfit_less_dates_snow_redistr_"*string(ID)*".csv"*".csv", "a") do io
+        open(local_path*"Calibrations/Feistritz/Feistritz_Parameterfit_less_dates_snow_redistr_"*string(ID)*".csv"*".csv", "a") do io
                 writedlm(io, All_Goodness,",")
         end
 end

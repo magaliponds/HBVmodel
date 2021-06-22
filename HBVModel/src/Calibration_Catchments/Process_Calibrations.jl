@@ -6,9 +6,8 @@ using StatsPlots
 using CSV
 using Plots.PlotMeasures
 using DocStringExtensions
+using Plotly
 
-# pyplot()
-# Plots.PyPlotBackend()
 
 
 """
@@ -18,14 +17,14 @@ $(SIGNATURES)
 
 """
 
-function getbest_parametersets(path_to_file, number_best)
+function getbest_parametersets(path_to_file, path_to_folder, number_best)
     calibration = readdlm(path_to_file, ',')
     # sort the calibration according to the euclidean distance
 
     calibration_sorted = sortslices(calibration, dims=1)#5:end,:]
     #number_best = 10
     calibration_best = calibration_sorted[1:number_best,:]
-    writedlm(path_to_file[1:end-4]*"_best_"*string(number_best)*".csv", calibration_best, ',')
+    writedlm(path_to_folder*"/Parameterfit_less_dates_snow_redistr_best_"*string(number_best)*".csv", calibration_best, ',')
 end
 
 """
@@ -55,7 +54,7 @@ function combine_calibrations(path, path_to_save)
     #deletes row zeroes
     all_calibrations = all_calibrations[2:end,:]
     #return all_calibrations[2:end, :], total_saved
-    writedlm(path_to_save*"Parameterfit_less_dates_snow_redistr_best_combined.csv", all_calibrations, ',')
+    writedlm(path_to_save*"Parameterfit_less_dates_snow_redistr_combined.csv", all_calibrations, ',')
 end
 
 """
@@ -95,25 +94,24 @@ function calibration_statistics(path_to_file, number_best, lower_boundary_y_axis
     # end
 
     ED_best = calibration_best[:,1]
-    plots_obj = []
+    plots_obj=[]
     for i in 1:8
-        scatter(ED_best, calibration_best[:,i+1], xlabel = "Euclidean Distance", ylabel= names_obj[i])
-        push!(plots_obj, scatter(ED_best, calibration_best[:,i+1], xlabel = "Euclidean Distance", ylabel= names_obj[i]))
+        Plots.scatter(ED_best, calibration_best[:,i+1], xlabel = "Euclidean Distance", ylabel= names_obj[i])
+        push!(plots_obj, Plots.scatter(ED_best, calibration_best[:,i+1], xlabel = "Euclidean Distance", ylabel= names_obj[i]))
     end
-    plot(plots_obj[1], plots_obj[2], plots_obj[3], plots_obj[4], plots_obj[5], plots_obj[6], plots_obj[7], plots_obj[8], layout= (2,4), legend = false, size=(1400,800))
+    Plots.plot(plots_obj[1], plots_obj[2], plots_obj[3], plots_obj[4], plots_obj[5], plots_obj[6], plots_obj[7], plots_obj[8], layout= (2,4), legend = false, size=(1400,800))
     #ylims!(lower_boundary_y_axis,1)
-    savefig(path_to_file[1:end_file+1]*string(number_best)*"_objective_functions.png")
+    Plots.savefig(path_to_file[1:end_file+1]*string(number_best)*"_objective_functions.png")
     #plot the parameter distribution
     plots_par = []
     for i in 1:20
-        scatter(ED_best, calibration_best[:,i+9], xlabel = "Euclidean Distance", ylabel= string(Parameters[i]))
-        push!(plots_par, scatter(ED_best, calibration_best[:,i+9], xlabel = "Euclidean Distance", ylabel= Parameters[i]))
+        Plots.scatter(ED_best, calibration_best[:,i+9], xlabel = "Euclidean Distance", ylabel= string(Parameters[i]))
+        push!(plots_par, Plots.scatter(ED_best, calibration_best[:,i+9], xlabel = "Euclidean Distance", ylabel= Parameters[i]))
     end
-    print(size(plots_par), typeof(plots_par))
-    plot(plots_par[1], plots_par[2], plots_par[3], plots_par[4], plots_par[5], plots_par[6], plots_par[7], plots_par[8], plots_par[9], plots_par[10], plots_par[11], plots_par[12], layout= (3,4), legend=false, size=(1400,1000))
-    savefig(path_to_file[1:end_file+1]*string(number_best)*"_parameters1.png")
-    plot(plots_par[13], plots_par[14], plots_par[15], plots_par[16], plots_par[17], plots_par[18], plots_par[19], plots_par[20], layout= (2,4), legend=false, size=(1400,1000))
-    savefig(path_to_file[1:end_file+1]*string(number_best)*"_parameters2.png")
+    Plots.plot(plots_par[1], plots_par[2], plots_par[3], plots_par[4], plots_par[5], plots_par[6], plots_par[7], plots_par[8], plots_par[9], plots_par[10], plots_par[11], plots_par[12], layout= (3,4), legend=false, size=(1400,1000))
+    Plots.savefig(path_to_file[1:end_file+1]*string(number_best)*"_parameters1.png")
+    Plots.plot(plots_par[13], plots_par[14], plots_par[15], plots_par[16], plots_par[17], plots_par[18], plots_par[19], plots_par[20], layout= (2,4), legend=false, size=(1400,1000))
+    Plots.savefig(path_to_file[1:end_file+1]*string(number_best)*"_parameters2.png")
     # scatter(ED_best, calibration_best[:,30], xlabel = "Euclidean Distance", ylabel= "loss parameter")
     # savefig(path_to_file[1:end_file+1]*string(number_best)*"_loss_parameters.png")
 end

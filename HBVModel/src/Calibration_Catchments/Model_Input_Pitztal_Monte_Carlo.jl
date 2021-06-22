@@ -12,25 +12,25 @@ using Distributed
 @everywhere push!(LOAD_PATH, $module_dir)
 
 # # load list of structs
- @everywhere include("structs.jl")
- # load components of models represented by buckets
- @everywhere include("processes_buckets.jl")
- # load functions that combine all components of one HRU
- @everywhere include("elevations.jl")
- # load functions for combining all HRUs and for running the model
- @everywhere include("allHRU.jl")
- # load function for running model which just returns the necessary output for calibration
- @everywhere include("run_model.jl")
- # load functions for preprocessing temperature and precipitation data
- @everywhere include("Preprocessing.jl")
- # load functions for calculating the potential evaporation
- @everywhere include("Potential_Evaporation.jl")
- # load objective functionsM
- @everywhere include("ObjectiveFunctions.jl")
- # load parameterselection
- @everywhere include("parameterselection.jl")
- # load running model in several precipitation zones
- @everywhere include("runmodel_Prec_Zones.jl")
+ # @everywhere include("structs.jl")
+ # # load components of models represented by buckets
+ # @everywhere include("processes_buckets.jl")
+ # # load functions that combine all components of one HRU
+ # @everywhere include("elevations.jl")
+ # # load functions for combining all HRUs and for running the model
+ # @everywhere include("allHRU.jl")
+ # # load function for running model which just returns the necessary output for calibration
+ # @everywhere include("run_model.jl")
+ # # load functions for preprocessing temperature and precipitation data
+ # @everywhere include("Preprocessing.jl")
+ # # load functions for calculating the potential evaporation
+ # @everywhere include("Potential_Evaporation.jl")
+ # # load objective functionsM
+ # @everywhere include("ObjectiveFunctions.jl")
+ # # load parameterselection
+ # @everywhere include("parameterselection.jl")
+ # # load running model in several precipitation zones
+ # @everywhere include("runmodel_Prec_Zones.jl")
 
 @everywhere function run_MC(ID, nmax)
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
@@ -42,6 +42,9 @@ using Distributed
         Area_Catchment = sum(Area_Zones)
         Area_Zones_Percent = Area_Zones / Area_Catchment
 
+        Snow_Threshold = 10000
+        Height_Threshold = 10000
+
         Mean_Elevation_Catchment = 2500 # in reality 2558
         # elevation of catchment and height of temp measurement
         # temp measurement since 1.1.1983 at 1462 m height (ID 14621)
@@ -50,9 +53,9 @@ using Distributed
         # where to skip to in data file of precipitation measurements
         Skipto = [26, 26]
         # get the areal percentage of all elevation zones in the HRUs in the precipitation zones
-        Areas_HRUs =  CSV.read(local_path*"HBVModel/Pitztal/HBV_Area_Elevation_round.csv", skipto=2, decimal='.', delim = ',')
+        Areas_HRUs =  CSV.read(local_path*"HBVModel/Pitztal/HBV_Area_Elevation_round.csv", DataFrame, skipto=2, decimal='.', delim = ',')
         # get the percentage of each HRU of the precipitation zone
-        Percentage_HRU = CSV.read(local_path*"HBVModel/Pitztal/HRU_Prec_Zones.csv", header=[1], decimal='.', delim = ',')
+        Percentage_HRU = CSV.read(local_path*"HBVModel/Pitztal/HRU_Prec_Zones.csv", DataFrame, header=[1], decimal='.', delim = ',')
         Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
         startyear = 1983
         endyear = 2005
@@ -60,7 +63,7 @@ using Distributed
         Timeseries = collect(Date(startyear, 1, 1):Day(1):Date(endyear,12,31))
         #------------ TEMPERATURE AND POT. EVAPORATION CALCULATIONS ---------------------
         #Temperature is the same in whole catchment
-        Temperature = CSV.read(local_path*"HBVModel/Pitztal/prenner_tag_14621.dat", header = true, skipto = 3, delim = ' ', ignorerepeated = true)
+        Temperature = CSV.read(local_path*"HBVModel/Pitztal/prenner_tag_14621.dat", DataFrame, header = true, skipto = 3, delim = ' ', ignorerepeated = true)
 
         # get data for 20 years: from 1987 to end of 2006
         # from 1986 to 2005 13669: 20973
@@ -81,8 +84,8 @@ using Distributed
         Potential_Evaporation = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna)
 
         # ------------ LOAD OBSERVED DISCHARGE DATA ----------------
-        Discharge = CSV.read(local_path*"HBVModel/Pitztal/Q-Tagesmittel-201335.csv", header= false, skipto=23, decimal=',', delim = ';', types=[String, Float64])
-        Discharge = convert(Matrix, Discharge)
+        Discharge = CSV.read(local_path*"HBVModel/Pitztal/Q-Tagesmittel-201335.csv", DataFrame, header= false, skipto=23, decimal=',', delim = ';', types=[String, Float64])
+        Discharge = Matrix(Discharge)
         startindex = findfirst(isequal("01.01."*string(startyear)*" 00:00:00"), Discharge)
         endindex = findfirst(isequal("31.12."*string(endyear)*" 00:00:00"), Discharge)
         Observed_Discharge = Array{Float64,1}[]
@@ -125,25 +128,25 @@ using Distributed
         Elevations_Each_Precipitation_Zone = Array{Float64, 1}[]
 
         for i in 1: length(ID_Prec_Zones)
-                Precipitation = CSV.read(local_path*"HBVModel/Pitztal/N-Tagessummen-"*string(ID_Prec_Zones[i])*".csv", header= false, skipto=Skipto[i], missingstring = "L\xfccke", decimal=',', delim = ';')
-                Precipitation_Array = convert(Matrix, Precipitation)
+                Precipitation = CSV.read(local_path*"HBVModel/Pitztal/N-Tagessummen-"*string(ID_Prec_Zones[i])*".csv", DataFrame, header= false, skipto=Skipto[i], missingstring = "L\xfccke", decimal=',', delim = ';')
+                Precipitation_Array = Matrix(Precipitation)
                 startindex = findfirst(isequal("01.01."*string(startyear)*" 07:00:00   "), Precipitation_Array)
                 endindex = findfirst(isequal("31.12."*string(endyear)*" 07:00:00   "), Precipitation_Array)
                 Precipitation_Array = Precipitation_Array[startindex[1]:endindex[1],:]
                 Precipitation_Array[:,1] = Date.(Precipitation_Array[:,1], Dates.DateFormat("d.m.y H:M:S   "))
                 # find duplicates and remove them
-                df = DataFrame(Precipitation_Array)
+                df = DataFrame(Precipitation_Array, :auto)
                 df = unique!(df)
                 # drop missing values
                 df = dropmissing(df)
-                Precipitation_Array = convert(Matrix, df)
+                Precipitation_Array = Matrix(df)
                 Elevation_HRUs, Precipitation, Nr_Elevationbands = getprecipitationatelevation(Elevations_All_Zones[i], Precipitation_Gradient, Precipitation_Array[:,2])
                 push!(Precipitation_All_Zones, Precipitation)
                 push!(Nr_Elevationbands_All_Zones, Nr_Elevationbands)
                 push!(Elevations_Each_Precipitation_Zone, Elevation_HRUs)
 
                 #glacier area
-                Glacier_Area = CSV.read(local_path*"HBVModel/Pitztal/Glaciers_Elevations_"*string(ID_Prec_Zones[i])*"_evolution_69_06.csv",  header= true, delim=',')
+                Glacier_Area = CSV.read(local_path*"HBVModel/Pitztal/Glaciers_Elevations_"*string(ID_Prec_Zones[i])*"_evolution_69_06.csv",  DataFrame, header= true, delim=',')
                 Years = collect(startyear:endyear)
                 glacier_daily = zeros(Total_Elevationbands_Catchment)
                 for current_year in Years
@@ -154,7 +157,7 @@ using Distributed
                 push!(Glacier_All_Zones, glacier_daily[:,2:end])
                 index_HRU = (findall(x -> x==ID_Prec_Zones[i], Areas_HRUs[1,2:end]))
                 # for each precipitation zone get the relevant areal extentd
-                Current_Areas_HRUs = convert(Matrix, Areas_HRUs[2: end, index_HRU])
+                Current_Areas_HRUs = Matrix(Areas_HRUs[2: end, index_HRU])
                 # the elevations of each HRU have to be known in order to get the right temperature data for each elevation
                 Area_Bare_Elevations, Bare_Elevation_Count = getelevationsperHRU(Current_Areas_HRUs[:,1], Elevation_Catchment, Elevation_HRUs)
                 Area_Forest_Elevations, Forest_Elevation_Count = getelevationsperHRU(Current_Areas_HRUs[:,2], Elevation_Catchment, Elevation_HRUs)
@@ -180,10 +183,10 @@ using Distributed
                 @assert 0.99 <= sum(Perc_Elevation) <= 1.01
                 push!(Elevation_Percentage, Perc_Elevation)
                 # calculate the inputs once for every precipitation zone because they will stay the same during the Monte Carlo Sampling
-                bare_input = HRU_Input(Area_Bare_Elevations, Current_Percentage_HRU[1],zeros(length(Bare_Elevation_Count)) , Bare_Elevation_Count, length(Bare_Elevation_Count), 0, [0], 0, [0], 0, 0)
-                forest_input = HRU_Input(Area_Forest_Elevations, Current_Percentage_HRU[2], zeros(length(Forest_Elevation_Count)) , Forest_Elevation_Count, length(Forest_Elevation_Count), 0, [0], 0, [0],  0, 0)
-                grass_input = HRU_Input(Area_Grass_Elevations, Current_Percentage_HRU[3], zeros(length(Grass_Elevation_Count)) , Grass_Elevation_Count,length(Grass_Elevation_Count), 0, [0], 0, [0],  0, 0)
-                rip_input = HRU_Input(Area_Rip_Elevations, Current_Percentage_HRU[4], zeros(length(Rip_Elevation_Count)) , Rip_Elevation_Count, length(Rip_Elevation_Count), 0, [0], 0, [0],  0, 0)
+                bare_input = HRU_Input(Area_Bare_Elevations, Current_Percentage_HRU[1],zeros(length(Bare_Elevation_Count)) , Bare_Elevation_Count, length(Bare_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold),  0, [0], 0, [0], 0, 0)
+                forest_input = HRU_Input(Area_Forest_Elevations, Current_Percentage_HRU[2], zeros(length(Forest_Elevation_Count)) , Forest_Elevation_Count, length(Forest_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0],  0, 0)
+                grass_input = HRU_Input(Area_Grass_Elevations, Current_Percentage_HRU[3], zeros(length(Grass_Elevation_Count)) , Grass_Elevation_Count,length(Grass_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0],  0, 0)
+                rip_input = HRU_Input(Area_Rip_Elevations, Current_Percentage_HRU[4], zeros(length(Rip_Elevation_Count)) , Rip_Elevation_Count, length(Rip_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0],  0, 0)
 
                 all_inputs = [bare_input, forest_input, grass_input, rip_input]
                 #print(typeof(all_inputs))
@@ -246,12 +249,12 @@ using Distributed
                         if size(All_Goodness)[2]-1 == 100
                                 All_Goodness = transpose(All_Goodness[:, 2:end])
                                 if count != 100
-                                        open(local_path*"HBVModel/Pitztal_Parameterfit_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations/Pitztal/Pitztal_Parameterfit_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count+= 1
                                 else
-                                        open(local_path*"HBVModel/Pitztal_Parameterfit_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations/Pitztal/Pitztal_Parameterfit_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count = 1
@@ -267,13 +270,13 @@ using Distributed
                 end
         end
         All_Goodness = transpose(All_Goodness[:, 2:end])
-        open(local_path*"HBVModel/Pitztal_Parameterfit_"*string(ID)*".csv", "a") do io
+        open(local_path*"Calibrations/Pitztal/Pitztal_Parameterfit_"*string(ID)*".csv", "a") do io
                 writedlm(io, All_Goodness,",")
         end
 end
 # #
-nmax = 90000
+#nmax = 9000
 @time begin
-#run_MC(1,20)
+run_MC(1,500)
 pmap(ID -> run_MC(ID, nmax) , [1,2,3,4,5,6,7])
 end

@@ -289,12 +289,12 @@ using Distributed
                         if size(All_Goodness)[2]-1 == 100
                                 All_Goodness = transpose(All_Goodness[:, 2:end])
                                 if count != 100
-                                        open(local_path*"HBVModel/Silbertal_Parameterfit_snow_redistr_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations/Silbertal/Silbertal_Parameterfit_snow_redistr_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count+= 1
                                 else
-                                        open(local_path*"HBVModel/Silbertal_Parameterfit_snow_redistr_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations/Silbertal/Silbertal_Parameterfit_snow_redistr_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count = 1
@@ -310,12 +310,12 @@ using Distributed
                 end
         end
         All_Goodness = transpose(All_Goodness[:, 2:end])
-        open(local_path*"HBVModel/Silbertal_Parameterfit_snow_redistr_"*string(ID)*".csv", "a") do io
+        open(local_path*"Calibrations/Silbertal/Silbertal_Parameterfit_snow_redistr_"*string(ID)*".csv", "a") do io
                 writedlm(io, All_Goodness,",")
         end
 end
 #
-nmax = readdlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_less_dates/Silbertal_Parameterfit_All_less_dates_best_500020.csv", ',')[:,10:29]
+#nmax = readdlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_less_dates/Silbertal_Parameterfit_All_less_dates_best_500020.csv", ',')[:,10:29]
 
 @time begin
 nmax = 100

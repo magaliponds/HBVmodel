@@ -942,16 +942,16 @@ function GEV_defreggental(path_to_folder, startyear, endyear)
         return Output
 end
 
-function GEVresult(path_to_best_parameter, catchment_name)
+function GEVresult(path_to_best_parameter, catchment_name, rcp, rcm)
         local_path="/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/"
         best_calibrations = readdlm(path_to_best_parameter, ',')
         parameters_best_calibrations = best_calibrations[:, 10:29]
 
         Srmax_forest = Float64[]
         Srmax_grass = Float64[]
-        mod_past = CSV.read(local_path*"1981/"*catchment_name*"/1981_GEV_T.csv", DataFrame, decimal = '.', delim = ',')
-        mod_future = CSV.read(local_path*"2068/"*catchment_name*"/2068_GEV_T.csv",DataFrame, decimal = '.', delim = ',')
-        obs_past = CSV.read(local_path*"Past/"*catchment_name*"/Past_GEV_T.csv", DataFrame, decimal = '.', delim = ',')
+        mod_past = CSV.read(local_path*catchment_name*rcp*rcm*"/1981_GEV_T_total_titled.csv", DataFrame, decimal = '.', delim = ',')
+        mod_future = CSV.read(local_path*catchment_name*rcp*rcm*"/2068_GEV_T_total_titled.csv",DataFrame, decimal = '.', delim = ',')
+        obs_past = CSV.read(local_path*catchment_name*rcp*rcm*"/Past_GEV_T_total_titled.csv", DataFrame, decimal = '.', delim = ',')
 
         Plots.plot(legendfontsize=6, legend=:topright)
         for n = 1:1:size(parameters_best_calibrations)[1]
@@ -1039,7 +1039,7 @@ function GEVresult(path_to_best_parameter, catchment_name)
 
 end
 
-GEVresult("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Defreggental_parameterfitless_dates_snow_redistr_best_combined_300_validation_10years.csv", "Defreggental")
+GEVresult("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Defreggental_parameterfitless_dates_snow_redistr_best_combined_50_validation_10years.csv", "Defreggental")
 # GEV_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/2068/Defreggental/", 2068,2100)
 #
 # GEV_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/1981/Defreggental/", 1981,2013)
