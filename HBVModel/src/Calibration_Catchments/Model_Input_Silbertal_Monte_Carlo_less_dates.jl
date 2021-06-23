@@ -52,9 +52,9 @@ using Distributed
         # where to skip to in data file of precipitation measurements
         Skipto = [26]
         # get the areal percentage of all elevation zones in the HRUs in the precipitation zones
-        Areas_HRUs =  CSV.read(local_path*"HBVModel/Silbertal/HBV_Area_Elevation_round_whole.csv", skipto=2, decimal='.', delim = ',')
+        Areas_HRUs =  CSV.read(local_path*"HBVModel/Silbertal/HBV_Area_Elevation_round_whole.csv", DataFrame, skipto=2, decimal='.', delim = ',')
         # get the percentage of each HRU of the precipitation zone
-        Percentage_HRU = CSV.read(local_path*"HBVModel/Silbertal/HRU_Prec_Zones_whole.csv", header=[1], decimal='.', delim = ',')
+        Percentage_HRU = CSV.read(local_path*"HBVModel/Silbertal/HRU_Prec_Zones_whole.csv", DataFrame, header=[1], decimal='.', delim = ',')
         Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
         startyear = 1983
         endyear = 2005
@@ -63,7 +63,7 @@ using Distributed
         Timeseries = collect(Date(startyear, 1, 1):Day(1):Date(endyear,12,31))
         #------------ TEMPERATURE AND POT. EVAPORATION CALCULATIONS ---------------------
 
-        Temperature = CSV.read(local_path*"HBVModel/Montafon/prenner_tag_14200.dat", header = true, skipto = 3, delim = ' ', ignorerepeated = true)
+        Temperature = CSV.read(local_path*"HBVModel/Montafon/prenner_tag_14200.dat", DataFrame,header = true, skipto = 3, delim = ' ', ignorerepeated = true)
 
         # get data for 20 years: from 1987 to end of 2006
         # from 1986 to 2005 13669: 20973
@@ -82,7 +82,7 @@ using Distributed
         Potential_Evaporation = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Dates_Temperature_Daily, Sunhours_Vienna)
 
         # ------------ LOAD OBSERVED DISCHARGE DATA ----------------
-        Discharge = CSV.read(local_path*"HBVModel/Silbertal/Q-Tagesmittel-200048.csv", header= false, skipto=24, decimal=',', delim = ';', types=[String, Float64])
+        Discharge = CSV.read(local_path*"HBVModel/Silbertal/Q-Tagesmittel-200048.csv", DataFrame,header= false, skipto=24, decimal=',', delim = ';', types=[String, Float64])
         Discharge = Matrix(Discharge)
         startindex = findfirst(isequal("01.01."*string(startyear)*" 00:00:00"), Discharge)
         endindex = findfirst(isequal("31.12."*string(endyear)*" 00:00:00"), Discharge)
@@ -130,7 +130,7 @@ using Distributed
 
         for i in 1: length(ID_Prec_Zones)
                 if ID_Prec_Zones[i] == 100057 || ID_Prec_Zones[i] == 100123
-                        Precipitation  = CSV.read("Montafon/NTag"*string(ID_Prec_Zones[i])*".dat", header = false, delim= ' ', ignorerepeated = true, types=[String, Time, Float64])
+                        Precipitation  = CSV.read("Montafon/NTag"*string(ID_Prec_Zones[i])*".dat", DataFrame, header = false, delim= ' ', ignorerepeated = true, types=[String, Time, Float64])
                         Precipitation_Array = Matrix(Precipitation)
                         println(size(Precipitation_Array), "\n")
                         startindex = findfirst(isequal("01.01."*string(startyear)), Precipitation_Array)
@@ -138,7 +138,7 @@ using Distributed
                         Precipitation_Array = Precipitation_Array[startindex[1]:endindex[1],:]
                         Precipitation_Array[:,1] = Date.(Precipitation_Array[:,1], Dates.DateFormat("d.m.y"))
                         # find duplicates and remove them
-                        df = DataFrame(Precipitation_Array)
+                        df = DataFrame(Precipitation_Array, :auto)
                         df = unique!(df)
                         # drop missing values
                         df = dropmissing(df)
@@ -148,14 +148,14 @@ using Distributed
                         push!(Nr_Elevationbands_All_Zones, Nr_Elevationbands)
                         push!(Elevations_Each_Precipitation_Zone, Elevation_HRUs)
                 elseif ID_Prec_Zones[i] == 100180 || ID_Prec_Zones[i] == 100206
-                        Precipitation = CSV.read(local_path*"HBVModel/Montafon/N-Tagessummen-"*string(ID_Prec_Zones[i])*".csv", header= false, skipto=Skipto[i], missingstring = "L\xfccke", decimal=',', delim = ';')
+                        Precipitation = CSV.read(local_path*"HBVModel/Montafon/N-Tagessummen-"*string(ID_Prec_Zones[i])*".csv", DataFrame, header= false, skipto=Skipto[i], missingstring = "L\xfccke", decimal=',', delim = ';')
                         Precipitation_Array = Matrix(Precipitation)
                         startindex = findfirst(isequal("01.01."*string(startyear)*" 07:00:00   "), Precipitation_Array)
                         endindex = findfirst(isequal("31.12."*string(endyear)*" 07:00:00   "), Precipitation_Array)
                         Precipitation_Array = Precipitation_Array[startindex[1]:endindex[1],:]
                         Precipitation_Array[:,1] = Date.(Precipitation_Array[:,1], Dates.DateFormat("d.m.y H:M:S   "))
                         # find duplicates and remove them
-                        df = DataFrame(Precipitation_Array)
+                        df = DataFrame(Precipitation_Array, :auto)
                         df = unique!(df)
                         # drop missing values
                         df = dropmissing(df)
@@ -251,24 +251,25 @@ using Distributed
         print("worker ", ID, " preparation finished", "\n")
         count = 1
         number_Files = 0
-        parameters_best_calibrations = nmax[1+71430*(ID-1):71430*ID,:]
-        print("startvalue ", 1+71430*(ID-1), "endvalue", 71430*ID)
+        #parameters_best_calibrations = nmax[1+71430*(ID-1):71430*ID,:]
+        #print("startvalue ", 1+71430*(ID-1), "endvalue", 71430*ID)
 
         #All_discharge = Array{Any, 1}[]
-        for n in 1 : 1:size(parameters_best_calibrations)[1]
+        for n in 1 : nmax#1:size(parameters_best_calibrations)[1]
                 Current_Inputs_All_Zones = deepcopy(Inputs_All_Zones)
                 Current_Storages_All_Zones = deepcopy(Storages_All_Zones)
                 Current_GWStorage = deepcopy(GWStorage)
+                parameters, slow_parameters, parameters_array = parameter_selection_silbertal()
 
-                beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, Soilstoaragecapacity_Bare, Soilstoaragecapacity_Forest, Soilstoaragecapacity_Grass, Soilstoaragecapacity_Rip, Temp_Thresh = parameters_best_calibrations[n, :]
-                bare_parameters = Parameters(beta_Bare, Ce, 0, 0.0, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Bare, Temp_Thresh)
-                forest_parameters = Parameters(beta_Forest, Ce, 0, Interceptioncapacity_Forest, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Forest, Temp_Thresh)
-                grass_parameters = Parameters(beta_Grass, Ce, 0, Interceptioncapacity_Grass, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Grass, Temp_Thresh)
-                rip_parameters = Parameters(beta_Rip, Ce, 0.0, Interceptioncapacity_Rip, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Rip, Temp_Thresh)
-                slow_parameters = Slow_Paramters(Ks, Ratio_Riparian)
-
-                parameters = [bare_parameters, forest_parameters, grass_parameters, rip_parameters]
-                parameters_array = parameters_best_calibrations[n, :]
+                # beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, Soilstoaragecapacity_Bare, Soilstoaragecapacity_Forest, Soilstoaragecapacity_Grass, Soilstoaragecapacity_Rip, Temp_Thresh = parameters_best_calibrations[n, :]
+                # bare_parameters = Parameters(beta_Bare, Ce, 0, 0.0, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Bare, Temp_Thresh)
+                # forest_parameters = Parameters(beta_Forest, Ce, 0, Interceptioncapacity_Forest, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Forest, Temp_Thresh)
+                # grass_parameters = Parameters(beta_Grass, Ce, 0, Interceptioncapacity_Grass, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Grass, Temp_Thresh)
+                # rip_parameters = Parameters(beta_Rip, Ce, 0.0, Interceptioncapacity_Rip, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Rip, Temp_Thresh)
+                # slow_parameters = Slow_Paramters(Ks, Ratio_Riparian)
+                #
+                # parameters = [bare_parameters, forest_parameters, grass_parameters, rip_parameters]
+                # parameters_array = parameters_best_calibrations[n, :]
                 # parameter ranges
                 #parameters, parameters_array = parameter_selection()
                 Discharge, Snow_Extend = runmodelprecipitationzones(Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, observed_snow_cover, start2000)
@@ -318,7 +319,7 @@ end
 #nmax = readdlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_less_dates/Silbertal_Parameterfit_All_less_dates_best_500020.csv", ',')[:,10:29]
 
 @time begin
-nmax = 100
+nmax = 500
 #run_MC(1,100)
 pmap(ID -> run_MC(ID, nmax) , [1])
 end

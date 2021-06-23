@@ -27,6 +27,11 @@ function getbest_parametersets(path_to_file, path_to_folder, number_best)
     writedlm(path_to_folder*"/Parameterfit_less_dates_snow_redistr_best_"*string(number_best)*".csv", calibration_best, ',')
 end
 
+# getbest_parametersets("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Parameterfit_less_dates_snow_redistr_combined.csv",
+# "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/",100)
+
+
+
 """
 Combines Calibration Results of several files into one file.
 

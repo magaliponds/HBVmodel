@@ -51,9 +51,9 @@ using Distributed
         # where to skip to in data file of precipitation measurements
         Skipto = [24, 22, 22, 22]
         # get the areal percentage of all elevation zones in the HRUs in the precipitation zones
-        Areas_HRUs =  CSV.read(local_path*"HBVModel/Gailtal/HBV_Area_Elevation.csv", skipto=2, decimal=',', delim = ';')
+        Areas_HRUs =  CSV.read(local_path*"HBVModel/Gailtal/HBV_Area_Elevation.csv", DataFrame, skipto=2, decimal=',', delim = ';')
         # get the percentage of each HRU of the precipitation zone
-        Percentage_HRU = CSV.read(local_path*"HBVModel/Gailtal/HRUPercentage.csv", header=[1], decimal=',', delim = ';')
+        Percentage_HRU = CSV.read(local_path*"HBVModel/Gailtal/HRUPercentage.csv", DataFrame,  header=[1], decimal=',', delim = ';')
         Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
         startyear = 1983
         endyear = 2005
@@ -62,7 +62,7 @@ using Distributed
 
         #------------ TEMPERATURE AND POT. EVAPORATION CALCULATIONS ---------------------
         #Temperature is the same in whole catchment
-        Temperature = CSV.read(local_path*"HBVModel/Gailtal/LTkont113597.csv", header=false, skipto = 20, missingstring = "L\xfccke", decimal='.', delim = ';')
+        Temperature = CSV.read(local_path*"HBVModel/Gailtal/LTkont113597.csv", DataFrame,  header=false, skipto = 20, missingstring = "L\xfccke", decimal='.', delim = ';')
         Temperature_Array = Matrix(Temperature)
         startindex = findfirst(isequal("01.01."*string(startyear)*" 07:00:00"), Temperature_Array)
         endindex = findfirst(isequal("31.12."*string(endyear)*" 23:00:00"), Temperature_Array)
@@ -76,7 +76,7 @@ using Distributed
         Potential_Evaporation = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Dates_Temperature_Daily, Sunhours_Vienna)
 
         # ------------ LOAD OBSERVED DISCHARGE DATA ----------------
-        Discharge = CSV.read(local_path*"HBVModel/Gailtal/Q-Tagesmittel-212670.csv", header= false, skipto=23, decimal=',', delim = ';', types=[String, Float64])
+        Discharge = CSV.read(local_path*"HBVModel/Gailtal/Q-Tagesmittel-212670.csv", DataFrame, header= false, skipto=23, decimal=',', delim = ';', types=[String, Float64])
         Discharge = Matrix(Discharge)
         startindex = findfirst(isequal("01.01."*string(startyear)*" 00:00:00"), Discharge)
         endindex = findfirst(isequal("31.12."*string(endyear)*" 00:00:00"), Discharge)
@@ -123,14 +123,14 @@ using Distributed
 
         for i in 1: length(ID_Prec_Zones)
                 #print(ID_Prec_Zones)
-                Precipitation = CSV.read(local_path*"HBVModel/Gailtal/N-Tagessummen-"*string(ID_Prec_Zones[i])*".csv", header= false, skipto=Skipto[i], missingstring = "L\xfccke", decimal=',', delim = ';')
+                Precipitation = CSV.read(local_path*"HBVModel/Gailtal/N-Tagessummen-"*string(ID_Prec_Zones[i])*".csv", DataFrame,  header= false, skipto=Skipto[i], missingstring = "L\xfccke", decimal=',', delim = ';')
                 Precipitation_Array = Matrix(Precipitation)
                 startindex = findfirst(isequal("01.01."*string(startyear)*" 07:00:00   "), Precipitation_Array)
                 endindex = findfirst(isequal("31.12."*string(endyear)*" 07:00:00   "), Precipitation_Array)
                 Precipitation_Array = Precipitation_Array[startindex[1]:endindex[1],:]
                 Precipitation_Array[:,1] = Date.(Precipitation_Array[:,1], Dates.DateFormat("d.m.y H:M:S   "))
                 # find duplicates and remove them
-                df = DataFrame(Precipitation_Array)
+                df = DataFrame(Precipitation_Array, :auto)
                 df = unique!(df)
                 # drop missing values
                 df = dropmissing(df)
@@ -269,8 +269,8 @@ using Distributed
         end
 end
 #
-nmax = 150000
+nmax = 500
 @time begin
 #run_MC(1,100)
-pmap(ID -> run_MC(ID, nmax) , [1,2,3,4,5,6,7])
+pmap(ID -> run_MC(ID, nmax) , [1])
 end

@@ -149,21 +149,38 @@ function soilstorage(Effective_Precipitation::Float64, Interception_Evaporation:
 
     if Effective_Precipitation > 0
         # rho represents the non linear process that only part of precipitation enters soil
-        Ratio_Soil = 1 - (1 - (Soilstorage/Soilstoragecapacity))^beta
-        #Ratio_Soil = min(Ratio_Soil, 1)
-        @assert 0 <= Ratio_Soil <= 1
-        # part of the water enters the soil, it cannot exceed the soil storage capacity
-        Unused_Capacity = Soilstoragecapacity - Soilstorage
-        Q_Soil = (1 - Ratio_Soil) * Effective_Precipitation
+        # Ratio_Soil = 1 - (1 - (Soilstorage/Soilstoragecapacity))^beta
+        # #Ratio_Soil = min(Ratio_Soil, 1)
+        # @assert 0 <= Ratio_Soil <= 1
+        # # part of the water enters the soil, it cannot exceed the soil storage capacity
+        # Unused_Capacity = Soilstoragecapacity - Soilstorage
+        # Q_Soil = (1 - Ratio_Soil) * Effective_Precipitation
+        # if Unused_Capacity > Q_Soil
+        #     Soilstorage = Soilstorage + Q_Soil
+        # else
+        #     Q_Soil = Unused_Capacity
+        #     Soilstorage = Soilstoragecapacity
+        # end
+        # Overlandflow = (Effective_Precipitation - Q_Soil) * Ratio_Pref
+        # # or flows into the groundwater
+        # Preferentialflow = (Effective_Precipitation - Q_Soil) * (1 - Ratio_Pref)
+
+        Sum = (1+beta) * Soilstoragecapacity * (1-(1-(Soilstorage/Soilstoragecapacity))^(1/(1+beta)))
+        R = Effective_Precipitation - Soilstoragecapacity + Soilstorage + Soilstoragecapacity * (1-(Effective_Precipitation+Sum)/((1+beta)*Soilstoragecapacity))^(1+beta)
+        Q_Soil = Effective_Precipitation - R
+
         if Unused_Capacity > Q_Soil
             Soilstorage = Soilstorage + Q_Soil
         else
             Q_Soil = Unused_Capacity
             Soilstorage = Soilstoragecapacity
         end
-        Overlandflow = (Effective_Precipitation - Q_Soil) * Ratio_Pref
-        # or flows into the groundwater
-        Preferentialflow = (Effective_Precipitation - Q_Soil) * (1 - Ratio_Pref)
+
+
+        # R = Effective_Precipitation - Q_Soil
+        Overlandflow = R * Ratio_Pref
+        Preferentialflow = R * (1- Ratio_Pref)
+
     else
         # if it does not rain no overland flow occurs
         Overlandflow = 0.0
@@ -215,16 +232,30 @@ function ripariansoilstorage(Effective_Precipitation, Interception_Evaporation, 
 
     Ratio_Soil = 1 - (1 - (Soilstorage/Soilstoragecapacity))^beta
 
-    Unused_Capacity = Soilstoragecapacity - Soilstorage
-    Q_Soil = (1 - Ratio_Soil) * (Effective_Precipitation + Riparian_Discharge)
+    # Unused_Capacity = Soilstoragecapacity - Soilstorage
+    # Q_Soil = (1 - Ratio_Soil) * (Effective_Precipitation + Riparian_Discharge)
+    # if Unused_Capacity > Q_Soil
+    #     Soilstorage = Soilstorage + Q_Soil
+    # else
+    #     Q_Soil = Unused_Capacity
+    #     Soilstorage = Soilstoragecapacity
+    # end
+    # # the other part does not enter the soil but flows into the fast reservoir
+    # Overlandflow = (Effective_Precipitation + Riparian_Discharge - Q_Soil)
+
+    Sum = (1+beta) * Soilstoragecapacity * (1-(1-(Soilstorage/Soilstoragecapacity))^(1/(1+beta)))
+    R = Effective_Precipitation + Riparian_Discharge - Soilstoragecapacity + Soilstorage + Soilstoragecapacity * (1-(Effective_Precipitation+Sum)/((1+beta)*Soilstoragecapacity))^(1+beta)
+    Q_Soil = Effective_Precipitation + Riparian_Discharge - R
+
     if Unused_Capacity > Q_Soil
         Soilstorage = Soilstorage + Q_Soil
     else
         Q_Soil = Unused_Capacity
         Soilstorage = Soilstoragecapacity
     end
-    # the other part does not enter the soil but flows into the fast reservoir
-    Overlandflow = (Effective_Precipitation + Riparian_Discharge - Q_Soil)
+
+    # R = Effective_Precipitation - Q_Soil
+    Overlandflow = R
     # Transpiration in soil, only the part that not evaporated in interception reservoir can evaporate
     Potential_Soilevaporation = max(Potential_Evaporation - Interception_Evaporation,0)
     # transpiration can maximum be the amount stored in soil, or a percentage of potential evaporation
