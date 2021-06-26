@@ -148,37 +148,32 @@ function soilstorage(Effective_Precipitation::Float64, Interception_Evaporation:
     @assert Ratio_Pref >= 0
 
     if Effective_Precipitation > 0
-        # rho represents the non linear process that only part of precipitation enters soil
-        # Ratio_Soil = 1 - (1 - (Soilstorage/Soilstoragecapacity))^beta
-        # #Ratio_Soil = min(Ratio_Soil, 1)
-        # @assert 0 <= Ratio_Soil <= 1
         # # part of the water enters the soil, it cannot exceed the soil storage capacity
-        # Unused_Capacity = Soilstoragecapacity - Soilstorage
-        # Q_Soil = (1 - Ratio_Soil) * Effective_Precipitation
-        # if Unused_Capacity > Q_Soil
-        #     Soilstorage = Soilstorage + Q_Soil
-        # else
-        #     Q_Soil = Unused_Capacity
-        #     Soilstorage = Soilstoragecapacity
-        # end
-        # Overlandflow = (Effective_Precipitation - Q_Soil) * Ratio_Pref
-        # # or flows into the groundwater
-        # Preferentialflow = (Effective_Precipitation - Q_Soil) * (1 - Ratio_Pref)
+        Unused_Capacity = Soilstoragecapacity - Soilstorage
 
-        Sum = (1+beta) * Soilstoragecapacity * (1-(1-(Soilstorage/Soilstoragecapacity))^(1/(1+beta)))
-        R = Effective_Precipitation - Soilstoragecapacity + Soilstorage + Soilstoragecapacity * (1-(Effective_Precipitation+Sum)/((1+beta)*Soilstoragecapacity))^(1+beta)
-        Q_Soil = Effective_Precipitation - R
+        #tension water storage state in subbasin
+        Sum = (1+beta) * Soilstoragecapacity * (1-((1-(Soilstorage/Soilstoragecapacity))^(1/(1+beta))))
+        #println("hill ", ((Effective_Precipitation+Sum)/((1+beta)*Soilstoragecapacity)))
+        #Saturation runoff
+        R =  Effective_Precipitation - Soilstoragecapacity + Soilstorage +
+                (Soilstoragecapacity * (1- min(1,((Effective_Precipitation+Sum)/((1+beta)*Soilstoragecapacity))))^(1+beta))
 
+        Q_Soil = Effective_Precipitation  - R
+        #Small error between Q_soil
+        if Q_Soil < 10^-14
+            Q_Soil = 0
+        end
+
+        #println(Q_Soil)
         if Unused_Capacity > Q_Soil
             Soilstorage = Soilstorage + Q_Soil
         else
             Q_Soil = Unused_Capacity
+            #println("Adapted unused capacity")
             Soilstorage = Soilstoragecapacity
         end
 
-
-        # R = Effective_Precipitation - Q_Soil
-        Overlandflow = R * Ratio_Pref
+        Overlandflow = R  * Ratio_Pref
         Preferentialflow = R * (1- Ratio_Pref)
 
     else
@@ -230,36 +225,42 @@ function ripariansoilstorage(Effective_Precipitation, Interception_Evaporation, 
     @assert Ce > 0 #within the parameter range
     @assert Drainagecapacity >= 0
 
-    Ratio_Soil = 1 - (1 - (Soilstorage/Soilstoragecapacity))^beta
 
-    # Unused_Capacity = Soilstoragecapacity - Soilstorage
-    # Q_Soil = (1 - Ratio_Soil) * (Effective_Precipitation + Riparian_Discharge)
-    # if Unused_Capacity > Q_Soil
-    #     Soilstorage = Soilstorage + Q_Soil
-    # else
-    #     Q_Soil = Unused_Capacity
-    #     Soilstorage = Soilstoragecapacity
-    # end
-    # # the other part does not enter the soil but flows into the fast reservoir
-    # Overlandflow = (Effective_Precipitation + Riparian_Discharge - Q_Soil)
 
-    Sum = (1+beta) * Soilstoragecapacity * (1-(1-(Soilstorage/Soilstoragecapacity))^(1/(1+beta)))
-    R = Effective_Precipitation + Riparian_Discharge - Soilstoragecapacity + Soilstorage + Soilstoragecapacity * (1-(Effective_Precipitation+Sum)/((1+beta)*Soilstoragecapacity))^(1+beta)
-    Q_Soil = Effective_Precipitation + Riparian_Discharge - R
+    Unused_Capacity = Soilstoragecapacity - Soilstorage
 
-    if Unused_Capacity > Q_Soil
-        Soilstorage = Soilstorage + Q_Soil
+    if Effective_Precipitation  > 0 || Riparian_Discharge>0
+        Sum = (1+beta) * Soilstoragecapacity * (1-((1-(Soilstorage/Soilstoragecapacity))^(1/(1+beta))))
+
+        R =  Effective_Precipitation + Riparian_Discharge - Soilstoragecapacity + Soilstorage +
+        (Soilstoragecapacity * (1-min(1,((Effective_Precipitation+Sum)/((1+beta)*Soilstoragecapacity))))^(1+beta))
+
+
+        Q_Soil = Effective_Precipitation + Riparian_Discharge - R
+        if Q_Soil < 10^-14
+            Q_Soil = 0.0
+        end
+
+
+        if Unused_Capacity > Q_Soil
+            Soilstorage = Soilstorage + Q_Soil
+
+        else
+            Q_Soil = Unused_Capacity
+            Soilstorage = Soilstoragecapacity
+        end
+
+        Overlandflow = R
+
     else
-        Q_Soil = Unused_Capacity
-        Soilstorage = Soilstoragecapacity
-    end
+        Overlandflow = 0.0
 
-    # R = Effective_Precipitation - Q_Soil
-    Overlandflow = R
+    end
     # Transpiration in soil, only the part that not evaporated in interception reservoir can evaporate
     Potential_Soilevaporation = max(Potential_Evaporation - Interception_Evaporation,0)
     # transpiration can maximum be the amount stored in soil, or a percentage of potential evaporation
-    Soil_Evaporation = Potential_Soilevaporation * min(Soilstorage / (Soilstoragecapacity * Ce), 1)
+    Soil_Evaporation = Potential_Soilevaporation * min((Soilstorage / (Soilstoragecapacity * Ce)), 1)
+    # #println(Soilstorage/(Soilstoragecapacity*Ce))
     Soil_Evaporation = min(Soilstorage, Soil_Evaporation)
     Soilstorage = Soilstorage - Soil_Evaporation
     # Part of the water stored in soil will drain to a maximum capacity, which is routed into the fast response reservoir
@@ -269,6 +270,7 @@ function ripariansoilstorage(Effective_Precipitation, Interception_Evaporation, 
         Overlandflow = Overlandflow + Fastdrainage
     end
 
+    #println("Overlandflow: ", Overlandflow)
     @assert Overlandflow >= 0
     @assert Soil_Evaporation <= max(Potential_Evaporation - Interception_Evaporation,0)
     @assert Soil_Evaporation >= 0
@@ -276,196 +278,6 @@ function ripariansoilstorage(Effective_Precipitation, Interception_Evaporation, 
     @assert Soilstoragecapacity - Soilstorage >= 0
     return Overlandflow, Soil_Evaporation, Soilstorage
 end
-
-# function soilstorage(Effective_Precipitation::Float64, Interception_Evaporation::Float64, Potential_Evaporation::Float64, Soilstorage::Float64, beta::Float64, Ce::Float64, Ratio_Pref::Float64, Soilstoragecapacity::Float64)
-#     @assert Effective_Precipitation >= 0
-#     @assert Interception_Evaporation >= 0
-#     @assert Potential_Evaporation >= 0
-#     #print("soil", Potential_Evaporation / 2.0, " ", Interception_Evaporation, "\n")
-#     @assert Potential_Evaporation / 2.0 - Interception_Evaporation >= -eps(Float64) * 100000
-#     @assert Soilstorage >= 0
-#     @assert Soilstoragecapacity - Soilstorage >= 0
-#     @assert Soilstoragecapacity >= 0 #within the parameter range
-#     @assert beta > 0 #within the parameter range
-#     @assert Ce > 0 #within the parameter range
-#     @assert Ratio_Pref >= 0
-#
-#     if Effective_Precipitation > 0
-#         # rho represents the non linear process that only part of precipitation enters soil
-#         Ratio_Soil = 1 - (1 - (Soilstorage/Soilstoragecapacity))^beta
-#         #Ratio_Soil = min(Ratio_Soil, 1)
-#         @assert 0 <= Ratio_Soil <= 1
-#         # part of the water enters the soil, it cannot exceed the soil storage capacity
-#         Unused_Capacity = Soilstoragecapacity - Soilstorage
-#         Q_Soil = (1 - Ratio_Soil) * Effective_Precipitation
-#         if Unused_Capacity > Q_Soil
-#             Soilstorage = Soilstorage + Q_Soil
-#         else
-#             Q_Soil = Unused_Capacity
-#             Soilstorage = Soilstoragecapacity
-#         end
-#         Overlandflow = (Effective_Precipitation - Q_Soil) * Ratio_Pref
-#         # or flows into the groundwater
-#         Preferentialflow = (Effective_Precipitation - Q_Soil) * (1 - Ratio_Pref)
-#     else
-#         # if it does not rain no overland flow occurs
-#         Overlandflow = 0.0
-#         Preferentialflow = 0.0
-#     end
-#     # Transpiration in soil, only the part that not evaporated in interception reservoir can evaporate
-#     Potential_Soilevaporation = max(Potential_Evaporation - Interception_Evaporation, 0)
-#     # transpiration can maximum be the amount stored in soil, or a percentage of potential evaporation
-#     Soil_Evaporation = Potential_Soilevaporation * min(Soilstorage / (Soilstoragecapacity * Ce), 1.0)
-#     Soil_Evaporation = min(Soilstorage, Soil_Evaporation)
-#     Soilstorage = Soilstorage - Soil_Evaporation
-#     # if Soilstorage > Soilstoragecapacity
-#     #     print("evap", Soilstorage, " ", Soilstoragecapacity, "\n")
-#     # end
-#     @assert Overlandflow >= 0
-#     @assert Preferentialflow >= 0
-#     @assert Soil_Evaporation <= Potential_Evaporation - Interception_Evaporation
-#     @assert Soil_Evaporation >= 0
-#     @assert Soilstorage >= 0
-#     @assert Soilstoragecapacity - Soilstorage >= 0
-#     return Overlandflow::Float64, Preferentialflow::Float64, Soil_Evaporation::Float64, Soilstorage::Float64
-# end
-#
-# function soilstorage(Effective_Precipitation::Float64, Interception_Evaporation::Float64, Potential_Evaporation::Float64, Soilstorage::Float64, beta::Float64, Ce::Float64, Ratio_Pref::Float64, Soilstoragecapacity::Float64)
-#     @assert Effective_Precipitation >= 0
-#     @assert Interception_Evaporation >= 0
-#     @assert Potential_Evaporation >= 0
-#     #print("soil", Potential_Evaporation / 2.0, " ", Interception_Evaporation, "\n")
-#     @assert Potential_Evaporation / 2.0 - Interception_Evaporation >= -eps(Float64) * 100000
-#     @assert Soilstorage >= 0
-#     @assert Soilstoragecapacity - Soilstorage >= 0
-#     @assert Soilstoragecapacity >= 0 #within the parameter range
-#     @assert beta > 0 #within the parameter range
-#     @assert Ce > 0 #within the parameter range
-#     @assert Ratio_Pref >= 0
-#
-#     if Effective_Precipitation > 0
-#         # rho represents the non linear process that only part of precipitation enters soil
-#         #Ratio_Soil = 1 - (1 - (Soilstorage/Soilstoragecapacity))^beta
-#         Sum = (1+beta)*Soilstoragecapacity * (1-(1-(Soilstorage/Soilstoragecapacity))^(1/(1+beta)))
-#         R = Effective_Precipitation - Soilstoragecapacity + Soilstorage + Soilstoragecapacity * (1- (((Effective_Precipitation + Sum)/((1+beta)*Soilstoragecapacity))^(1+beta)))
-#         Q_Soil = Effective_Precipitation - R
-#
-#         Unused_Capacity = Soilstoragecapacity - Soilstorage
-#         if Unused_Capacity > Q_Soil
-#             Soilstorage = Soilstorage + Q_Soil
-#         else
-#             Q_Soil = Unused_Capacity
-#             Soilstorage = Soilstoragecapacity
-#         end
-#         Pmax=5
-#         P = Pmax * Soilstorage/Soilstoragecapacity
-#
-#         # Q_soil = (1+beta)*Soilstoragecapacity*(1-(1-(Soilstorage/Soilstoragecapacity))^(1/(1+beta)))
-#         # R = Effective_Precipitation - (Soilstoragecapacity + Soilstorage + Soilstoragecapacity * (1- (Effective_Precipitation + Q_soil)/((1+beta)*Soilstoragecapacity))^(1+gamma))
-#         #Ratio_Soil = min(Ratio_Soil, 1)
-#         #@assert 0 <= Ratio_Soil <= 1
-#         # part of the water enters the soil, it cannot exceed the soil storage capacity
-#         # Unused_Capacity = Soilstoragecapacity - Soilstorage
-#         #Q_Soil = (1 - Ratio_Soil) * Effective_Precipitation
-#
-#
-#
-#         # Soilstorage = Effective_Precipitation - R
-#         Overlandflow = (Effective_Precipitation - Q_Soil - P) * Ratio_Pref
-#
-#         # or flows into the groundwater
-#         Preferentialflow = (Effective_Precipitation - Q_Soil - P ) * (1 - Ratio_Pref) + P
-#     else
-#         # if it does not rain no overland flow occurs
-#         Overlandflow = 0.0
-#         Preferentialflow = 0.0
-#     end
-#     # Transpiration in soil, only the part that not evaporated in interception reservoir can evaporate
-#     Potential_Soilevaporation = max(Potential_Evaporation - Interception_Evaporation, 0)
-#     # transpiration can maximum be the amount stored in soil, or a percentage of potential evaporation
-#     Soil_Evaporation = Potential_Soilevaporation * min(Soilstorage / (Soilstoragecapacity * Ce), 1.0)
-#     Soil_Evaporation = min(Soilstorage, Soil_Evaporation)
-#     Soilstorage = Soilstorage - Soil_Evaporation
-#     # if Soilstorage > Soilstoragecapacity
-#     #     print("evap", Soilstorage, " ", Soilstoragecapacity, "\n")
-#     # end
-#     @assert Overlandflow >= 0
-#     @assert Preferentialflow >= 0
-#     @assert Soil_Evaporation <= Potential_Evaporation - Interception_Evaporation
-#     @assert Soil_Evaporation >= 0
-#     @assert Soilstorage >= 0
-#     @assert Soilstoragecapacity - Soilstorage >= 0
-#     return Overlandflow::Float64, Preferentialflow::Float64, Soil_Evaporation::Float64, Soilstorage::Float64
-# end
-#
-# """
-# Computes the processes in the soil component the riparian hydrological response units of the model.
-#
-# $(SIGNATURES)
-#
-# The function returns the amount of water leaving the component as evaporation, overlandflow flow and the amount of water stored in soil component.
-# Function needs inputs to be in area independent units (e.g. mm)
-# beta: factor accounting for nonlinearity
-# Ce: Evapotranspiration control factor
-# Riparian Discharge: Input into Soil from ground water
-# """
-# function ripariansoilstorage(Effective_Precipitation, Interception_Evaporation, Potential_Evaporation, Riparian_Discharge, Soilstorage, beta, Ce, Drainagecapacity, Soilstoragecapacity)
-#     @assert Effective_Precipitation >= 0
-#     @assert Interception_Evaporation >= 0
-#     @assert Potential_Evaporation >= 0
-#     @assert - eps(Float64) * 10 <= Potential_Evaporation * 0.5 - Interception_Evaporation
-#     @assert Potential_Evaporation / 2.0 - Interception_Evaporation >= -eps(Float64) * 100000
-#     @assert Riparian_Discharge >= 0
-#     #@assert Soil_Evaporation >= 0 #or should it be zero?
-#     @assert Soilstorage >= 0
-#     @assert Soilstoragecapacity - Soilstorage >= 0
-#     @assert Soilstoragecapacity > 0 #within the parameter range
-#     @assert beta > 0 #within the parameter range
-#     @assert Ce > 0 #within the parameter range
-#     @assert Drainagecapacity >= 0
-#
-#
-#     # Ratio_Soil = 1 - (1 - (Soilstorage/Soilstoragecapacity))^beta
-#     #
-#     Sum = (1+beta)*Soilstoragecapacity * (1-(1-(Soilstorage/Soilstoragecapacity))^(1/(1+beta)))
-#     R =  Effective_Precipitation + Riparian_Discharge - Soilstoragecapacity + Soilstorage + Soilstoragecapacity * (1- (((Effective_Precipitation  + Sum)/((1+beta)*Soilstoragecapacity))^(1+beta)))
-#     Q_Soil = Effective_Precipitation + Riparian_Discharge - R
-#
-#     Pmax=5
-#     P = Pmax * Soilstorage/Soilstoragecapacity
-#     Unused_Capacity = Soilstoragecapacity - Soilstorage
-#
-#     if Unused_Capacity > Q_Soil
-#         Soilstorage = Soilstorage + Q_Soil
-#     else
-#         Q_Soil = Unused_Capacity
-#         Soilstorage = Soilstoragecapacity
-#     end
-#
-#
-#
-#     # the other part does not enter the soil but flows into the fast reservoir
-#     Overlandflow = Effective_Precipitation + Riparian_Discharge - Q_Soil
-#     # Transpiration in soil, only the part that not evaporated in interception reservoir can evaporate
-#     Potential_Soilevaporation = max(Potential_Evaporation - Interception_Evaporation,0)
-#     # transpiration can maximum be the amount stored in soil, or a percentage of potential evaporation
-#     Soil_Evaporation = Potential_Soilevaporation * min(Soilstorage / (Soilstoragecapacity * Ce), 1)
-#     Soil_Evaporation = min(Soilstorage, Soil_Evaporation)
-#     Soilstorage = Soilstorage - Soil_Evaporation
-#     # Part of the water stored in soil will drain to a maximum capacity, which is routed into the fast response reservoir
-#     if Drainagecapacity > 0
-#         Fastdrainage = (Soilstorage / Soilstoragecapacity) * Drainagecapacity
-#         Soilstorage = Soilstorage - Fastdrainage
-#         Overlandflow = Overlandflow + Fastdrainage
-#     end
-#
-#     @assert Overlandflow >= 0
-#     @assert Soil_Evaporation <= max(Potential_Evaporation - Interception_Evaporation,0)
-#     @assert Soil_Evaporation >= 0
-#     @assert Soilstorage >= 0
-#     @assert Soilstoragecapacity - Soilstorage >= 0
-#     return Overlandflow, Soil_Evaporation, Soilstorage
-# end
 
 """
 Computes the processes in the fast component of the model. The fast component is represented by a linear response reservoir.

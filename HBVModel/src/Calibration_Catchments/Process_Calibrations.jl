@@ -27,8 +27,8 @@ function getbest_parametersets(path_to_file, path_to_folder, number_best)
     writedlm(path_to_folder*"/Parameterfit_less_dates_snow_redistr_best_"*string(number_best)*".csv", calibration_best, ',')
 end
 
-# getbest_parametersets("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Parameterfit_less_dates_snow_redistr_combined.csv",
-# "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/",100)
+getbest_parametersets("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Parameterfit_less_dates_snow_redistr_combined.csv",
+"/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Best/",100)
 
 
 
@@ -46,6 +46,28 @@ function combine_calibrations(path, path_to_save)
     #calibration is an array of 29 files
     #changed this to 29, instead of 30
     all_calibrations = zeros((1,29))
+    #files = readdir(path)
+    #only abstracts csv files, make sure that best calibrations are sorted together
+    files = filter(name -> endswith(name, ".csv"), readdir(path))
+    for i in 1: length(files)
+        calibration = readdlm(path*files[i], ',')
+        #adds the new array to former array
+        #adds horizontally
+        all_calibrations = vcat(all_calibrations, calibration)
+        total_saved+= size(calibration)[1]
+    end
+    #deletes row zeroes
+    all_calibrations = all_calibrations[2:end,:]
+    #return all_calibrations[2:end, :], total_saved
+    writedlm(path_to_save*"Parameterfit_less_dates_snow_redistr_combined.csv", all_calibrations, ',')
+end
+
+function combine_calibrations_pitztal(path, path_to_save)
+    all_calibrations = Array{Float64,2}[]
+    total_saved = 0
+    #calibration is an array of 29 files
+    #changed this to 29, instead of 30
+    all_calibrations = zeros((1,30))
     #files = readdir(path)
     #only abstracts csv files, make sure that best calibrations are sorted together
     files = filter(name -> endswith(name, ".csv"), readdir(path))
