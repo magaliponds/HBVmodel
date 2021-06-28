@@ -42,8 +42,8 @@ using Distributed
 
         Area_Catchment = sum(Area_Zones)
         Area_Zones_Percent = Area_Zones / Area_Catchment
-        Snow_Threshold = 600
-        Height_Threshold = 2500
+        Snow_Threshold = 10000
+        Height_Threshold = 10000
         #mean elevation needs to be determiend
 
         Mean_Elevation_Catchment = 1700 #in reality 1776 # in reality 1842.413038

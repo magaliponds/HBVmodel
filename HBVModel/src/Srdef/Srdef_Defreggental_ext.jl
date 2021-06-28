@@ -546,7 +546,7 @@ function run_srdef_GEV_defreggental_obs(path_to_best_parameter, startyear, endye
         Area_Catchment = sum(Area_Zones)
         Area_Zones_Percent = Area_Zones / Area_Catchment
         Snow_Threshold = 600
-        Height_Threshold = 4000
+        Height_Threshold = 2700
 
         Mean_Elevation_Catchment = 2300 # in reality 2233.399986
         Elevations_Catchment = Elevations(200.0, 1000.0, 3600.0, 1385.0, 1385.0) # take temp at 17700
@@ -1069,7 +1069,7 @@ function run_srdef_GEV_defreggental_test( path_to_projection, path_to_best_param
         Area_Catchment = sum(Area_Zones)
         Area_Zones_Percent = Area_Zones / Area_Catchment
         Snow_Threshold = 600
-        Height_Threshold = 4000
+        Height_Threshold = 2700
 
         Mean_Elevation_Catchment = 2300 # in reality 2233.399986
         Elevations_Catchment = Elevations(200.0, 1000.0, 3600.0, 1385.0, 1385.0) # take temp at 17700
@@ -1619,7 +1619,7 @@ run_srdef_GEV_defreggental_test("/Users/magali/Documents/1. Master/1.4 Thesis/02
 # run_srdef_GEV_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Defreggental_parameterfitless_dates_snow_redistr_best_combined_300_validation_10years.csv", 1981,2013,"future2100", 3, "no")
 #run_srdef_GEV_defreggental_obs("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Defreggental_parameterfitless_dates_snow_redistr_best_combined_300_validation_10years.csv", 1981,2010,"observed", 3, "no")
 
-function run_srmax_rcps()
+function run_srmax_rcps_defreggental()
         path_to_best_parameter= "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Defreggental_parameterfitless_dates_snow_redistr_best_combined_300_validation_10years.csv"
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/"
         rcps=["rcp45", "rcp85"]
@@ -1649,7 +1649,7 @@ end
         # run_srdef_GEV_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Defreggental_parameterfitless_dates_snow_redistr_best_combined_300_validation_10years.csv", 1981,2013,"future2100", 3, "no", rcp, rcm)
         #run_srdef_GEV_defreggental_obs("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Defreggental_parameterfitless_dates_snow_redistr_best_combined_300_validation_10years.csv", 1981,2010,"observed", 3, "no", rcp, rcm)
 
-function GEVresult(path_to_best_parameter, catchment_name, rcp, rcm)
+function GEVresult_defreggental(path_to_best_parameter, catchment_name, rcp, rcm)
         local_path="/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/"
         best_calibrations = readdlm(path_to_best_parameter, ',')
         parameters_best_calibrations = best_calibrations[:, 10:29]
@@ -1702,7 +1702,7 @@ end
 
 
 
-function GEVresult_rcps(catchment_name)
+function GEVresult_rcps_defreggental(catchment_name)
         path_to_best_parameter= "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Defreggental_parameterfitless_dates_snow_redistr_best_combined_300_validation_10years.csv"
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/"
         rcps=["rcp45", "rcp85"]

@@ -913,9 +913,9 @@ function run_validation_silbertal(path_to_best_parameter, startyear, endyear)
         #combine the temperature and potential evaporation data
         append!(Temperature_Mean_Elevation, Temperature_Mean_Elevation_08)
         append!(Potential_Evaporation, Potential_Evaporation_08)
-        println(size(Temperature_Elevation_Catchment), size(Temperature_Elevation_Catchment_08))
+        # println(size(Temperature_Elevation_Catchment), size(Temperature_Elevation_Catchment_08))
         Temperature_Elevation_Catchment = vcat(Temperature_Elevation_Catchment, Temperature_Elevation_Catchment_08)
-        println(size(Temperature_Elevation_Catchment))
+        # println(size(Temperature_Elevation_Catchment))
 
         # ------------ LOAD OBSERVED DISCHARGE DATA ----------------
         Discharge = CSV.read(local_path*"HBVModel/Silbertal/Q-Tagesmittel-200048.csv", DataFrame, header= false, skipto=24, decimal=',', delim = ';', types=[String, Float64])
@@ -963,7 +963,7 @@ function run_validation_silbertal(path_to_best_parameter, startyear, endyear)
                 if ID_Prec_Zones[i] == 100057 || ID_Prec_Zones[i] == 100123
                         Precipitation  = CSV.read("Montafon/NTag"*string(ID_Prec_Zones[i])*".dat", DataFrame, header = false, delim= ' ', ignorerepeated = true, types=[String, Time, Float64])
                         Precipitation_Array = Matrix(Precipitation)
-                        println(size(Precipitation_Array), "\n")
+                        # println(size(Precipitation_Array), "\n")
                         startindex = findfirst(isequal("01.01."*string(startyear)), Precipitation_Array)
                         endindex = findfirst(isequal("31.12."*string(endyear)), Precipitation_Array)
                         Precipitation_Array = Precipitation_Array[startindex[1]:endindex[1],:]
@@ -1101,8 +1101,14 @@ function run_validation_silbertal(path_to_best_parameter, startyear, endyear)
                 Goodness_Fit, ObjFunctions = objectivefunctions(Discharge[index_spinup:index_lastdate], Snow_Extend, Observed_Discharge_Obj, observed_FDC, observed_AC_1day, observed_AC_90day, observed_monthly_runoff, Area_Catchment, Total_Precipitation_Obj, Timeseries_Obj)
                 #if goodness higher than -9999 save it
                 Goodness = [Goodness_Fit, ObjFunctions, parameters_array]
+                #provides single elements from the iterator, collect makes these iterators to new array
                 Goodness = collect(Iterators.flatten(Goodness))
+                if length(Goodness)!=29
+                        println(Goodness)
+                        println(length(Goodness))
+                end
                 All_Goodness = hcat(All_Goodness, Goodness)
+
         end
         All_Goodness = transpose(All_Goodness[:, 2:end])
         return All_Goodness
@@ -1638,34 +1644,34 @@ function plot_validation(path_to_Calibration, path_to_Validation, path_to_save) 
 end
 
 #Feistritz
-All_Goodness = run_validation_feistritz("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003, 2010)
-writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Validation/Parameterfit_best_100_validation_5years.csv", All_Goodness,',')
-plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Validation/Parameterfit_best_100_validation_5years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Plots/")
-
+# All_Goodness = run_validation_feistritz("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003, 2010)
+# writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Validation/Parameterfit_best_100_validation_5years.csv", All_Goodness,',')
+# plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Validation/Parameterfit_best_100_validation_5years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Plots/")
+#
 #Paltental
-All_Goodness = run_validation_palten("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003, 2013)
-writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Validation/Parameterfit_best_100_validation_8years.csv", All_Goodness,',')
-plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Plots/")
+# All_Goodness = run_validation_palten("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003, 2013)
+# writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Validation/Parameterfit_best_100_validation_8years.csv", All_Goodness,',')
+# plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Plots/")
 
 #Silbertal
 All_Goodness = run_validation_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003, 2013)
 writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Validation/Parameterfit_best_100_validation_8years.csv", All_Goodness,',')
 plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Plots/")
 
-#Gailtal
-All_Goodness = run_validation_gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003,2013)
-writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Validation/Parameterfit_best_100_validation_8years.csv", All_Goodness,',')
-plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Plots/")
+# Gailtal
+# All_Goodness = run_validation_gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003,2013)
+# writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Validation/Parameterfit_best_100_validation_8years.csv", All_Goodness,',')
+# plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Plots/")
 
 #Defreggental
-All_Goodness = run_validation_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003,2013)
-writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Validation/Parameterfit_best_100_validation_8years.csv", All_Goodness,',')
-plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Plots/")
-
-#Pitztal
-All_Goodness = run_validation_pitztal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003,2013)
-writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Validation/Parameterfit_best_100_validation_8years.csv", All_Goodness,',')
-plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Plots/")
+# All_Goodness = run_validation_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003,2013)
+# writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Validation/Parameterfit_best_100_validation_8years.csv", All_Goodness,',')
+# plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Plots/")
+#
+# #Pitztal
+# All_Goodness = run_validation_pitztal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003,2013)
+# writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Validation/Parameterfit_best_100_validation_8years.csv", All_Goodness,',')
+# plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Plots/")
 #plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal_less_dates/Gailtal_Parameterfit_All_less_dates_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal_less_dates/Gailtal_Parameterfit_best100_validation.csv","/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal_less_dates/Gailtal_Parameterfit_All_less_dates_best_1000.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal_less_dates/Gailtal_Parameterfit_best1000_validation.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Calibration/Gailtal_less_dates/Validation/")
 # plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_All_less_dates_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_best100_validation.csv","/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_All_less_dates_unique_best_300.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_unique_best300_validation.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Calibration/Paltental/Validation/")# All_Goodness = run_validation_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_Snow_Redistribution/Silbertal_Parameterfit_All_runs_snow_redistr_best_300.csv",2003,2013)
 # writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_Snow_Redistribution/Silbertal_Parameterfit_b

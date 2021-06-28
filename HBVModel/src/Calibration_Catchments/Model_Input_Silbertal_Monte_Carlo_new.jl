@@ -50,9 +50,9 @@ using Distributed
         # where to skip to in data file of precipitation measurements
         Skipto = [26]
         # get the areal percentage of all elevation zones in the HRUs in the precipitation zones
-        Areas_HRUs =  CSV.read(local_path*"HBVModel/Silbertal/HBV_Area_Elevation_round_whole.csv", skipto=2, decimal='.', delim = ',')
+        Areas_HRUs =  CSV.read(local_path*"HBVModel/Silbertal/HBV_Area_Elevation_round_whole.csv", DataFrame, skipto=2, decimal='.', delim = ',')
         # get the percentage of each HRU of the precipitation zone
-        Percentage_HRU = CSV.read(local_path*"HBVModel/Silbertal/HRU_Prec_Zones_whole.csv", header=[1], decimal='.', delim = ',')
+        Percentage_HRU = CSV.read(local_path*"HBVModel/Silbertal/HRU_Prec_Zones_whole.csv", DataFrame, header=[1], decimal='.', delim = ',')
         Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
         startyear = 1983
         endyear = 2005
@@ -61,7 +61,7 @@ using Distributed
         Timeseries = collect(Date(startyear, 1, 1):Day(1):Date(endyear,12,31))
         #------------ TEMPERATURE AND POT. EVAPORATION CALCULATIONS ---------------------
 
-        Temperature = CSV.read(local_path*"HBVModel/Montafon/prenner_tag_14200.dat", header = true, skipto = 3, delim = ' ', ignorerepeated = true)
+        Temperature = CSV.read(local_path*"HBVModel/Montafon/prenner_tag_14200.dat", DataFrame, header = true, skipto = 3, delim = ' ', ignorerepeated = true)
 
         # get data for 20 years: from 1987 to end of 2006
         # from 1986 to 2005 13669: 20973
@@ -80,7 +80,7 @@ using Distributed
         Potential_Evaporation = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Dates_Temperature_Daily, Sunhours_Vienna)
 
         # ------------ LOAD OBSERVED DISCHARGE DATA ----------------
-        Discharge = CSV.read(local_path*"HBVModel/Silbertal/Q-Tagesmittel-200048.csv", header= false, skipto=24, decimal=',', delim = ';', types=[String, Float64])
+        Discharge = CSV.read(local_path*"HBVModel/Silbertal/Q-Tagesmittel-200048.csv", DataFrame, header= false, skipto=24, decimal=',', delim = ';', types=[String, Float64])
         Discharge = Matrix(Discharge)
         startindex = findfirst(isequal("01.01."*string(startyear)*" 00:00:00"), Discharge)
         endindex = findfirst(isequal("31.12."*string(endyear)*" 00:00:00"), Discharge)
@@ -100,7 +100,7 @@ using Distributed
         length_2000_end = length(Observed_Discharge) - start2000 + 1
         observed_snow_cover = Array{Float64,2}[]
         for ID in ID_Prec_Zones
-                current_observed_snow = readdlm(local_path*"HBVModel/Silbertal/snow_cover_fixed_Silbertal.csv",',', Float64)
+                current_observed_snow = readdlm(local_path*"HBVModel/Silbertal/snow_cover_fixed_Silbertal.csv", ',', Float64)
                 current_observed_snow = current_observed_snow[1:length_2000_end,3: end]
                 push!(observed_snow_cover, current_observed_snow)
         end
@@ -136,7 +136,7 @@ using Distributed
                         Precipitation_Array = Precipitation_Array[startindex[1]:endindex[1],:]
                         Precipitation_Array[:,1] = Date.(Precipitation_Array[:,1], Dates.DateFormat("d.m.y"))
                         # find duplicates and remove them
-                        df = DataFrame(Precipitation_Array)
+                        df = DataFrame(Precipitation_Array, :auto)
                         df = unique!(df)
                         # drop missing values
                         df = dropmissing(df)
@@ -146,14 +146,14 @@ using Distributed
                         push!(Nr_Elevationbands_All_Zones, Nr_Elevationbands)
                         push!(Elevations_Each_Precipitation_Zone, Elevation_HRUs)
                 elseif ID_Prec_Zones[i] == 100180 || ID_Prec_Zones[i] == 100206
-                        Precipitation = CSV.read(local_path*"HBVModel/Montafon/N-Tagessummen-"*string(ID_Prec_Zones[i])*".csv", header= false, skipto=Skipto[i], missingstring = "L\xfccke", decimal=',', delim = ';')
+                        Precipitation = CSV.read(local_path*"HBVModel/Montafon/N-Tagessummen-"*string(ID_Prec_Zones[i])*".csv", DataFrame, header= false, skipto=Skipto[i], missingstring = "L\xfccke", decimal=',', delim = ';')
                         Precipitation_Array = Matrix(Precipitation)
                         startindex = findfirst(isequal("01.01."*string(startyear)*" 07:00:00   "), Precipitation_Array)
                         endindex = findfirst(isequal("31.12."*string(endyear)*" 07:00:00   "), Precipitation_Array)
                         Precipitation_Array = Precipitation_Array[startindex[1]:endindex[1],:]
                         Precipitation_Array[:,1] = Date.(Precipitation_Array[:,1], Dates.DateFormat("d.m.y H:M:S   "))
                         # find duplicates and remove them
-                        df = DataFrame(Precipitation_Array)
+                        df = DataFrame(Precipitation_Array, :auto)
                         df = unique!(df)
                         # drop missing values
                         df = dropmissing(df)
@@ -199,10 +199,10 @@ using Distributed
                 @assert 0.99 <= sum(Perc_Elevation) <= 1.01
                 push!(Elevation_Percentage, Perc_Elevation)
                 # calculate the inputs once for every precipitation zone because they will stay the same during the Monte Carlo Sampling
-                bare_input = HRU_Input(Area_Bare_Elevations, Current_Percentage_HRU[1],zeros(length(Bare_Elevation_Count)) , Bare_Elevation_Count, length(Bare_Elevation_Count), 0, [0], 0, [0], 0, 0)
-                forest_input = HRU_Input(Area_Forest_Elevations, Current_Percentage_HRU[2], zeros(length(Forest_Elevation_Count)) , Forest_Elevation_Count, length(Forest_Elevation_Count), 0, [0], 0, [0],  0, 0)
-                grass_input = HRU_Input(Area_Grass_Elevations, Current_Percentage_HRU[3], zeros(length(Grass_Elevation_Count)) , Grass_Elevation_Count,length(Grass_Elevation_Count), 0, [0], 0, [0],  0, 0)
-                rip_input = HRU_Input(Area_Rip_Elevations, Current_Percentage_HRU[4], zeros(length(Rip_Elevation_Count)) , Rip_Elevation_Count, length(Rip_Elevation_Count), 0, [0], 0, [0],  0, 0)
+                bare_input = HRU_Input(Area_Bare_Elevations, Current_Percentage_HRU[1],zeros(length(Bare_Elevation_Count)) , Bare_Elevation_Count, length(Bare_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0], 0, 0)
+                forest_input = HRU_Input(Area_Forest_Elevations, Current_Percentage_HRU[2], zeros(length(Forest_Elevation_Count)) , Forest_Elevation_Count, length(Forest_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0],  0, 0)
+                grass_input = HRU_Input(Area_Grass_Elevations, Current_Percentage_HRU[3], zeros(length(Grass_Elevation_Count)) , Grass_Elevation_Count,length(Grass_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0],  0, 0)
+                rip_input = HRU_Input(Area_Rip_Elevations, Current_Percentage_HRU[4], zeros(length(Rip_Elevation_Count)) , Rip_Elevation_Count, length(Rip_Elevation_Count), (Elevations_All_Zones[i].Min_elevation + 100, Elevations_All_Zones[i].Max_elevation - 100), (Snow_Threshold, Height_Threshold), 0, [0], 0, [0],  0, 0)
 
                 all_inputs = [bare_input, forest_input, grass_input, rip_input]
                 push!(Inputs_All_Zones, all_inputs)
@@ -290,7 +290,7 @@ using Distributed
         end
 end
 #
-nmax = 300000
+nmax = 500
 @time begin
 #run_MC(1,100)
 pmap(ID -> run_MC(ID, nmax) , [1,2,3,4,5,6,7])
