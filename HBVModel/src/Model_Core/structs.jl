@@ -87,6 +87,14 @@ mutable struct Outflows
     Interception_Evaporation:: Float64
 end
 
+mutable struct Outflows_srdef
+    Fast_Discharge:: Float64
+    GWflow:: Float64 #only necessary for hillslope HRU
+    Soil_Evaporation:: Float64
+    Interception_Evaporation:: Float64
+    Effective_Precipitation::Float64
+end
+
 mutable struct Elevations
     Thickness_Band:: Float64
     Min_elevation:: Float64
