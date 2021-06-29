@@ -306,8 +306,8 @@ function run_validation_palten(path_to_best_parameter, startyear, endyear)
         Area_Catchment = sum(Area_Zones)
         Area_Zones_Percent = Area_Zones / Area_Catchment
 
-        Snow_Threshold = 600
-        Height_Threshold = 2700
+        Snow_Threshold = 1000
+        Height_Threshold = 10000
 
         Mean_Elevation_Catchment = 1300 # in reality 1314
         Elevations_Catchment = Elevations(200.0, 600.0, 2600.0, 648.0, 648.0)
@@ -1073,6 +1073,8 @@ function run_validation_silbertal(path_to_best_parameter, startyear, endyear)
         GWStorage = 40.0
         best_calibrations = readdlm(path_to_best_parameter, ',')
         parameters_best_calibrations = best_calibrations[:,10:29]
+        count_exclude=0
+        count_include=0
 
         #All_discharge = Array{Any, 1}[]
         for n in 1 : 1:size(parameters_best_calibrations)[1]
@@ -1105,11 +1107,15 @@ function run_validation_silbertal(path_to_best_parameter, startyear, endyear)
                 Goodness = collect(Iterators.flatten(Goodness))
                 if length(Goodness)!=29
                         println(Goodness)
-                        println(length(Goodness))
+                        count_exclude +=1
+                else
+                        All_Goodness = hcat(All_Goodness, Goodness)
+                        count_include+=1
                 end
-                All_Goodness = hcat(All_Goodness, Goodness)
 
         end
+        println("excluded:", count_exclude)
+        println("included", count_include)
         All_Goodness = transpose(All_Goodness[:, 2:end])
         return All_Goodness
 end

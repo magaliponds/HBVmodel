@@ -317,7 +317,7 @@ function run_srdef_GEV_defreggental( path_to_projection, path_to_best_parameter,
                         for t = 1:1:2#length(Total_Precipitation_series)
                                 #scaling long term transpiration to daily signal
                                 Er_timeseries[t] = (Potential_Evaporation_series[t] - All_Ei[t, n+1] ) * (Er_mean / (Ep_mean - Ei_mean))
-                                srdef_timeseries[t] = (All_Pe[t, n+1] + Er_timeseries[t])
+                                srdef_timeseries[t] = (All_Pe[t, n+1] - Er_timeseries[t])
                         end
                         path_to_folder = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/"*rcp*"/"*rcm*"/"
 
@@ -842,7 +842,7 @@ function run_srdef_GEV_defreggental_obs(path_to_best_parameter, startyear, endye
                 for t = 1:1:length(Total_Precipitation_series)
                         #scaling long term transpiration to daily signal
                         Er_timeseries[t] = (Potential_Evaporation_series[t] - All_Ei[t, n+1] ) * (Er_mean / (Ep_mean - Ei_mean))
-                        srdef_timeseries[t] = (All_Pe[t, n+1] + Er_timeseries[t])
+                        srdef_timeseries[t] = (All_Pe[t, n+1] - Er_timeseries[t])
                 end
                 path_to_folder = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Defreggental/"*rcp*"/"*rcm*"/"
 
@@ -1364,7 +1364,7 @@ function run_srdef_GEV_defreggental_test( path_to_projection, path_to_best_param
                                 #scaling long term transpiration to daily signal
 
                                 Er_timeseries[t] = (Potential_Evaporation_series[t] - All_Ei[t, n+1] ) * (Er_mean / (Ep_mean - Ei_mean))
-                                srdef_timeseries[t] = (All_Pe[t, n+1] + Er_timeseries[t])
+                                srdef_timeseries[t] = (All_Pe[t, n+1] - Er_timeseries[t])
                                 if srdef_timeseries[t]<=0
                                         srdef_timeseries_zero[t] = srdef_timeseries[t]
                                 end
@@ -1614,7 +1614,7 @@ function run_srdef_GEV_defreggental_test( path_to_projection, path_to_best_param
 
         return #Timeseries[index_spinup:end], srdef_, srdef_cum, yearseries#Pe_mean, Ei_mean
 end
-run_srdef_GEV_defreggental_test("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Defreggental_parameterfitless_dates_snow_redistr_best_combined_50_validation_10years_t.csv", 2071,2100,"future2100", 3, "yes", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
+# run_srdef_GEV_defreggental_test("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Defreggental_parameterfitless_dates_snow_redistr_best_combined_50_validation_10years_t.csv", 2071,2100,"future2100", 3, "yes", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
 # run_srdef_GEV_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Defreggental_parameterfitless_dates_snow_redistr_best_combined_300_validation_10years.csv", 1978,2010,"future2100", 3,"no")
 # run_srdef_GEV_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Defreggental_parameterfitless_dates_snow_redistr_best_combined_300_validation_10years.csv", 1981,2013,"future2100", 3, "no")
 #run_srdef_GEV_defreggental_obs("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Defreggental_parameterfitless_dates_snow_redistr_best_combined_300_validation_10years.csv", 1981,2010,"observed", 3, "no")
