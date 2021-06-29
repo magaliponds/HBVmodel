@@ -699,7 +699,7 @@ function runmodelprecipitationzones_future_srdef(Potential_Evaporation::Array{Fl
                 # sum up the discharge of all precipitation zones
                 Total_Discharge += Discharge
                 Total_Pe += Pe * Area_Zones_Percent[i]
-                Total_Ei += Ei
+                Total_Ei += Ei  
                 Total_Snow_Melt += Snow_Melt * Area_Zones_Percent[i]
                 snow_cover_modelled = Snow_Extend
                 Denominator_All = Float64[]
