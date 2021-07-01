@@ -432,7 +432,7 @@ function riparianHRU(rip::HRU_Input, storages::Storages, parameters::Parameters)
     @assert -0.00000001 <= Precipitation + rip.Riparian_Discharge / rip.Area_HRU - (Flows + All_Storages) <= 0.00000001
     @assert -0.00000001 <= (Precipitation * rip.Area_HRU + rip.Riparian_Discharge) - (Flows_Area + All_Storages * rip.Area_HRU) <= 0.00000001
 
-    return rip_out, rip_storages, Precipitation, All_Storages
+    return rip_out::Outflows, rip_storages, Precipitation, All_Storages
 end
 
 
