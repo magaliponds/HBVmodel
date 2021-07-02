@@ -16,55 +16,54 @@ using LinearAlgebra
 using Statistics
 using GLM
 
-function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, startyear, endyear, period, spinup, ploton, rcp, rcm)
+function run_srdef_GEV_feistritz( path_to_projection, path_to_best_parameter, startyear, endyear, period, spinup, ploton, rcp, rcm)
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
-        path_to_folder = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Gailtal/"*rcp*"/"*rcm*"/"
+        path_to_folder = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Feistritz/"*rcp*"/"*rcm*"/"
         # ------------ CATCHMENT SPECIFIC INPUTS----------------
-        ID_Prec_Zones = [113589, 113597, 113670, 114538]
+        # ------------ CATCHMENT SPECIFIC INPUTS----------------
+        ID_Prec_Zones = [109967]
         # size of the area of precipitation zones
-        Area_Zones = [98227533.0, 184294158.0, 83478138.0, 220613195.0]
+        Area_Zones = [115496400.]
         Area_Catchment = sum(Area_Zones)
         Area_Zones_Percent = Area_Zones / Area_Catchment
-
         Snow_Threshold = 600
         Height_Threshold = 4000
 
-        Mean_Elevation_Catchment = 1500 # in reality 1476
-        Elevations_Catchment = Elevations(200.0, 400.0, 2800.0,1140.0, 1140.0)
+        Mean_Elevation_Catchment = 900 # in reality 917
+        # two last entries of array are height of temp measurement
+        Elevations_Catchment = Elevations(200.0, 400.0, 1600.0, 488., 488.)
         Sunhours_Vienna = [8.83, 10.26, 11.95, 13.75, 15.28, 16.11, 15.75, 14.36, 12.63, 10.9, 9.28, 8.43]
         # where to skip to in data file of precipitation measurements
-        Skipto = [24, 22, 22, 22]
+        Skipto = [24]
         # get the areal percentage of all elevation zones in the HRUs in the precipitation zones
-        Areas_HRUs =  CSV.read(local_path*"HBVModel/Gailtal/HBV_Area_Elevation.csv", DataFrame, skipto=2, decimal=',', delim = ';')
+        Areas_HRUs = CSV.read( local_path * "HBVModel/Feistritz/HBV_Area_Elevation.csv", DataFrame, skipto = 2, decimal = '.', delim = ',', )
         # get the percentage of each HRU of the precipitation zone
-        Percentage_HRU = CSV.read(local_path*"HBVModel/Gailtal/HRUPercentage.csv", DataFrame, header=[1], decimal=',', delim = ';')
-        Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
+        Percentage_HRU = CSV.read( local_path * "HBVModel/Feistritz/HRU_Prec_Zones.csv", DataFrame, header = [1], decimal = '.', delim = ',', )
+        Elevation_Catchment = convert(Vector, Areas_HRUs[2:end, 1])
         # timeperiod for which model should be run (look if timeseries of data has same length)
         #Timeseries = collect(Date(startyear, 1, 1):Day(1):Date(endyear,12,31))
-        Timeseries = readdlm(path_to_projection * "pr_model_timeseries.txt")
+        Timeseries = readdlm(path_to_projection*"pr_model_timeseries.txt")
         Timeseries = Date.(Timeseries, Dates.DateFormat("y,m,d"))
         if endyear <= Dates.year(Timeseries[end])
-                startyear = endyear - 29 - spinup
-                indexstart_Proj =
-                        findfirst(x -> x == startyear, Dates.year.(Timeseries))[1]
-                indexend_Proj =
-                        findlast(x -> x == endyear, Dates.year.(Timeseries))[1]
+                startyear =  endyear - 29 - spinup
+                indexstart_Proj = findfirst(x-> x == startyear, Dates.year.(Timeseries))[1]
+                indexend_Proj = findlast(x-> x == endyear, Dates.year.(Timeseries))[1]
         else
                 endyear = Dates.year(Timeseries[end])
                 startyear = endyear - 29 - spinup # -3 for the spinup time
                 indexend_Proj = length(Timeseries)
-                indexstart_Proj =findfirst(x -> x == startyear, Dates.year.(Timeseries))[1]
-
+                indexstart_Proj = findfirst(x-> x == startyear, Dates.year.(Timeseries))[1]
+                # print(Timeseries[end])
         end
-
-        indexstart_Proj = findfirst(x -> x == startyear, Dates.year.(Timeseries))[1]
-        indexend_Proj = findlast(x -> x == endyear, Dates.year.(Timeseries))[1]
+        # println(startyear, " ", endyear, "\n")
+        indexstart_Proj = findfirst(x-> x == startyear, Dates.year.(Timeseries))[1]
+        indexend_Proj = findlast(x-> x == endyear, Dates.year.(Timeseries))[1]
         Timeseries = Timeseries[indexstart_Proj:indexend_Proj]
         #------------ TEMPERATURE AND POT. EVAPORATION CALCULATIONS ---------------------
 
-        Projections_Temperature = readdlm(path_to_projection*"tas_113597_sim1.txt", ',')
-        Projections_Temperature_Min = readdlm(path_to_projection*"tasmin_19821_sim1.txt", ',')
-        Projections_Temperature_Max = readdlm(path_to_projection*"tasmax_19821_sim1.txt", ',')
+        Projections_Temperature = readdlm(path_to_projection*"tas_10510_sim1.txt", ',')
+        Projections_Temperature_Min = readdlm(path_to_projection*"tasmin_10510_sim1.txt", ',')
+        Projections_Temperature_Max = readdlm(path_to_projection*"tasmax_10510_sim1.txt", ',')
 
         Temperature_Daily = Projections_Temperature[indexstart_Proj:indexend_Proj] ./ 10
         Temperature_Daily_Min = Projections_Temperature_Min[indexstart_Proj:indexend_Proj] ./ 10
@@ -79,20 +78,20 @@ function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, star
         Elevation_Zone_Catchment_Max, Temperature_Elevation_Catchment_Max, Total_Elevationbands_Catchment_Max = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily_Max)
 
         # get the temperature data at the mean elevation to calculate the mean potential evaporation
-        Temperature_Mean_Elevation = Temperature_Elevation_Catchment[ :, findfirst( x -> x == 1500, Elevation_Zone_Catchment, ), ]
-        Temperature_Mean_Elevation_Min = Temperature_Elevation_Catchment_Min[:,findfirst(x-> x==1500, Elevation_Zone_Catchment_Min)]
-        Temperature_Mean_Elevation_Max = Temperature_Elevation_Catchment_Max[:,findfirst(x-> x==1500, Elevation_Zone_Catchment_Max)]
+        Temperature_Mean_Elevation = Temperature_Elevation_Catchment[ :, findfirst( x -> x == Mean_Elevation_Catchment, Elevation_Zone_Catchment, ), ]
+        Temperature_Mean_Elevation_Min = Temperature_Elevation_Catchment_Min[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Min)]
+        Temperature_Mean_Elevation_Max = Temperature_Elevation_Catchment_Max[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Max)]
 
         Latitude = 47.516231 #Austria general
 
-        Potential_Evaporation_tw = getEpot_Daily_thornthwaite( Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna, )
+        Potential_Evaporation_tw = getEpot_Daily_thornthwaite( Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna )
         Potential_Evaporation_hg, radiation = getEpot(Temperature_Mean_Elevation_Min, Temperature_Mean_Elevation, Temperature_Mean_Elevation_Max, 0.162, Timeseries, Latitude)
         best_calibrations = readdlm(path_to_best_parameter, ',')
         parameters_best_calibrations = best_calibrations[:, 10:29]
         ns = 1:1:size(parameters_best_calibrations)[1]
         output_total = zeros(length(ns))
 
-        EP = ["Thorntwaite"]#, "Hargreaves"]
+        EP = ["Thorntwaite", "Hargreaves"]
         for (e, ep_method) in enumerate(EP)
                 Grass = Float64[]
                 Forest = Float64[]
@@ -104,11 +103,8 @@ function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, star
                 end
                 # ------------- LOAD PRECIPITATION DATA OF EACH PRECIPITATION ZONE ----------------------
                 # get elevations at which precipitation was measured in each precipitation zone
-                Elevations_113589 = Elevations(200., 1000., 2600., 1430.,1140)
-                Elevations_113597 = Elevations(200, 800, 2800, 1140, 1140)
-                Elevations_113670 = Elevations(200, 400, 2400, 635, 1140)
-                Elevations_114538 = Elevations(200, 600, 2400, 705, 1140)
-                Elevations_All_Zones = [Elevations_113589, Elevations_113597, Elevations_113670, Elevations_114538]
+                Elevations_109967= Elevations(200., 400., 1600., 563.,488.)
+                Elevations_All_Zones = [Elevations_109967]
 
                 #get the total discharge
                 Total_Discharge = zeros(length(Temperature_Daily))
@@ -123,10 +119,8 @@ function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, star
 
 
                 for i in 1: length(ID_Prec_Zones)
-                        # get precipitation projections for the precipitation measurement
                         Precipitation_Zone = readdlm(path_to_projection*"pr_"*string(ID_Prec_Zones[i])*"_sim1.txt", ',')
                         Precipitation_Zone = Precipitation_Zone[indexstart_Proj:indexend_Proj] ./ 10
-
                         Elevation_HRUs, Precipitation, Nr_Elevationbands = getprecipitationatelevation(Elevations_All_Zones[i], Precipitation_Gradient, Precipitation_Zone)
                         push!(Precipitation_All_Zones, Precipitation)
                         push!(Nr_Elevationbands_All_Zones, Nr_Elevationbands)
@@ -139,13 +133,18 @@ function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, star
                         Area_Bare_Elevations, Bare_Elevation_Count = getelevationsperHRU(Current_Areas_HRUs[:,1], Elevation_Catchment, Elevation_HRUs)
                         Area_Forest_Elevations, Forest_Elevation_Count = getelevationsperHRU(Current_Areas_HRUs[:,2], Elevation_Catchment, Elevation_HRUs)
                         Area_Grass_Elevations, Grass_Elevation_Count = getelevationsperHRU(Current_Areas_HRUs[:,3], Elevation_Catchment, Elevation_HRUs)
+
                         Area_Rip_Elevations, Rip_Elevation_Count = getelevationsperHRU(Current_Areas_HRUs[:,4], Elevation_Catchment, Elevation_HRUs)
                         #print(Bare_Elevation_Count, Forest_Elevation_Count, Grass_Elevation_Count, Rip_Elevation_Count)
-                        @assert 1 - eps(Float64) <= sum(Area_Bare_Elevations) <= 1 + eps(Float64)
-                        @assert 1 - eps(Float64) <= sum(Area_Forest_Elevations) <= 1 + eps(Float64)
-                        @assert 1 - eps(Float64) <= sum(Area_Grass_Elevations) <= 1 + eps(Float64)
-                        @assert 1 - eps(Float64) <= sum(Area_Rip_Elevations) <= 1 + eps(Float64)
+                        # println((Area_Bare_Elevations), " ", Bare_Elevation_Count,"\n")
+                        # println((Area_Forest_Elevations), " ", Forest_Elevation_Count,"\n")
+                        Area_Bare_Elevations = [0.0]
+                        Bare_Elevation_Count = [1]
+                        @assert 0.999 <= sum(Area_Bare_Elevations) <= 1.0001 || sum(Area_Bare_Elevations) == 0
 
+                        @assert 0.999 <= sum(Area_Forest_Elevations) <= 1.0001
+                        @assert 0.999 <= sum(Area_Grass_Elevations) <= 1.0001
+                        @assert 0.999 <= sum(Area_Rip_Elevations) <= 1.0001
 
                         Area = Area_Zones[i]
                         Current_Percentage_HRU = Percentage_HRU[:, 1+i] / Area
@@ -180,19 +179,17 @@ function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, star
                 end
                 # ---------------- CALCULATE OBSERVED OBJECTIVE FUNCTIONS -------------------------------------
                 # calculate the sum of precipitation of all precipitation zones to calculate objective functions
-                Total_Precipitation = Precipitation_All_Zones[1][:,1]*Area_Zones_Percent[1] + Precipitation_All_Zones[2][:,1]*Area_Zones_Percent[2] + Precipitation_All_Zones[3][:,1]*Area_Zones_Percent[3] + Precipitation_All_Zones[4][:,1]*Area_Zones_Percent[4]
-                # end of spin up time is 3 years after the start of the calibration and start in the month October
-
-                index_spinup = findfirst( x -> Dates.year(x) == (startyear + spinup), Timeseries)
+                Total_Precipitation = Precipitation_All_Zones[1][:,1]
+                index_spinup = findfirst(x -> Dates.year(x) == startyear + spinup, Timeseries)
                 #print("index",index_spinup,"\n")
                 # evaluations chouls alsways contain whole year
                 index_lastdate = findlast(x -> Dates.year(x) == endyear, Timeseries)
-                print("index", typeof(index_lastdate), typeof(index_spinup), "\n")
-                Timeseries_Obj = Timeseries[index_spinup:end]
+                print("index",typeof(index_lastdate),typeof(index_spinup),"\n")
+                Timeseries_Obj = Timeseries[index_spinup: end]
 
 
                 # ---------------- START MONTE CARLO SAMPLING ------------------------
-                GWStorage = 40.0
+                GWStorage = 70.0
                 All_Discharge = zeros(length(Timeseries_Obj))
                 All_Pe = zeros(length(Timeseries_Obj))
                 All_Ei = zeros(length(Timeseries_Obj))
@@ -206,12 +203,12 @@ function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, star
                 Historic_data= CSV.read("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Past/All_catchments_observed_meandata.csv", DataFrame, decimal = '.', delim = ',' )
                 Budyko_output_past= CSV.read("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Past/All_catchments_omega_all.csv", DataFrame, decimal = '.', delim = ',' )
 
-                RC_hg = Budyko_output_future[2, 2]
-                RC_tw = Budyko_output_future[2, 3]
-                Q_hg =  Budyko_output_future[2, 5]
-                Q_tw =  Budyko_output_future[2, 4]
-                EI_obs = Budyko_output_past[2, 4]
-                P_obs = Historic_data[2,2]
+                RC_hg = Budyko_output_future[3, 2]
+                RC_tw = Budyko_output_future[3, 3]
+                Q_hg =  Budyko_output_future[3, 5]
+                Q_tw =  Budyko_output_future[3, 4]
+                EI_obs = Budyko_output_past[3, 4]
+                P_obs = Historic_data[3,2]
                 Q_obs = (1-EI_obs)*P_obs
 
                 if e==1
@@ -229,6 +226,7 @@ function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, star
                 srdef = zeros(length(Total_Precipitation_series))
                 srdef_cum = zeros(length(Total_Precipitation_series))
 
+
                 for n = 1:1:size(parameters_best_calibrations)[1]
                         Current_Inputs_All_Zones = deepcopy(Inputs_All_Zones)
                         Current_Storages_All_Zones = deepcopy(Storages_All_Zones)
@@ -242,10 +240,9 @@ function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, star
                         slow_parameters = Slow_Paramters(Ks, Ratio_Riparian)
 
 
-                        parameters = [bare_parameters,forest_parameters,grass_parameters,rip_parameters]
+                        parameters = [bare_parameters,forest_parameters,grass_parameters,rip_parameters,]
                         parameters_array = parameters_best_calibrations[n, :]
                         Discharge, Pe, Ei, GWstorage, Snowstorage = runmodelprecipitationzones_future_srdef(Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, Elevations_Each_Precipitation_Zone )
-                        Discharge = Discharge * 1000 / Area_Catchment * (3600 * 24)
 
                         #All_Discharge = hcat(All_Discharges, Discharge[index_spinup: index_lastdate])
                         All_Pe = hcat(All_Pe, Pe[index_spinup:index_lastdate])
@@ -253,7 +250,7 @@ function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, star
 
                         Total_in = Total_Precipitation_series+Snowstorage[index_spinup:index_lastdate]
 
-                        if ploton=="yes" && n==14
+                        if ploton=="yes"
                                 Peplot = Plots.plot()
                                 plot!(Timeseries_Obj[1000:2000], Total_Precipitation_series[1000:2000], label="P")
                                 #plot!(Timeseries_Obj[1000:2000], Total_in[1000:2000], label="P+Melt", color="purple")
@@ -311,7 +308,7 @@ function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, star
                                 Er_timeseries[t] = (Potential_Evaporation_series[t] - All_Ei[t, n+1] ) * (Er_mean / (Ep_mean - Ei_mean))
                                 srdef_timeseries[t] = (All_Pe[t, n+1] - Er_timeseries[t])
                         end
-                        path_to_folder = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Gailtal/"*rcp*"/"*rcm*"/"
+                        path_to_folder = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Feistritz/"*rcp*"/"*rcm*"/"
 
                         startmonth = 4
                         years_index = Float64[]
@@ -363,7 +360,7 @@ function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, star
                         maxima =DataFrame(year=years_index, srdef_max=srdef_max_year)
 
 
-                        if ploton =="yes" && n==14
+                        if ploton =="yes"
                                 # writedlm( path_to_folder *ep_method*"_Paltental_srdef_continuous", srdef_continuous, ',')
                                 # CSV.write( path_to_folder *ep_method* "_Paltental_sdef_max_year_"*string(startyear)*"_"*string(endyear), maxima )
 
@@ -444,7 +441,7 @@ function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, star
                         # EP = ["Thorntwaite", "Hargreaves"]
                         # for (e,ep_method) in enumerate(EP)
                         #startyear=startyear_og
-                        data = maxima #CSV.read(path_to_folder * ep_method* "_Gailtal_sdef_max_year_"*string(startyear)*"_"*string(endyear), DataFrame, header = true, decimal = '.', delim = ',')
+                        data = maxima #CSV.read(path_to_folder * ep_method* "_Feistritz_sdef_max_year_"*string(startyear)*"_"*string(endyear), DataFrame, header = true, decimal = '.', delim = ',')
                         T = [2,5,10,20,50,100,120,150]
                         N= length(data[!, 1])
                         avg = mean(data.srdef_max)
@@ -485,7 +482,7 @@ function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, star
                                 startyear = "Past"
                         end
                         #Recurranceinterval
-                        if ploton =="yes" && n==14
+                        if ploton =="yes"
                                 gev = Plots.plot()
                                 scatter!(xt,yt)
                                 xaxis!("xti")
@@ -526,12 +523,12 @@ function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, star
                 output_total = hcat(output_total, output_list)
 
 
-                #CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/"*string(startyear)*"/Gailtal/"*ep_method*string(startyear)*"_GEV_T.csv", Output)
+                #CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/"*string(startyear)*"/Feistritz/"*ep_method*string(startyear)*"_GEV_T.csv", Output)
 
         #finding frequency factor k
         end
         output_total = output_total[:,2:end]
-        titled_output = DataFrame(n=output_total[:,1], TW_Grass=output_total[:,2], TW_Forest=output_total[:,3])#, HG_Grass=output_total[:,4], HG_Forest=output_total[:,5])
+        titled_output = DataFrame(n=output_total[:,1], TW_Grass=output_total[:,2], TW_Forest=output_total[:,3], HG_Grass=output_total[:,4], HG_Forest=output_total[:,5])
 
         CSV.write(path_to_folder*string(startyear)*"_GEV_T_total_titled.csv", titled_output)
 
@@ -539,78 +536,91 @@ function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, star
         return #Timeseries[index_spinup:end], srdef_, srdef_cum, yearseries#Pe_mean, Ei_mean
 end
 
-function run_srdef_GEV_gailtal_obs(path_to_best_parameter, startyear, endyear, period, spinup, ploton, rcp, rcm)
+function run_srdef_GEV_feistritz_obs(path_to_best_parameter, startyear, endyear, period, spinup, ploton, rcp, rcm)
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
-        # ------------ CATCHMENT SPECIFIC INPUTS----------------
-        ID_Prec_Zones = [113589, 113597, 113670, 114538]
+        ID_Prec_Zones = [109967]
         # size of the area of precipitation zones
-        Area_Zones = [98227533.0, 184294158.0, 83478138.0, 220613195.0]
+        Area_Zones = [115496400.]
         Area_Catchment = sum(Area_Zones)
         Area_Zones_Percent = Area_Zones / Area_Catchment
 
-        Snow_Threshold = 600
-        Height_Threshold = 4000
+        Snow_Threshold = 10000
+        Height_Threshold = 10000
 
-        Mean_Elevation_Catchment = 1500 # in reality 1476
-        Elevations_Catchment = Elevations(200.0, 400.0, 2800.0,1140.0, 1140.0)
+        Mean_Elevation_Catchment = 900 # in reality 917
+        # two last entries of array are height of temp measurement
+        Elevations_Catchment = Elevations(200.0, 400.0, 1600.0, 488., 488.)
         Sunhours_Vienna = [8.83, 10.26, 11.95, 13.75, 15.28, 16.11, 15.75, 14.36, 12.63, 10.9, 9.28, 8.43]
         # where to skip to in data file of precipitation measurements
-        Skipto = [24, 22, 22, 22]
+        Skipto = [24]
         # get the areal percentage of all elevation zones in the HRUs in the precipitation zones
-        Areas_HRUs =  CSV.read(local_path*"HBVModel/Gailtal/HBV_Area_Elevation.csv", DataFrame, skipto=2, decimal=',', delim = ';')
+        Areas_HRUs = CSV.read( local_path * "HBVModel/Feistritz/HBV_Area_Elevation.csv", DataFrame, skipto = 2, decimal = '.', delim = ',', )
         # get the percentage of each HRU of the precipitation zone
-        Percentage_HRU = CSV.read(local_path*"HBVModel/Gailtal/HRUPercentage.csv", DataFrame, header=[1], decimal=',', delim = ';')
-        Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
+        Percentage_HRU = CSV.read( local_path * "HBVModel/Feistritz/HRU_Prec_Zones.csv", DataFrame, header = [1], decimal = '.', delim = ',', )
+        Elevation_Catchment = convert(Vector, Areas_HRUs[2:end, 1])
+        scale_factor_Discharge = 0.65
         # timeperiod for which model should be run (look if timeseries of data has same length)
         Timeseries = collect(Date(startyear, 1, 1):Day(1):Date(endyear,12,31))
 
         #------------ TEMPERATURE AND POT. EVAPORATION CALCULATIONS ---------------------
-        Temperature = CSV.read(local_path*"HBVModel/Gailtal/LTkont113597.csv", DataFrame, header=false, skipto = 20, missingstring = "L\xfccke", decimal='.', delim = ';')
-        Temperature_Array = Matrix(Temperature)
+        Temperature = CSV.read(local_path*"HBVModel/Feistritz/prenner_tag_10510.dat", DataFrame, header = true, skipto = 3, delim = ' ', ignorerepeated = true)
+
         # get data for 20 years: from 1987 to end of 2006
         # from 1986 to 2005 13669: 20973
         #hydrological year 13577:20881
+        Temperature = dropmissing(Temperature)
+        Temperature_Array = Temperature.t / 10
+        Temperature_Min = Temperature.tmin /10
+        Temperature_Max = Temperature.tmax/10
 
-        startindex = findfirst(isequal("01.01."*string(startyear)*" 07:00:00"), Temperature_Array)
-        endindex = findfirst(isequal("31.12."*string(endyear)*" 23:00:00"), Temperature_Array)
 
-        Temperature_Array = Temperature_Array[startindex[1]:endindex[1],:]
-        Temperature_Array[:,1] = Date.(Temperature_Array[:,1], Dates.DateFormat("d.m.y H:M:S"))
-        Dates_Temperature_Daily, Temperature_Daily = daily_mean(Temperature_Array)
-        # P_zone1 = Precipitation_17700
+        Precipitation_17700 = Temperature.nied / 10
+        Timeseries_Temp = Date.(Temperature.datum, Dates.DateFormat("yyyymmdd"))
+        startindex = findfirst(isequal(Date(startyear, 1, 1)), Timeseries_Temp)
+        endindex = findfirst(isequal(Date(endyear, 12, 31)), Timeseries_Temp)
+
+
+        Temperature_Daily = Temperature_Array[startindex[1]:endindex[1]]
+        Temperature_Min_Daily = Temperature_Min[startindex[1]:endindex[1]]
+        Temperature_Max_Daily = Temperature_Max[startindex[1]:endindex[1]]
+
+        Timeseries_Temp = Timeseries_Temp[startindex[1]:endindex[1]]
+
+        @assert Timeseries_Temp == Timeseries
+
         Elevation_Zone_Catchment, Temperature_Elevation_Catchment, Total_Elevationbands_Catchment = gettemperatureatelevation( Elevations_Catchment, Temperature_Daily)
+        Elevation_Zone_Catchment_Min, Temperature_Elevation_Catchment_Min, Total_Elevationbands_Catchment_Min = gettemperatureatelevation(Elevations_Catchment, Temperature_Min_Daily)
+        Elevation_Zone_Catchment_Max, Temperature_Elevation_Catchment_Max, Total_Elevationbands_Catchment_Max = gettemperatureatelevation(Elevations_Catchment, Temperature_Max_Daily)
+
         # get the temperature data at the mean elevation to calculate the mean potential evaporation
         Temperature_Mean_Elevation = Temperature_Elevation_Catchment[ :, findfirst( x -> x == Mean_Elevation_Catchment, Elevation_Zone_Catchment)]
+        Temperature_Mean_Elevation_Min = Temperature_Elevation_Catchment_Min[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Min)]
+        Temperature_Mean_Elevation_Max = Temperature_Elevation_Catchment_Max[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Max)]
 
         Latitude = 47.516231 #Austria general
 
-        Potential_Evaporation_tw = getEpot_Daily_thornthwaite( Temperature_Mean_Elevation, Dates_Temperature_Daily, Sunhours_Vienna)
-        # Potential_Evaporation_hg, radiation = getEpot(Temperature_Mean_Elevation_Min, Temperature_Mean_Elevation, Temperature_Mean_Elevation_Max, 0.162, Dates_Temperature_Daily, Latitude)
+        Potential_Evaporation_tw = getEpot_Daily_thornthwaite( Temperature_Mean_Elevation, Timeseries_Temp, Sunhours_Vienna)
+        Potential_Evaporation_hg, radiation = getEpot(Temperature_Mean_Elevation_Min, Temperature_Mean_Elevation, Temperature_Mean_Elevation_Max, 0.162,  Timeseries_Temp, Latitude)
         best_calibrations = readdlm(path_to_best_parameter, ',')
         parameters_best_calibrations = best_calibrations[:, 10:29]
         ns = 1:1:size(parameters_best_calibrations)[1]
         output_total = zeros(length(ns))
 
-        EP = ["Thorntwaite"]
+        EP = ["Thorntwaite", "Hargreaves"]
         for (e, ep_method) in enumerate(EP)
                 Grass = Float64[]
                 Forest = Float64[]
                 if e == 1
                         Potential_Evaporation = Potential_Evaporation_tw
                 elseif e == 2
-
                         Potential_Evaporation = Potential_Evaporation_hg
                 end
-
         # ------------- LOAD PRECIPITATION DATA OF EACH PRECIPITATION ZONE ----------------------
         # get elevations at which precipitation was measured in each precipitation zone
-        # changed to 1400 in 2003
-        Elevations_113589 = Elevations(200., 1000., 2600., 1430.,1140)
-        Elevations_113597 = Elevations(200, 800, 2800, 1140, 1140)
-        Elevations_113670 = Elevations(200, 400, 2400, 635, 1140)
-        Elevations_114538 = Elevations(200, 600, 2400, 705, 1140)
-        Elevations_All_Zones = [Elevations_113589, Elevations_113597, Elevations_113670, Elevations_114538]
-
+        Elevations_109967= Elevations(200., 400., 1600., 563.,488.)
+        # Elevations_111815 = Elevations(200, 600, 2400, 890., 648.)
+        # Elevations_9900 = Elevations(200, 600, 2400, 648., 648.)
+        Elevations_All_Zones = [Elevations_109967]
         #get the total discharge
         Total_Discharge = zeros(length(Temperature_Daily))
         Inputs_All_Zones = Array{HRU_Input_srdef,1}[]
@@ -624,8 +634,7 @@ function run_srdef_GEV_gailtal_obs(path_to_best_parameter, startyear, endyear, p
 
 
         for i in 1: length(ID_Prec_Zones)
-                #print(ID_Prec_Zones)
-                Precipitation = CSV.read(local_path*"HBVModel/Gailtal/N-Tagessummen-"*string(ID_Prec_Zones[i])*".csv", DataFrame, header= false, skipto=Skipto[i], missingstring = "L\xfccke", decimal=',', delim = ';')
+                Precipitation = CSV.read(local_path*"HBVModel/Feistritz/N-Tagessummen-"*string(ID_Prec_Zones[i])*".csv", DataFrame, header= false, skipto=Skipto[i], missingstring = "L\xfccke", decimal=',', delim = ';')
                 Precipitation_Array = Matrix(Precipitation)
                 startindex = findfirst(isequal("01.01."*string(startyear)*" 07:00:00   "), Precipitation_Array)
                 endindex = findfirst(isequal("31.12."*string(endyear)*" 07:00:00   "), Precipitation_Array)
@@ -637,25 +646,32 @@ function run_srdef_GEV_gailtal_obs(path_to_best_parameter, startyear, endyear, p
                 # drop missing values
                 df = dropmissing(df)
                 Precipitation_Array = Matrix(df)
-
                 Elevation_HRUs, Precipitation, Nr_Elevationbands = getprecipitationatelevation(Elevations_All_Zones[i], Precipitation_Gradient, Precipitation_Array[:,2])
                 push!(Precipitation_All_Zones, Precipitation)
                 push!(Nr_Elevationbands_All_Zones, Nr_Elevationbands)
                 push!(Elevations_Each_Precipitation_Zone, Elevation_HRUs)
 
+
+
                 index_HRU = (findall(x -> x==ID_Prec_Zones[i], Areas_HRUs[1,2:end]))
                 # for each precipitation zone get the relevant areal extentd
-                Current_Areas_HRUs = Matrix(Areas_HRUs[2:end, index_HRU])
+                Current_Areas_HRUs = Matrix(Areas_HRUs[2: end, index_HRU])
                 # the elevations of each HRU have to be known in order to get the right temperature data for each elevation
-                Area_Bare_Elevations, Bare_Elevation_Count = getelevationsperHRU( Current_Areas_HRUs[:, 1], Elevation_Catchment, Elevation_HRUs, )
-                Area_Forest_Elevations, Forest_Elevation_Count = getelevationsperHRU( Current_Areas_HRUs[:, 2], Elevation_Catchment, Elevation_HRUs, )
-                Area_Grass_Elevations, Grass_Elevation_Count = getelevationsperHRU( Current_Areas_HRUs[:, 3], Elevation_Catchment, Elevation_HRUs, )
-                Area_Rip_Elevations, Rip_Elevation_Count = getelevationsperHRU( Current_Areas_HRUs[:, 4], Elevation_Catchment, Elevation_HRUs, )
+                Area_Bare_Elevations, Bare_Elevation_Count = getelevationsperHRU(Current_Areas_HRUs[:,1], Elevation_Catchment, Elevation_HRUs)
+                Area_Forest_Elevations, Forest_Elevation_Count = getelevationsperHRU(Current_Areas_HRUs[:,2], Elevation_Catchment, Elevation_HRUs)
+                Area_Grass_Elevations, Grass_Elevation_Count = getelevationsperHRU(Current_Areas_HRUs[:,3], Elevation_Catchment, Elevation_HRUs)
+
+                Area_Rip_Elevations, Rip_Elevation_Count = getelevationsperHRU(Current_Areas_HRUs[:,4], Elevation_Catchment, Elevation_HRUs)
                 #print(Bare_Elevation_Count, Forest_Elevation_Count, Grass_Elevation_Count, Rip_Elevation_Count)
-                @assert 1 - eps(Float64) <= sum(Area_Bare_Elevations) <= 1 + eps(Float64)
-                @assert 1 - eps(Float64) <= sum(Area_Forest_Elevations) <= 1 + eps(Float64)
-                @assert 1 - eps(Float64) <= sum(Area_Grass_Elevations) <= 1 + eps(Float64)
-                @assert 1 - eps(Float64) <= sum(Area_Rip_Elevations) <= 1 + eps(Float64)
+                # println((Area_Bare_Elevations), " ", Bare_Elevation_Count,"\n")
+                # println((Area_Forest_Elevations), " ", Forest_Elevation_Count,"\n")
+                Area_Bare_Elevations = [0.0]
+                Bare_Elevation_Count = [1]
+                @assert 0.999 <= sum(Area_Bare_Elevations) <= 1.0001 || sum(Area_Bare_Elevations) == 0
+
+                @assert 0.999 <= sum(Area_Forest_Elevations) <= 1.0001
+                @assert 0.999 <= sum(Area_Grass_Elevations) <= 1.0001
+                @assert 0.999 <= sum(Area_Rip_Elevations) <= 1.0001
 
                 Area = Area_Zones[i]
                 Current_Percentage_HRU = Percentage_HRU[:, 1+i] / Area
@@ -690,19 +706,20 @@ function run_srdef_GEV_gailtal_obs(path_to_best_parameter, startyear, endyear, p
         end
         # ---------------- CALCULATE OBSERVED OBJECTIVE FUNCTIONS -------------------------------------
         # calculate the sum of precipitation of all precipitation zones to calculate objective functions
-        Total_Precipitation = Precipitation_All_Zones[1][:,1]*Area_Zones_Percent[1] + Precipitation_All_Zones[2][:,1]*Area_Zones_Percent[2] + Precipitation_All_Zones[3][:,1]*Area_Zones_Percent[3] + Precipitation_All_Zones[4][:,1]*Area_Zones_Percent[4]
-        # end of spin up time is 3 years after the start of the calibration and start in the month October
+        Total_Precipitation = Precipitation_All_Zones[1][:,1]
+        #check_waterbalance = hcat(Total_Precipitation, Observed_Discharge, Potential_Evaporation)
 
+        # don't consider spin up time for calculation of Goodness of Fit
+        # end of spin up time is 3 years after the start of the calibration and start in the month October
         index_spinup = findfirst( x -> Dates.year(x) == (startyear + spinup), Timeseries)
         #print("index",index_spinup,"\n")
         # evaluations chouls alsways contain whole year
         index_lastdate = findlast(x -> Dates.year(x) == endyear, Timeseries)
-        print("index", typeof(index_lastdate), typeof(index_spinup), "\n")
         Timeseries_Obj = Timeseries[index_spinup:end]
 
 
         # ---------------- START MONTE CARLO SAMPLING ------------------------
-        GWStorage = 40.0
+        GWStorage = 70.0
         All_Discharge = zeros(length(Timeseries_Obj))
         All_Pe = zeros(length(Timeseries_Obj))
         All_Ei = zeros(length(Timeseries_Obj))
@@ -717,12 +734,12 @@ function run_srdef_GEV_gailtal_obs(path_to_best_parameter, startyear, endyear, p
         Historic_data= CSV.read("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Past/All_catchments_observed_meandata.csv", DataFrame, decimal = '.', delim = ',' )
         Budyko_output_past= CSV.read("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Past/All_catchments_omega_all.csv", DataFrame, decimal = '.', delim = ',' )
 
-        RC_hg = Budyko_output_future[2, 2]
-        RC_tw = Budyko_output_future[2, 3]
+        RC_hg = Budyko_output_future[3, 2]
+        RC_tw = Budyko_output_future[3, 3]
         #Q_hg =  Budyko_output_future[1, 5]
         #Q_tw =  Budyko_output_future[1, 4]
-        EI_obs = Budyko_output_past[2, 4]
-        P_obs = Historic_data[2,2]
+        EI_obs = Budyko_output_past[3, 4]
+        P_obs = Historic_data[3,2]
         Q_obs = (1-EI_obs)*P_obs
 
 
@@ -753,12 +770,14 @@ function run_srdef_GEV_gailtal_obs(path_to_best_parameter, startyear, endyear, p
                 parameters_array = parameters_best_calibrations[n, :]
                 Discharge, Pe, Ei, GWstorage, Snowstorage = runmodelprecipitationzones_future_srdef(Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, Elevations_Each_Precipitation_Zone )
 
+                Discharge = Discharge * 1000 / Area_Catchment * (3600 * 24)
+
                 #All_Discharge = hcat(All_Discharges, Discharge[index_spinup: index_lastdate])
                 All_Pe = hcat(All_Pe, Pe[index_spinup:index_lastdate])
                 All_Ei = hcat(All_Ei, Ei[index_spinup:index_lastdate])
 
                 Total_in = Total_Precipitation_series+Snowstorage[index_spinup:index_lastdate]
-                if ploton == "yes" && n==14
+                if ploton == "yes"
                         Peplot = Plots.plot()
                         plot!(Timeseries_Obj[1000:2000], Total_Precipitation_series[1000:2000], label="P")
                         #plot!(Timeseries_Obj[1000:2000], Total_in[1000:2000], label="P+Melt", color="purple")
@@ -767,8 +786,8 @@ function run_srdef_GEV_gailtal_obs(path_to_best_parameter, startyear, endyear, p
 
                         xaxis!("Date")
                         yaxis!("mm")
-                        display(Peplot)
-                        #Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Past/Gailtal/"*ep_method*"_Pe_melt_timeseries_analysis"*string(startyear)*"_"*string(endyear)*".png" )
+                        #display(Peplot)
+                        Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Past/Feistritz/"*ep_method*"_Pe_melt_timeseries_analysis"*string(startyear)*"_"*string(endyear)*".png" )
 
 
                         Pepplot = Plots.plot()
@@ -776,8 +795,8 @@ function run_srdef_GEV_gailtal_obs(path_to_best_parameter, startyear, endyear, p
                         plot!(Timeseries_Obj[1000:2000], -Potential_Evaporation_series[1000:2000], label="Ep")
                         xaxis!("Date")
                         yaxis!("mm")
-                        display(Pepplot)
-                        #Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Past/Gailtal/"*ep_method*"_Pep_timeseries_analysis_"*string(startyear)*"_"*string(endyear)*".png" )
+                        #display(Pepplot)
+                        Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Past/Feistritz/"*ep_method*"_Pep_timeseries_analysis_"*string(startyear)*"_"*string(endyear)*".png" )
                 end
                 # All_GWstorage = hcat(All_GWstorage, GWstorage[index_spinup: index_lastdate])
                 # All_Snowstorage = hcat(All_Snowstorage, Snowstorage[index_spinup: index_lastdate])
@@ -813,7 +832,7 @@ function run_srdef_GEV_gailtal_obs(path_to_best_parameter, startyear, endyear, p
                         Er_timeseries[t] = (Potential_Evaporation_series[t] - All_Ei[t, n+1] ) * (Er_mean / (Ep_mean - Ei_mean))
                         srdef_timeseries[t] = (All_Pe[t, n+1] - Er_timeseries[t])
                 end
-                path_to_folder = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Gailtal/"*rcp*"/"*rcm*"/"
+                path_to_folder = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Feistritz/"*rcp*"/"*rcm*"/"
 
 
                 startmonth = 4
@@ -864,9 +883,9 @@ function run_srdef_GEV_gailtal_obs(path_to_best_parameter, startyear, endyear, p
                 #hcat(yearseries, srdef_max_year)
 
                 maxima =DataFrame(year=years_index, srdef_max=srdef_max_year)
-                if ploton=="yes" && n==14
-                        # writedlm( path_to_folder *ep_method* "_Gailtal_srdef_continuous", srdef_continuous, ',')
-                        # CSV.write( path_to_folder *ep_method* "_Gailtal_sdef_max_year_"*string(startyear)*"_"*string(endyear), maxima )
+                if ploton=="yes"
+                        # writedlm( path_to_folder *ep_method* "_Feistritz_srdef_continuous", srdef_continuous, ',')
+                        # CSV.write( path_to_folder *ep_method* "_Feistritz_sdef_max_year_"*string(startyear)*"_"*string(endyear), maxima )
 
 
                         srdefmaxyear = Plots.plot()
@@ -903,7 +922,7 @@ function run_srdef_GEV_gailtal_obs(path_to_best_parameter, startyear, endyear, p
                         plot!( Timeseries[startplot:endplot], srdef_continuous[startplot+1:endplot+1], label = "Sr_def", )
                         yaxis!("mm")
                         xaxis!("Date")
-                        #Plots.savefig( path_to_folder*ep_method*"_srdef_timeseries_cum_zoom_"*string(startyear)*"_"*string(endyear)*"_observed" * string(n) * ".png", )
+                        Plots.savefig( path_to_folder*ep_method*"_srdef_timeseries_cum_zoom_"*string(startyear)*"_"*string(endyear)*"_observed" * string(n) * ".png", )
                         dispaly(cumzoom)
 
                         alltimeser = Plots.plot()
@@ -926,7 +945,7 @@ function run_srdef_GEV_gailtal_obs(path_to_best_parameter, startyear, endyear, p
 
                         end
                         df = DataFrame(Srmax_forest = Srmax_forest, Srmax_grass = Srmax_grass)
-                        #xt2, xt20 = GEV_gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Gailtal/")
+                        #xt2, xt20 = GEV_feistritz("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Feistritz/")
                         violin!(df.Srmax_forest, color="Darkgreen", legend=false)
                         #scatter!(xt20)
                         violin!(df.Srmax_grass, color="Lightgreen", legend=false)
@@ -942,14 +961,18 @@ function run_srdef_GEV_gailtal_obs(path_to_best_parameter, startyear, endyear, p
         # EP = ["Thorntwaite", "Hargreaves"]
         # for (e,ep_method) in enumerate(EP)
         #startyear=startyear_og
-        data = maxima #CSV.read(path_to_folder * ep_method* "_Gailtal_sdef_max_year_"*string(startyear)*"_"*string(endyear), DataFrame, header = true, decimal = '.', delim = ',')
+        data = maxima #CSV.read(path_to_folder * ep_method* "_Feistritz_sdef_max_year_"*string(startyear)*"_"*string(endyear), DataFrame, header = true, decimal = '.', delim = ',')
         T = [2,5,10,20,50,100,120,150]
         N= length(data[!, 1])
         avg = mean(data.srdef_max)
         stdv = std(data.srdef_max)
         #reduced variate yn
 
-        if N==26
+
+        if N == 24
+                yn = 0.5296
+                sn = 1.0864
+        elseif N==26
                 yn = 0.5320
                 sn = 1.0961
         elseif N == 27
@@ -980,12 +1003,12 @@ function run_srdef_GEV_gailtal_obs(path_to_best_parameter, startyear, endyear, p
         end
 
         #Recurranceinterval
-        if ploton =="yes" && n==14
+        if ploton =="yes"
                 gev = Plots.plot()
                 scatter!(xt,yt)
                 xaxis!("xti")
                 yaxis!("yti")
-                #Plots.savefig(path_to_folder*string(startyear)*ep_method*"_GEVstart_gailtal_xtyt.png")
+                #Plots.savefig(path_to_folder*string(startyear)*ep_method*"_GEVstart_feistritz_xtyt.png")
                 display(gev)
 
                 gev2  = Plots.plot()
@@ -993,7 +1016,7 @@ function run_srdef_GEV_gailtal_obs(path_to_best_parameter, startyear, endyear, p
                 scatter!(T,xt, label="datapoints")
                 xaxis!("T")
                 yaxis!("mm")
-                #Plots.savefig(path_to_folder*string(startyear)*ep_method*"_GEVstart_gailtal_Txt.png")
+                #Plots.savefig(path_to_folder*string(startyear)*ep_method*"_GEVstart_feistritz_Txt.png")
                 display(gev2)
         end
         # Ts = hcat(xt[1], xt[4])
@@ -1021,25 +1044,23 @@ function run_srdef_GEV_gailtal_obs(path_to_best_parameter, startyear, endyear, p
         output_total = hcat(output_total, output_list)
 
 
-        #CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/"*string(startyear)*"/Gailtal/"*ep_method*string(startyear)*"_GEV_T.csv", Output)
+        #CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/"*string(startyear)*"/Feistritz/"*ep_method*string(startyear)*"_GEV_T.csv", Output)
 
         #finding frequency factor k
-#______ GEV distribution
         end
-        path_to_folder = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Gailtal/"*rcp*"/"*rcm*"/"
+        path_to_folder = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Feistritz/"*rcp*"/"*rcm*"/"
         startyear_p = "Past"
 
         output_total = output_total[:,2:end]
-        titled_output = DataFrame(n=output_total[:,1], TW_Grass=output_total[:,2], TW_Forest=output_total[:,3])#, HG_Grass=output_total[:,4], HG_Forest=output_total[:,5])
+        titled_output = DataFrame(n=output_total[:,1], TW_Grass=output_total[:,2], TW_Forest=output_total[:,3], HG_Grass=output_total[:,4], HG_Forest=output_total[:,5])
         CSV.write(path_to_folder*string(startyear_p)*"_GEV_T_total_titled.csv", titled_output)
-
 
 
         return #Timeseries[index_spinup:end], srdef_,
 end
 
-function run_srmax_rcps_gailtal()
-        path_to_best_parameter= "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Gailtal_parameterfitless_dates_snow_redistr_best_combined_300_validation_10years.csv"
+function run_srmax_rcps_feistritz()
+        path_to_best_parameter= "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Feistritz_parameterfitless_dates_snow_redistr_best_combined_300_validation_10years.csv"
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/"
         rcps=["rcp45", "rcp85"]
         for (i, rcp) in enumerate(rcps)
@@ -1049,11 +1070,11 @@ function run_srmax_rcps_gailtal()
                                         "MOHC-HadGEM2-ES_"*rcp*"_r1i1p1_SMHI-RCA4_v1_day", "MPI-M-MPI-ESM-LR_"*rcp*"_r1i1p1_CLMcom-CCLM4-8-17_v1_day", "MPI-M-MPI-ESM-LR_"*rcp*"_r1i1p1_SMHI-RCA4_v1_day"]
                 for (j,rcm) in enumerate(rcms)
                         print(rcm)
-                        path_to_projection = local_path*rcp*"/"*rcm*"/Gailtal/"
-                        run_srdef_GEV_gailtal(path_to_projection, path_to_best_parameter, 2071,2100,"future2100", 3, "no", rcp, rcm)
-                        run_srdef_GEV_gailtal(path_to_projection, path_to_best_parameter, 1978,2010,"future2100", 3, "no", rcp, rcm)
-                        run_srdef_GEV_gailtal(path_to_projection, path_to_best_parameter, 1981,2013,"future2100", 3, "no", rcp, rcm)
-                        run_srdef_GEV_gailtal_obs(path_to_best_parameter, 1981,2013,"future2100", 3, "no", rcp, rcm)
+                        path_to_projection = local_path*rcp*"/"*rcm*"/Feistritz/"
+                        run_srdef_GEV_feistritz(path_to_projection, path_to_best_parameter, 2071,2100,"future2100", 3, "no", rcp, rcm)
+                        run_srdef_GEV_feistritz(path_to_projection, path_to_best_parameter, 1978,2010,"future2100", 3, "no", rcp, rcm)
+                        run_srdef_GEV_feistritz(path_to_projection, path_to_best_parameter, 1981,2013,"future2100", 3, "no", rcp, rcm)
+                        run_srdef_GEV_feistritz_obs(path_to_best_parameter, 1981,2013,"future2100", 3, "no", rcp, rcm)
 
 
                 end
@@ -1062,7 +1083,7 @@ function run_srmax_rcps_gailtal()
 end
 
 
-function GEVresult_gailtal(path_to_best_parameter, catchment_name, rcp, rcm)
+function GEVresult_feistritz(path_to_best_parameter, catchment_name, rcp, rcm)
         local_path="/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/"
         best_calibrations = readdlm(path_to_best_parameter, ',')
         parameters_best_calibrations = best_calibrations[:, 10:29]
@@ -1087,12 +1108,12 @@ function GEVresult_gailtal(path_to_best_parameter, catchment_name, rcp, rcm)
         violin!(df.Srmax_forest, color="orange", label="Forest calibration")
 
         Markers = [:dtriangle, :cross]
-        PE= ["Thorntwaite"]#, "Hargreaves"]
+        PE= ["Thorntwaite", "Hargreaves"]
         colour = ["lightyellow", "pink"]
         for (e,ep_method) in enumerate(PE)
-                violin!(-obs_past[:,e+2], color=colour[e], label=ep_method)
-                violin!(-mod_past[:,e+2], color=colour[e], label=false)
-                violin!(-mod_future[:,e+2], color=colour[e], label=false)
+                violin!(-obs_past[:,2*e+1], color=colour[e], label=ep_method)
+                violin!(-mod_past[:,2*e+1], color=colour[e], label=false)
+                violin!(-mod_future[:,2*e+1], color=colour[e], label=false)
         end
 
         # for (e,ep_method) in enumerate(PE)
@@ -1112,9 +1133,9 @@ function GEVresult_gailtal(path_to_best_parameter, catchment_name, rcp, rcm)
         violin!(df.Srmax_grass, color="Lightgreen", label="Grass calibration")
 
         for (e,ep_method) in enumerate(PE)
-                        violin!(-obs_past[:,1+e], color=colour2[e], label=ep_method)
-                        violin!(-mod_past[:,1+e], color=colour2[e], label=false)
-                        violin!(-mod_future[:,1+e], color=colour2[e], label=false)
+                violin!(-obs_past[:,2*e], color=colour2[e], label=ep_method)
+                violin!(-mod_past[:,2*e], color=colour2[e], label=false)
+                violin!(-mod_future[:,2*e], color=colour2[e], label=false)
         end
         # for (e,ep_method) in enumerate(PE)
         #         plot!(e,mod_past.T20[e], :scatter, label="mod_past"*ep_method)
@@ -1132,8 +1153,8 @@ end
 
 
 
-function GEVresult_rcps_gailtal(catchment_name)
-        path_to_best_parameter= "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Gailtal_parameterfitless_dates_snow_redistr_best_combined_300_validation_10years.csv"
+function GEVresult_rcps_feistritz(catchment_name)
+        path_to_best_parameter= "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Feistritz_parameterfitless_dates_snow_redistr_best_combined_300_validation_10years.csv"
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/"
         rcps=["rcp45", "rcp85"]
         for (i, rcp) in enumerate(rcps)
@@ -1143,16 +1164,16 @@ function GEVresult_rcps_gailtal(catchment_name)
                                         "MOHC-HadGEM2-ES_"*rcp*"_r1i1p1_SMHI-RCA4_v1_day", "MPI-M-MPI-ESM-LR_"*rcp*"_r1i1p1_CLMcom-CCLM4-8-17_v1_day", "MPI-M-MPI-ESM-LR_"*rcp*"_r1i1p1_SMHI-RCA4_v1_day"]
                 for (j,rcm) in enumerate(rcms)
                         print(rcm)
-                        path_to_projection = local_path*rcp*"/"*rcm*"/Gailtal/"
+                        path_to_projection = local_path*rcp*"/"*rcm*"/Feistritz/"
                         GEVresult(path_to_best_parameter, catchment_name, rcp, rcm)
                 end
         end
 end
 
-run_srdef_GEV_gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Gailtal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2071,2100,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
-run_srdef_GEV_gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Gailtal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1978,2010,"past2100", 3,"no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
-run_srdef_GEV_gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Gailtal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2013,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
-run_srdef_GEV_gailtal_obs("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2010,"observed", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
+# run_srdef_GEV_feistritz("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Pitten/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2071,2100,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
+# run_srdef_GEV_feistritz("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Pitten/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1978,2010,"past2100", 3,"no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
+# run_srdef_GEV_feistritz("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Pitten/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2013,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
+run_srdef_GEV_feistritz_obs("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1983,2010,"observed", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
 
-GEVresult_gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "Gailtal", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
+GEVresult_feistritz("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "Feistritz", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
 #

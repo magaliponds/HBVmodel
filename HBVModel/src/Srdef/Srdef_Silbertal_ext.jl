@@ -91,7 +91,7 @@ function run_srdef_GEV_silbertal( path_to_projection, path_to_best_parameter, st
         Potential_Evaporation_hg, radiation = getEpot(Temperature_Mean_Elevation_Min, Temperature_Mean_Elevation, Temperature_Mean_Elevation_Max, 0.162, Timeseries, Latitude)
         best_calibrations = readdlm(path_to_best_parameter, ',')
         parameters_best_calibrations = best_calibrations[:, 10:29]
-        ns = 1:1:2 #size(parameters_best_calibrations)[1]
+        ns = 1:1:size(parameters_best_calibrations)[1]
         output_total = zeros(length(ns))
 
         EP = ["Thorntwaite", "Hargreaves"]
@@ -237,7 +237,7 @@ function run_srdef_GEV_silbertal( path_to_projection, path_to_best_parameter, st
                 srdef_cum = zeros(length(Total_Precipitation_series))
 
 
-                for n = 1:1:2 #size(parameters_best_calibrations)[1]
+                for n = 1:1:size(parameters_best_calibrations)[1]
                         Current_Inputs_All_Zones = deepcopy(Inputs_All_Zones)
                         Current_Storages_All_Zones = deepcopy(Storages_All_Zones)
                         Current_GWStorage = deepcopy(GWStorage)
@@ -426,7 +426,7 @@ function run_srdef_GEV_silbertal( path_to_projection, path_to_best_parameter, st
                                 Srmax_forest = Float64[]
                                 Srmax_grass = Float64[]
                                 parameters = Plots.plot()
-                                for n = 1:1:2 #size(parameters_best_calibrations)[1]
+                                for n = 1:1:size(parameters_best_calibrations)[1]
                                         beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, Soilstoaragecapacity_Bare, Soilstoaragecapacity_Forest, Soilstoaragecapacity_Grass, Soilstoaragecapacity_Rip, Temp_Thresh = parameters_best_calibrations[n, :]
                                         push!(Srmax_forest, Soilstoaragecapacity_Forest)
                                         push!(Srmax_grass, Soilstoaragecapacity_Grass)
@@ -568,7 +568,7 @@ function run_srdef_GEV_silbertal_obs(path_to_best_parameter, startyear, endyear,
         # get the areal percentage of all elevation zones in the HRUs in the precipitation zones
         Areas_HRUs = CSV.read( local_path * "HBVModel/Silbertal/HBV_Area_Elevation_round.csv", DataFrame, skipto = 2, decimal = '.', delim = ',', )
         # get the percentage of each HRU of the precipitation zone
-        Percentage_HRU = CSV.read( local_path * "HBVModel/Silbertal/HRU_Prec_Zones.csv", DataFrame, header = [1], decimal = '.', delim = ',', )
+        Percentage_HRU = CSV.read( local_path * "HBVModel/Silbertal/HRU_Prec_Zones_whole.csv", DataFrame, header = [1], decimal = '.', delim = ',', )
         Elevation_Catchment = convert(Vector, Areas_HRUs[2:end, 1])
         scale_factor_Discharge = 0.9
         # timeperiod for which model should be run (look if timeseries of data has same length)
@@ -615,6 +615,8 @@ function run_srdef_GEV_silbertal_obs(path_to_best_parameter, startyear, endyear,
         Potential_Evaporation_tw = getEpot_Daily_thornthwaite( Temperature_Mean_Elevation, Dates_Temperature_Daily, Sunhours_Vienna)
         Potential_Evaporation_hg, radiation = getEpot(Temperature_Mean_Elevation_Min, Temperature_Mean_Elevation, Temperature_Mean_Elevation_Max, 0.162, Dates_Temperature_Daily, Latitude)
 
+        # for years 2008 onwards
+
         Temperature_100180 = CSV.read(local_path*"HBVModel/Montafon/LTkont100180.dat", DataFrame, header = false, delim= ' ', ignorerepeated = true, types=[String, Time, Float64])
         Temperature_100180_Array = Matrix(Temperature_100180)
         startindex = findfirst(isequal("01.01."*string(2008)), Temperature_100180_Array)
@@ -648,6 +650,7 @@ function run_srdef_GEV_silbertal_obs(path_to_best_parameter, startyear, endyear,
 
 
 
+
         # ------------ LOAD OBSERVED DISCHARGE DATA ----------------
         Discharge = CSV.read(local_path*"HBVModel/Silbertal/Q-Tagesmittel-200048.csv", DataFrame, header= false, skipto=24, decimal=',', delim = ';', types=[String, Float64])
         Discharge = Matrix(Discharge)
@@ -676,12 +679,12 @@ function run_srdef_GEV_silbertal_obs(path_to_best_parameter, startyear, endyear,
 
         best_calibrations = readdlm(path_to_best_parameter, ',')
         parameters_best_calibrations = best_calibrations[:, 10:29]
-        ns = 1:1:2 #size(parameters_best_calibrations)[1]
+        ns = 1:1:size(parameters_best_calibrations)[1]
         output_total = zeros(length(ns))
 
 
 
-        EP = ["Thorntwaite", "Hargreaves"]
+        EP = ["Thorntwaite"]#, "Hargreaves"]
         for (e, ep_method) in enumerate(EP)
                 Grass = Float64[]
                 Forest = Float64[]
@@ -870,7 +873,7 @@ function run_srdef_GEV_silbertal_obs(path_to_best_parameter, startyear, endyear,
 
 
         Plots.plot()
-        for n = 1:1:2 #size(parameters_best_calibrations)[1]
+        for n = 1:1:size(parameters_best_calibrations)[1]
                 Current_Inputs_All_Zones = deepcopy(Inputs_All_Zones)
                 Current_Storages_All_Zones = deepcopy(Storages_All_Zones)
                 Current_GWStorage = deepcopy(GWStorage)
@@ -1053,7 +1056,7 @@ function run_srdef_GEV_silbertal_obs(path_to_best_parameter, startyear, endyear,
                         Srmax_forest = Float64[]
                         Srmax_grass = Float64[]
                         parameters = Plots.plot()
-                        for n = 1:1:2 #size(parameters_best_calibrations)[1]
+                        for n = 1:1:size(parameters_best_calibrations)[1]
                                 beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, Soilstoaragecapacity_Bare, Soilstoaragecapacity_Forest, Soilstoaragecapacity_Grass, Soilstoaragecapacity_Rip, Temp_Thresh = parameters_best_calibrations[n, :]
                                 push!(Srmax_forest, Soilstoaragecapacity_Forest)
                                 push!(Srmax_grass, Soilstoaragecapacity_Grass)
@@ -1083,7 +1086,7 @@ function run_srdef_GEV_silbertal_obs(path_to_best_parameter, startyear, endyear,
         stdv = std(data.srdef_max)
         #reduced variate yn
 
-        if N==26
+        if N == 26
                 yn = 0.5320
                 sn = 1.0961
         elseif N == 27
@@ -1163,7 +1166,7 @@ function run_srdef_GEV_silbertal_obs(path_to_best_parameter, startyear, endyear,
         startyear_p = "Past"
 
         output_total = output_total[:,2:end]
-        titled_output = DataFrame(n=output_total[:,1], TW_Grass=output_total[:,2], TW_Forest=output_total[:,3], HG_Grass=output_total[:,4], HG_Forest=output_total[:,5])
+        titled_output = DataFrame(n=output_total[:,1], TW_Grass=output_total[:,2], TW_Forest=output_total[:,3])#, HG_Grass=output_total[:,4], HG_Forest=output_total[:,5])
         CSV.write(path_to_folder*string(startyear_p)*"_GEV_T_total_titled.csv", titled_output)
 
 
@@ -1206,7 +1209,7 @@ function GEVresult_silbertal(path_to_best_parameter, catchment_name, rcp, rcm)
         obs_past = CSV.read(local_path*catchment_name*"/"*rcp*"/"*rcm*"/Past_GEV_T_total_titled.csv", DataFrame, decimal = '.', delim = ',')
 
         Plots.plot(legendfontsize=6, legend=:topright)
-        for n = 1:1:2 #size(parameters_best_calibrations)[1]
+        for n = 1:1:size(parameters_best_calibrations)[1]
                 beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, Soilstoaragecapacity_Bare, Soilstoaragecapacity_Forest, Soilstoaragecapacity_Grass, Soilstoaragecapacity_Rip, Temp_Thresh = parameters_best_calibrations[n, :]
                 push!(Srmax_forest, Soilstoaragecapacity_Forest)
                 push!(Srmax_grass, Soilstoaragecapacity_Grass)
@@ -1222,9 +1225,14 @@ function GEVresult_silbertal(path_to_best_parameter, catchment_name, rcp, rcm)
         PE= ["Thorntwaite", "Hargreaves"]
         colour = ["lightyellow", "pink"]
         for (e,ep_method) in enumerate(PE)
-                violin!(-obs_past[:,2*e+1], color=colour[e], label=ep_method)
-                violin!(-mod_past[:,2*e+1], color=colour[e], label=false)
-                violin!(-mod_future[:,2*e+1], color=colour[e], label=false)
+                if PE == "Thorntwaite"
+                        violin!(-obs_past[:,e+2], color=colour[e], label=ep_method)
+                        violin!(-mod_past[:,e+2], color=colour[e], label=false)
+                        violin!(-mod_future[:,e+2], color=colour[e], label=false)
+                else
+                        violin!(-mod_past[:,e+2], color=colour[e], label=ep_method)
+                        violin!(-mod_future[:,e+2], color=colour[e], label=false)
+                end
         end
 
         # for (e,ep_method) in enumerate(PE)
@@ -1244,10 +1252,16 @@ function GEVresult_silbertal(path_to_best_parameter, catchment_name, rcp, rcm)
         violin!(df.Srmax_grass, color="Lightgreen", label="Grass calibration")
 
         for (e,ep_method) in enumerate(PE)
-                violin!(-obs_past[:,2*e], color=colour2[e], label=ep_method)
-                violin!(-mod_past[:,2*e], color=colour2[e], label=false)
-                violin!(-mod_future[:,2*e], color=colour2[e], label=false)
+                if PE == "Thorntwaite"
+                        violin!(-obs_past[:,1+e], color=colour2[e], label=ep_method)
+                        violin!(-mod_past[:,1+e], color=colour2[e], label=false)
+                        violin!(-mod_future[:,1+e], color=colour2[e], label=false)
+                else
+                        violin!(-mod_past[:,e+1], color=colour[e], label=ep_method)
+                        violin!(-mod_future[:,e+1], color=colour[e], label=false)
+                end
         end
+
         # for (e,ep_method) in enumerate(PE)
         #         plot!(e,mod_past.T20[e], :scatter, label="mod_past"*ep_method)
         #         plot!(e,mod_future.T20[e], :scatter,label="mod_future"*ep_method)
@@ -1278,9 +1292,9 @@ function GEVresult_rcps_silbertal(catchment_name)
         end
 end
 
-# run_srdef_GEV_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2071,2100,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
-# run_srdef_GEV_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1978,2010,"past2100", 3,"no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
-# run_srdef_GEV_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2013,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
+run_srdef_GEV_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2071,2100,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
+run_srdef_GEV_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1978,2010,"past2100", 3,"no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
+run_srdef_GEV_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2013,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
 run_srdef_GEV_silbertal_obs("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2010,"observed", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
 
 GEVresult_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "Silbertal", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
