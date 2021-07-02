@@ -245,7 +245,7 @@ function run_srdef_GEV_gailtal( path_to_projection, path_to_best_parameter, star
                         parameters = [bare_parameters,forest_parameters,grass_parameters,rip_parameters]
                         parameters_array = parameters_best_calibrations[n, :]
                         Discharge, Pe, Ei, GWstorage, Snowstorage = runmodelprecipitationzones_future_srdef(Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, Elevations_Each_Precipitation_Zone )
-                        Discharge = Discharge * 1000 / Area_Catchment * (3600 * 24)
+                        # Discharge = Discharge * 1000 / Area_Catchment * (3600 * 24)
 
                         #All_Discharge = hcat(All_Discharges, Discharge[index_spinup: index_lastdate])
                         All_Pe = hcat(All_Pe, Pe[index_spinup:index_lastdate])
@@ -1073,6 +1073,13 @@ function GEVresult_gailtal(path_to_best_parameter, catchment_name, rcp, rcm)
         mod_future = CSV.read(local_path*catchment_name*"/"*rcp*"/"*rcm*"/2068_GEV_T_total_titled.csv",DataFrame, decimal = '.', delim = ',')
         obs_past = CSV.read(local_path*catchment_name*"/"*rcp*"/"*rcm*"/Past_GEV_T_total_titled.csv", DataFrame, decimal = '.', delim = ',')
 
+        println(size(mod_past))
+        # datasets = [mod_past, mod_future, obs_past]
+        # for (i, dataset) in enumerate(datasets)
+        #         dataset[:,2] = dataset[:,2][(findall(x -> x <=800, dataset))]
+        #         dataset[:,3] = dataset[:,3][(findall(x -> x <=1000, dataset))]
+        # end
+
         Plots.plot(legendfontsize=6, legend=:topright)
         for n = 1:1:size(parameters_best_calibrations)[1]
                 beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, Soilstoaragecapacity_Bare, Soilstoaragecapacity_Forest, Soilstoaragecapacity_Grass, Soilstoaragecapacity_Rip, Temp_Thresh = parameters_best_calibrations[n, :]
@@ -1080,19 +1087,25 @@ function GEVresult_gailtal(path_to_best_parameter, catchment_name, rcp, rcm)
                 push!(Srmax_grass, Soilstoaragecapacity_Grass)
 
         end
+        println(size(mod_past))
+
 
         df = DataFrame(Srmax_forest = Srmax_forest, Srmax_grass = Srmax_grass)
         Plots.plot(legendfontsize=6, legend=:topright, title="Srmax forest")
         #xt2, xt20 = GEVresult_Paltental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Paltental/", "Palten", rcp, rcm)
-        violin!(df.Srmax_forest, color="orange", label="Forest calibration")
+        v=violin!(df.Srmax_forest, color="orange", label="Forest calibration")
+        #d=scatter!(df.Srmax_forest, color="orange", label="Forest calibration")
+
+        display(v)
+        println()
 
         Markers = [:dtriangle, :cross]
         PE= ["Thorntwaite"]#, "Hargreaves"]
         colour = ["lightyellow", "pink"]
         for (e,ep_method) in enumerate(PE)
-                violin!(-obs_past[:,e+2], color=colour[e], label=ep_method)
-                violin!(-mod_past[:,e+2], color=colour[e], label=false)
-                violin!(-mod_future[:,e+2], color=colour[e], label=false)
+                        violin!(-obs_past[:,e+2], color=colour[e], label=ep_method)
+                        violin!(-mod_past[:,e+2], color=colour[e], label=false)
+                        violin!(-mod_future[:,e+2], color=colour[e], label=false)
         end
 
         # for (e,ep_method) in enumerate(PE)
@@ -1115,6 +1128,7 @@ function GEVresult_gailtal(path_to_best_parameter, catchment_name, rcp, rcm)
                         violin!(-obs_past[:,1+e], color=colour2[e], label=ep_method)
                         violin!(-mod_past[:,1+e], color=colour2[e], label=false)
                         violin!(-mod_future[:,1+e], color=colour2[e], label=false)
+                end
         end
         # for (e,ep_method) in enumerate(PE)
         #         plot!(e,mod_past.T20[e], :scatter, label="mod_past"*ep_method)
@@ -1149,10 +1163,10 @@ function GEVresult_rcps_gailtal(catchment_name)
         end
 end
 
-run_srdef_GEV_gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Gailtal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2071,2100,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
-run_srdef_GEV_gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Gailtal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1978,2010,"past2100", 3,"no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
-run_srdef_GEV_gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Gailtal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2013,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
-run_srdef_GEV_gailtal_obs("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2010,"observed", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
+# run_srdef_GEV_gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Gailtal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2071,2100,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
+# run_srdef_GEV_gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Gailtal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1978,2010,"past2100", 3,"no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
+# run_srdef_GEV_gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Gailtal/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2013,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
+# run_srdef_GEV_gailtal_obs("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2010,"observed", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
 
 GEVresult_gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "Gailtal", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
 #
