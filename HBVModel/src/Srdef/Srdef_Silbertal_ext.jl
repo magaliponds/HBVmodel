@@ -262,7 +262,7 @@ function run_srdef_GEV_silbertal( path_to_projection, path_to_best_parameter, st
                         Total_in = Total_Precipitation_series+Snowstorage[index_spinup:index_lastdate]
 
                         if ploton=="yes"
-                                Peplot = Plots.plot()
+                                Peplot = Plots.plot(title="Silbertal", titlefontsize=12)
                                 plot!(Timeseries_Obj[1000:2000], Total_Precipitation_series[1000:2000], label="P")
                                 #plot!(Timeseries_Obj[1000:2000], Total_in[1000:2000], label="P+Melt", color="purple")
                                 plot!(Timeseries_Obj[1000:2000], Pe[index_spinup:index_lastdate][1000:2000], label="Pe", color="darkorange")
@@ -275,7 +275,7 @@ function run_srdef_GEV_silbertal( path_to_projection, path_to_best_parameter, st
                                 #Plots.savefig( path_to_folder*string(startyear)*ep_method*"_Pe_melt_timeseries_analysis"*string(startyear)*"_"*string(endyear)*".png" )
 
 
-                                Pepplot = Plots.plot()
+                                Pepplot = Plots.plot(title="Silbertal", titlefontsize=12)
                                 # plot!(Timeseries_Obj[1000:2000], Total_Precipitation_series[1000:6000], label="P")
                                 # plot!(Timeseries_Obj[1000:6000], Pe[index_spinup:index_lastdate][1000:6000], label="Pe")
                                 plot!(Timeseries_Obj[1000:2000], -Ei[index_spinup:index_lastdate][1000:2000], label="Ei")
@@ -375,7 +375,7 @@ function run_srdef_GEV_silbertal( path_to_projection, path_to_best_parameter, st
                                 # writedlm( path_to_folder *ep_method*"_Paltental_srdef_continuous", srdef_continuous, ',')
                                 # CSV.write( path_to_folder *ep_method* "_Paltental_sdef_max_year_"*string(startyear)*"_"*string(endyear), maxima )
 
-                                srdefmaxyear = Plots.plot()
+                                srdefmaxyear = Plots.plot(title="Silbertal", titlefontsize=12)
                                 scatter!(years, srdef_max_year, label = "Yearly max Srdef")
                                 yaxis!("mm")
                                 xaxis!("Year")
@@ -385,35 +385,35 @@ function run_srdef_GEV_silbertal( path_to_projection, path_to_best_parameter, st
                                 startplot = 4 * 365
                                 endplot = 5 * 365
 
-                                srdeftimesries =Plots.plot()
+                                srdeftimesries =Plots.plot(title="Silbertal", titlefontsize=12)
                                 plot!( Timeseries[index_spinup:end], srdef_timeseries, label = "Sr_def_timeseries", )
                                 yaxis!("mm")
                                 xaxis!("Date")
                                 #Plots.savefig( path_to_folder*string(startyear)*ep_method*"_srdef_timeseries_normal_" *string(startyear)*"_"*string(endyear)* "_"*string(n) * ".png", )
                                 display(srdeftimesries)
 
-                                srdeftimesrieszoom = Plots.plot()
+                                srdeftimesrieszoom = Plots.plot(title="Silbertal", titlefontsize=12)
                                 plot!( Timeseries[startplot:endplot], srdef_timeseries[startplot:endplot], label = "Sr_def_timeseries", )
                                 yaxis!("mm")
                                 xaxis!("Date")
                                 #Plots.savefig(path_to_folder*string(startyear)*ep_method*"_srdef_timeseries_zoom_" *string(startyear)*"_"*string(endyear)* "_"*string(n) * ".png", )
                                 display(srdeftimesrieszoom)
 
-                                srdefcontinuous = Plots.plot()
+                                srdefcontinuous = Plots.plot(title="Silbertal", titlefontsize=12)
                                 plot!( Timeseries[index_spinup:end], srdef_continuous, label = "Sr_def_cumulative", )
                                 yaxis!("mm")
                                 xaxis!("Date")
                                 #Plots.savefig(path_to_folder*string(startyear)*ep_method*"_srdef_timeseries_cum_" *string(startyear)*"_"*string(endyear)* "_"*string(n) * ".png", )
                                 display(srdefcontinuous)
 
-                                srdefcontinuouszoom = Plots.plot()
+                                srdefcontinuouszoom = Plots.plot(title="Silbertal", titlefontsize=12)
                                 plot!( Timeseries[startplot:endplot], srdef_continuous[startplot+1:endplot+1], label = "Sr_def_cumulative", )
                                 yaxis!("mm")
                                 xaxis!("Date")
                                 #Plots.savefig( path_to_folder*string(startyear)*ep_method*"_srdef_timeseries_cum_zoom_" *string(startyear)*"_"*string(endyear)* "_"*string(n) * ".png", )
                                 display(srdefcontinuouszoom)
 
-                                combined = Plots.plot()
+                                combined = Plots.plot(title="Silbertal", titlefontsize=12)
                                 plot!( Timeseries[startplot:endplot], Er_timeseries[startplot+1:endplot+1], label = "Er", )
                                 plot!( Timeseries[startplot:endplot], All_Pe[:, n+1][startplot+1:endplot+1], label = "Pe", )
                                 plot!( Timeseries[startplot:endplot], srdef_timeseries[startplot:endplot], label = "Sr_def_timeseries", )
@@ -425,7 +425,7 @@ function run_srdef_GEV_silbertal( path_to_projection, path_to_best_parameter, st
 
                                 Srmax_forest = Float64[]
                                 Srmax_grass = Float64[]
-                                parameters = Plots.plot()
+                                parameters = Plots.plot(title="Silbertal", titlefontsize=12)
                                 for n = 1:1:size(parameters_best_calibrations)[1]
                                         beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, Soilstoaragecapacity_Bare, Soilstoaragecapacity_Forest, Soilstoaragecapacity_Grass, Soilstoaragecapacity_Rip, Temp_Thresh = parameters_best_calibrations[n, :]
                                         push!(Srmax_forest, Soilstoaragecapacity_Forest)
@@ -493,15 +493,18 @@ function run_srdef_GEV_silbertal( path_to_projection, path_to_best_parameter, st
                                 startyear = "Past"
                         end
                         #Recurranceinterval
+                        dfgev = DataFrame(T = T, srdef = -xt)
+                #        CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/GEV/Silbertal_GEV_T.csv", dfgev)
+
                         if ploton =="yes"
-                                gev = Plots.plot()
+                                gev = Plots.plot(title="Silbertal", titlefontsize=12)
                                 scatter!(xt,yt)
                                 xaxis!("xti")
                                 yaxis!("yti")
                                 #Plots.savefig(path_to_folder*string(startyear)*ep_method*"_GEVstart_Paltental_xtyt.png")
                                 display(gev)
 
-                                gev2= Plots.plot()
+                                gev2= Plots.plot(title="Silbertal", titlefontsize=12)
                                 plot!(T,xt, label="GEV distribution")
                                 scatter!(T,xt, label="datapoints")
                                 xaxis!("T")
@@ -872,7 +875,7 @@ function run_srdef_GEV_silbertal_obs(path_to_best_parameter, startyear, endyear,
         srdef_cum = zeros(length(Total_Precipitation_series))
 
 
-        Plots.plot()
+        Plots.plot(title="Silbertal", titlefontsize=12)
         for n = 1:1:size(parameters_best_calibrations)[1]
                 Current_Inputs_All_Zones = deepcopy(Inputs_All_Zones)
                 Current_Storages_All_Zones = deepcopy(Storages_All_Zones)
@@ -896,7 +899,7 @@ function run_srdef_GEV_silbertal_obs(path_to_best_parameter, startyear, endyear,
 
                 Total_in = Total_Precipitation_series+Snowstorage[index_spinup:index_lastdate]
                 if ploton == "yes"
-                        Peplot = Plots.plot()
+                        Peplot = Plots.plot(title="Silbertal", titlefontsize=12)
                         plot!(Timeseries_Obj[1000:2000], Total_Precipitation_series[1000:2000], label="P")
                         #plot!(Timeseries_Obj[1000:2000], Total_in[1000:2000], label="P+Melt", color="purple")
                         plot!(Timeseries_Obj[1000:2000], Pe[index_spinup:index_lastdate][1000:2000], label="Pe", color="darkorange")
@@ -908,7 +911,7 @@ function run_srdef_GEV_silbertal_obs(path_to_best_parameter, startyear, endyear,
                         Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Past/Silbertal/"*ep_method*"_Pe_melt_timeseries_analysis"*string(startyear)*"_"*string(endyear)*".png" )
 
 
-                        Pepplot = Plots.plot()
+                        Pepplot = Plots.plot(title="Silbertal", titlefontsize=12)
                         plot!(Timeseries_Obj[1000:2000], -Ei[index_spinup:index_lastdate][1000:2000], label="Ei")
                         plot!(Timeseries_Obj[1000:2000], -Potential_Evaporation_series[1000:2000], label="Ep")
                         xaxis!("Date")
@@ -1006,7 +1009,7 @@ function run_srdef_GEV_silbertal_obs(path_to_best_parameter, startyear, endyear,
                         # CSV.write( path_to_folder *ep_method* "_Silbertal_sdef_max_year_"*string(startyear)*"_"*string(endyear), maxima )
 
 
-                        srdefmaxyear = Plots.plot()
+                        srdefmaxyear = Plots.plot(title="Silbertal", titlefontsize=12)
                         scatter!(years, srdef_max_year, label = "Yearly max Srdef")
                         yaxis!("mm")
                         xaxis!("Year")
@@ -1015,35 +1018,35 @@ function run_srdef_GEV_silbertal_obs(path_to_best_parameter, startyear, endyear,
                         startplot = 4 * 365
                         endplot = 5 * 365
 
-                        srdeftimeser=Plots.plot()
+                        srdeftimeser=Plots.plot(title="Silbertal", titlefontsize=12)
                         plot!( Timeseries[index_spinup:end], srdef_timeseries, label = "Sr_def_series", )
                         yaxis!("mm")
                         xaxis!("Date")
                         display(srdeftimeser)
                         #Plots.savefig( path_to_folder*ep_method*"_srdef_timeseries_normal"*string(startyear)*"_"*string(endyear)*"_observed" * string(n) * ".png", )
 
-                        srdeftime=Plots.plot()
+                        srdeftime=Plots.plot(title="Silbertal", titlefontsize=12)
                         plot!( Timeseries[startplot:endplot], srdef_timeseries[startplot:endplot], label = "Sr_def_series", )
                         yaxis!("mm")
                         xaxis!("Date")
                         #Plots.savefig( path_to_folder*ep_method*"_srdef_timeseries_zoom"*string(startyear)*"_"*string(endyear)*"_observed" * string(n) * ".png", )
                         display(srdeftime)
 
-                        srdefcum = Plots.plot()
+                        srdefcum = Plots.plot(title="Silbertal", titlefontsize=12)
                         plot!( Timeseries[index_spinup:end], srdef_continuous, label = "Sr_def", )
                         yaxis!("mm")
                         xaxis!("Date")
                         #Plots.savefig( path_to_folder*ep_method*"_srdef_timeseries_cum_"*string(startyear)*"_"*string(endyear)*"_observed" * string(n) * ".png", )
                         display(srdefcum)
 
-                        cumzoom = Plots.plot()
+                        cumzoom = Plots.plot(title="Silbertal", titlefontsize=12)
                         plot!( Timeseries[startplot:endplot], srdef_continuous[startplot+1:endplot+1], label = "Sr_def", )
                         yaxis!("mm")
                         xaxis!("Date")
                         Plots.savefig( path_to_folder*ep_method*"_srdef_timeseries_cum_zoom_"*string(startyear)*"_"*string(endyear)*"_observed" * string(n) * ".png", )
                         dispaly(cumzoom)
 
-                        alltimeser = Plots.plot()
+                        alltimeser = Plots.plot(title="Silbertal", titlefontsize=12)
                         plot!( Timeseries[startplot:endplot], Er_timeseries[startplot+1:endplot+1], label = "Er", )
                         plot!( Timeseries[startplot:endplot], All_Pe[:, n+1][startplot+1:endplot+1], label = "Pe", )
                         plot!( Timeseries[startplot:endplot], srdef_timeseries[startplot:endplot], label = "Sr_def_series", )
@@ -1055,7 +1058,7 @@ function run_srdef_GEV_silbertal_obs(path_to_best_parameter, startyear, endyear,
 
                         Srmax_forest = Float64[]
                         Srmax_grass = Float64[]
-                        parameters = Plots.plot()
+                        parameters = Plots.plot(title="Silbertal", titlefontsize=12)
                         for n = 1:1:size(parameters_best_calibrations)[1]
                                 beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, Soilstoaragecapacity_Bare, Soilstoaragecapacity_Forest, Soilstoaragecapacity_Grass, Soilstoaragecapacity_Rip, Temp_Thresh = parameters_best_calibrations[n, :]
                                 push!(Srmax_forest, Soilstoaragecapacity_Forest)
@@ -1118,14 +1121,14 @@ function run_srdef_GEV_silbertal_obs(path_to_best_parameter, startyear, endyear,
 
         #Recurranceinterval
         if ploton =="yes"
-                gev = Plots.plot()
+                gev = Plots.plot(title="Silbertal", titlefontsize=12)
                 scatter!(xt,yt)
                 xaxis!("xti")
                 yaxis!("yti")
                 #Plots.savefig(path_to_folder*string(startyear)*ep_method*"_GEVstart_silbertal_xtyt.png")
                 display(gev)
 
-                gev2  = Plots.plot()
+                gev2  = Plots.plot(title="Silbertal", titlefontsize=12)
                 plot!(T,xt, label="GEV distribution")
                 scatter!(T,xt, label="datapoints")
                 xaxis!("T")
@@ -1224,16 +1227,12 @@ function GEVresult_silbertal(path_to_best_parameter, catchment_name, rcp, rcm)
         Markers = [:dtriangle, :cross]
         PE= ["Thorntwaite", "Hargreaves"]
         colour = ["lightyellow", "pink"]
-        for (e,ep_method) in enumerate(PE)
-                if PE == "Thorntwaite"
-                        violin!(-obs_past[:,e+2], color=colour[e], label=ep_method)
-                        violin!(-mod_past[:,e+2], color=colour[e], label=false)
-                        violin!(-mod_future[:,e+2], color=colour[e], label=false)
-                else
-                        violin!(-mod_past[:,e+2], color=colour[e], label=ep_method)
-                        violin!(-mod_future[:,e+2], color=colour[e], label=false)
-                end
-        end
+        violin!(-obs_past[:,3], color=colour[1], label="Thorntwaite")
+        violin!(-mod_past[:,3], color=colour[1], label=false)
+        violin!(-mod_future[:,3], color=colour[1], label=false)
+        violin!(-mod_past[:,5], color=colour[2], label="Hargreaves")
+        violin!(-mod_future[:,5], color=colour[2], label=false)
+
 
         # for (e,ep_method) in enumerate(PE)
         #         plot!(e,mod_past.T20[e], :scatter, label="mod_past"*ep_method)
@@ -1241,7 +1240,7 @@ function GEVresult_silbertal(path_to_best_parameter, catchment_name, rcp, rcm)
         #         plot!(e,obs_past.T20[e], :scatter,label="obs_past"*ep_method)
         # end
         # #scatter!(xt2)
-        xticks!([1:7;], ["Forest C", "Forest OP", "Forest MP", "Forest MF", "Forest OP", "Forest MP", "Forest MF"])
+        xticks!([1:6;], ["Forest C", "Forest OP", "Forest MP", "Forest MF", "Forest MP", "Forest MF"])
         yaxis!("Sr,max [mm]", font(8))
         Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/"*catchment_name*"/"*rcp*"/"*rcm*"/Forest_parameter_comparison.png")
 
@@ -1251,16 +1250,12 @@ function GEVresult_silbertal(path_to_best_parameter, catchment_name, rcp, rcm)
 
         violin!(df.Srmax_grass, color="Lightgreen", label="Grass calibration")
 
-        for (e,ep_method) in enumerate(PE)
-                if PE == "Thorntwaite"
-                        violin!(-obs_past[:,1+e], color=colour2[e], label=ep_method)
-                        violin!(-mod_past[:,1+e], color=colour2[e], label=false)
-                        violin!(-mod_future[:,1+e], color=colour2[e], label=false)
-                else
-                        violin!(-mod_past[:,e+1], color=colour[e], label=ep_method)
-                        violin!(-mod_future[:,e+1], color=colour[e], label=false)
-                end
-        end
+        violin!(-obs_past[:,2], color=colour2[1], label="Thorntwaite")
+        violin!(-mod_past[:,2], color=colour2[1], label=false)
+        violin!(-mod_future[:,2], color=colour2[1], label=false)
+        violin!(-mod_past[:,4], color=colour2[2], label="Hargreaves")
+        violin!(-mod_future[:,4], color=colour2[2], label=false)
+
 
         # for (e,ep_method) in enumerate(PE)
         #         plot!(e,mod_past.T20[e], :scatter, label="mod_past"*ep_method)
@@ -1268,7 +1263,7 @@ function GEVresult_silbertal(path_to_best_parameter, catchment_name, rcp, rcm)
         #         plot!(e,obs_past.T20[e], :scatter,label="obs_past"*ep_method)
         # end
         # #scatter!(xt2)
-        xticks!([1:7;], ["Grass C", "Grass OP", "Grass MP", "Grass MF", "Grass OP", "Grass MP", "Grass MF"])
+        xticks!([1:6;], ["Grass C", "Grass OP", "Grass MP", "Grass MF", "Grass MP", "Grass MF"])
         yaxis!("Sr,max [mm]", font(8))
         Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/"*catchment_name*"/"*rcp*"/"*rcm*"/Grass_parameter_comparison.png")
 end
@@ -1293,9 +1288,9 @@ function GEVresult_rcps_silbertal(catchment_name)
 end
 
 run_srdef_GEV_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2071,2100,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
-run_srdef_GEV_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1978,2010,"past2100", 3,"no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
-run_srdef_GEV_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2013,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
-run_srdef_GEV_silbertal_obs("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2010,"observed", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
+# run_srdef_GEV_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1978,2010,"past2100", 3,"no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
+# run_srdef_GEV_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/IllSugadin/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2013,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
+# run_srdef_GEV_silbertal_obs("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2010,"observed", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
 
-GEVresult_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "Silbertal", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
+# GEVresult_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "Silbertal", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
 #
