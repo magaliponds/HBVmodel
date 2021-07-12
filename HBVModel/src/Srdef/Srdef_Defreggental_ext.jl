@@ -238,7 +238,7 @@ function run_srdef_GEV_defreggental( path_to_projection, path_to_best_parameter,
                 srdef_cum = zeros(length(Total_Precipitation_series))
 
 
-                for n = 1:1:size(parameters_best_calibrations)[1]
+                for  n = 1:1:size(parameters_best_calibrations)[1]
                         Current_Inputs_All_Zones = deepcopy(Inputs_All_Zones)
                         Current_Storages_All_Zones = deepcopy(Storages_All_Zones)
                         Current_GWStorage = deepcopy(GWStorage)
@@ -263,7 +263,7 @@ function run_srdef_GEV_defreggental( path_to_projection, path_to_best_parameter,
                         Total_in = Total_Precipitation_series+Snowstorage[index_spinup:index_lastdate]
 
                         if ploton=="yes"
-                                Peplot = Plots.plot()
+                                Peplot = Plots.plot(title="Defreggental", titlefontsize=12)
                                 plot!(Timeseries_Obj[1000:2000], Total_Precipitation_series[1000:2000], label="P")
                                 #plot!(Timeseries_Obj[1000:2000], Total_in[1000:2000], label="P+Melt", color="purple")
                                 plot!(Timeseries_Obj[1000:2000], Pe[index_spinup:index_lastdate][1000:2000], label="Pe", color="darkorange")
@@ -276,7 +276,7 @@ function run_srdef_GEV_defreggental( path_to_projection, path_to_best_parameter,
                                 #Plots.savefig( path_to_folder*string(startyear)*ep_method*"_Pe_melt_timeseries_analysis"*string(startyear)*"_"*string(endyear)*".png" )
 
 
-                                Pepplot = Plots.plot()
+                                Pepplot = Plots.plot(title="Defreggental", titlefontsize=12)
                                 # plot!(Timeseries_Obj[1000:2000], Total_Precipitation_series[1000:6000], label="P")
                                 # plot!(Timeseries_Obj[1000:6000], Pe[index_spinup:index_lastdate][1000:6000], label="Pe")
                                 plot!(Timeseries_Obj[1000:2000], -Ei[index_spinup:index_lastdate][1000:2000], label="Ei")
@@ -311,6 +311,8 @@ function run_srdef_GEV_defreggental( path_to_projection, path_to_best_parameter,
                         srdef_timeseries = zeros(length(Total_Precipitation_series))
                         srdef_continuous = zeros(length(Total_Precipitation_series))
                         srdef_max_year = Float64[]
+                        srdef_max_year2 = Float64[]
+
 
 
                         #srdef_timeseries_cum = zeros(length(Total_Precipitation)+1)
@@ -357,9 +359,11 @@ function run_srdef_GEV_defreggental( path_to_projection, path_to_best_parameter,
                                         # end
                                 end
                                 srdef_max = minimum(srdef_continuous[index_year:index_endyear])
+                                srdef_max_notcum = minimum(srdef_timeseries[index_year:index_endyear])
                                 # println(i, srdef_max)
                                 push!(years_index, year)
                                 push!(srdef_max_year, srdef_max)
+                                push!(srdef_max_year2, srdef_max_notcum)
                                 hcat(srdef, srdef_timeseries)
                                 hcat(srdef_cum, srdef_continuous)
 
@@ -376,45 +380,55 @@ function run_srdef_GEV_defreggental( path_to_projection, path_to_best_parameter,
                                 # writedlm( path_to_folder *ep_method*"_Paltental_srdef_continuous", srdef_continuous, ',')
                                 # CSV.write( path_to_folder *ep_method* "_Paltental_sdef_max_year_"*string(startyear)*"_"*string(endyear), maxima )
 
-                                srdefmaxyear = Plots.plot()
+                                srdefmaxyear = Plots.plot(title="Defreggental", titlefontsize=12)
                                 scatter!(years, srdef_max_year, label = "Yearly max Srdef")
                                 yaxis!("mm")
                                 xaxis!("Year")
                                 #Plots.savefig( path_to_folder*string(startyear)*ep_method*"_srdef_max_year_"*string(startyear)*"_"*string(endyear)*".png", )
                                 display(srdefmaxyear)
 
+                                srdefmaxyear2 = Plots.plot(title="Defreggental", titlefontsize=12)
+                                scatter!(years, srdef_max_year2, label = "Yearly max Srdef,daily")
+                                scatter!(years, srdef_max_year, label = "Yearly max Srdef,cum")
+
+                                yaxis!("mm")
+                                xaxis!("Year")
+                                #Plots.savefig( path_to_folder*string(startyear)*ep_method*"_srdef_max_year_"*string(startyear)*"_"*string(endyear)*".png", )
+                                display(srdefmaxyear2)
+
+
                                 startplot = 4 * 365
                                 endplot = 5 * 365
 
-                                srdeftimesries =Plots.plot()
+                                srdeftimesries =Plots.plot(title="Defreggental", titlefontsize=12)
                                 plot!( Timeseries[index_spinup:end], srdef_timeseries, label = "Sr_def_timeseries", )
                                 yaxis!("mm")
                                 xaxis!("Date")
                                 #Plots.savefig( path_to_folder*string(startyear)*ep_method*"_srdef_timeseries_normal_" *string(startyear)*"_"*string(endyear)* "_"*string(n) * ".png", )
                                 display(srdeftimesries)
 
-                                srdeftimesrieszoom = Plots.plot()
+                                srdeftimesrieszoom = Plots.plot(title="Defreggental", titlefontsize=12)
                                 plot!( Timeseries[startplot:endplot], srdef_timeseries[startplot:endplot], label = "Sr_def_timeseries", )
                                 yaxis!("mm")
                                 xaxis!("Date")
                                 #Plots.savefig(path_to_folder*string(startyear)*ep_method*"_srdef_timeseries_zoom_" *string(startyear)*"_"*string(endyear)* "_"*string(n) * ".png", )
                                 display(srdeftimesrieszoom)
 
-                                srdefcontinuous = Plots.plot()
+                                srdefcontinuous = Plots.plot(title="Defreggental", titlefontsize=12)
                                 plot!( Timeseries[index_spinup:end], srdef_continuous, label = "Sr_def_cumulative", )
                                 yaxis!("mm")
                                 xaxis!("Date")
                                 #Plots.savefig(path_to_folder*string(startyear)*ep_method*"_srdef_timeseries_cum_" *string(startyear)*"_"*string(endyear)* "_"*string(n) * ".png", )
                                 display(srdefcontinuous)
 
-                                srdefcontinuouszoom = Plots.plot()
+                                srdefcontinuouszoom = Plots.plot(title="Defreggental", titlefontsize=12)
                                 plot!( Timeseries[startplot:endplot], srdef_continuous[startplot+1:endplot+1], label = "Sr_def_cumulative", )
                                 yaxis!("mm")
                                 xaxis!("Date")
                                 #Plots.savefig( path_to_folder*string(startyear)*ep_method*"_srdef_timeseries_cum_zoom_" *string(startyear)*"_"*string(endyear)* "_"*string(n) * ".png", )
                                 display(srdefcontinuouszoom)
 
-                                combined = Plots.plot()
+                                combined = Plots.plot(title="Defreggental", titlefontsize=12)
                                 plot!( Timeseries[startplot:endplot], Er_timeseries[startplot+1:endplot+1], label = "Er", )
                                 plot!( Timeseries[startplot:endplot], All_Pe[:, n+1][startplot+1:endplot+1], label = "Pe", )
                                 plot!( Timeseries[startplot:endplot], srdef_timeseries[startplot:endplot], label = "Sr_def_timeseries", )
@@ -424,9 +438,17 @@ function run_srdef_GEV_defreggental( path_to_projection, path_to_best_parameter,
                                 #Plots.savefig( path_to_folder*string(startyear)*ep_method*"_all_timeseries_normal_" *string(startyear)*"_"*string(endyear)* "_"*string(n) * ".png", )
                                 display(combined)
 
+                                alltimeseries = Plots.plot(title="Defreggental", titlefontsize=12)
+                                # plot!( Timeseries[startplot:endplot], Er_timeseries[startplot+1:endplot+1], label = "Er", )
+                                # plot!( Timeseries[startplot:endplot], All_Pe[:, n+1][startplot+1:endplot+1], label = "Pe", )
+                                plot!( Timeseries[startplot:endplot], srdef_timeseries[startplot:endplot], label = "Sr_def_series", )
+                                plot!( Timeseries[startplot:endplot], srdef_continuous[startplot+1:endplot+1], label = "Sr_def_cum", )
+                                yaxis!("mm")
+                                xaxis!("Date")
+                                display(alltimeseries)
                                 Srmax_forest = Float64[]
                                 Srmax_grass = Float64[]
-                                parameters = Plots.plot()
+                                parameters = Plots.plot(title="Defreggental", titlefontsize=12)
                                 for n = 1:1:size(parameters_best_calibrations)[1]
                                         beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, Soilstoaragecapacity_Bare, Soilstoaragecapacity_Forest, Soilstoaragecapacity_Grass, Soilstoaragecapacity_Rip, Temp_Thresh = parameters_best_calibrations[n, :]
                                         push!(Srmax_forest, Soilstoaragecapacity_Forest)
@@ -494,15 +516,18 @@ function run_srdef_GEV_defreggental( path_to_projection, path_to_best_parameter,
                                 startyear = "Past"
                         end
                         #Recurranceinterval
+                        dfgev = DataFrame(T = T, srdef = xt)
+                        #CSV.write("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/GEV/Defreggental_GEV_T.csv", dfgev)
+
                         if ploton =="yes"
-                                gev = Plots.plot()
+                                gev = Plots.plot(title="Defreggental", titlefontsize=12)
                                 scatter!(xt,yt)
                                 xaxis!("xti")
                                 yaxis!("yti")
                                 #Plots.savefig(path_to_folder*string(startyear)*ep_method*"_GEVstart_Paltental_xtyt.png")
                                 display(gev)
 
-                                gev2= Plots.plot()
+                                gev2= Plots.plot(title="Defreggental", titlefontsize=12)
                                 plot!(T,xt, label="GEV distribution")
                                 scatter!(T,xt, label="datapoints")
                                 xaxis!("T")
@@ -542,7 +567,7 @@ function run_srdef_GEV_defreggental( path_to_projection, path_to_best_parameter,
         output_total = output_total[:,2:end]
         titled_output = DataFrame(n=output_total[:,1], TW_Grass=output_total[:,2], TW_Forest=output_total[:,3], HG_Grass=output_total[:,4], HG_Forest=output_total[:,5])
 
-        CSV.write(path_to_folder*string(startyear)*"_GEV_T_total_titled.csv", titled_output)
+        #CSV.write(path_to_folder*string(startyear)*"_GEV_T_total_titled.csv", titled_output)
 
 
         return #Timeseries[index_spinup:end], srdef_, srdef_cum, yearseries#Pe_mean, Ei_mean
@@ -777,7 +802,7 @@ function run_srdef_GEV_defreggental_obs(path_to_best_parameter, startyear, endye
         srdef_cum = zeros(length(Total_Precipitation_series))
 
 
-        Plots.plot()
+        Plots.plot(title="Defreggental", titlefontsize=12)
         for n = 1:1:size(parameters_best_calibrations)[1]
                 Current_Inputs_All_Zones = deepcopy(Inputs_All_Zones)
                 Current_Storages_All_Zones = deepcopy(Storages_All_Zones)
@@ -801,7 +826,7 @@ function run_srdef_GEV_defreggental_obs(path_to_best_parameter, startyear, endye
 
                 Total_in = Total_Precipitation_series+Snowstorage[index_spinup:index_lastdate]
                 if ploton == "yes"
-                        Peplot = Plots.plot()
+                        Peplot = Plots.plot(title="Defreggental", titlefontsize=12)
                         plot!(Timeseries_Obj[1000:2000], Total_Precipitation_series[1000:2000], label="P")
                         #plot!(Timeseries_Obj[1000:2000], Total_in[1000:2000], label="P+Melt", color="purple")
                         plot!(Timeseries_Obj[1000:2000], Pe[index_spinup:index_lastdate][1000:2000], label="Pe", color="darkorange")
@@ -813,7 +838,7 @@ function run_srdef_GEV_defreggental_obs(path_to_best_parameter, startyear, endye
                         Plots.savefig( "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Past/Defreggental/"*ep_method*"_Pe_melt_timeseries_analysis"*string(startyear)*"_"*string(endyear)*".png" )
 
 
-                        Pepplot = Plots.plot()
+                        Pepplot = Plots.plot(title="Defreggental", titlefontsize=12)
                         plot!(Timeseries_Obj[1000:2000], -Ei[index_spinup:index_lastdate][1000:2000], label="Ei")
                         plot!(Timeseries_Obj[1000:2000], -Potential_Evaporation_series[1000:2000], label="Ep")
                         xaxis!("Date")
@@ -911,7 +936,7 @@ function run_srdef_GEV_defreggental_obs(path_to_best_parameter, startyear, endye
                         # CSV.write( path_to_folder *ep_method* "_Defreggental_sdef_max_year_"*string(startyear)*"_"*string(endyear), maxima )
 
 
-                        srdefmaxyear = Plots.plot()
+                        srdefmaxyear = Plots.plot(title="Defreggental", titlefontsize=12)
                         scatter!(years, srdef_max_year, label = "Yearly max Srdef")
                         yaxis!("mm")
                         xaxis!("Year")
@@ -920,35 +945,35 @@ function run_srdef_GEV_defreggental_obs(path_to_best_parameter, startyear, endye
                         startplot = 4 * 365
                         endplot = 5 * 365
 
-                        srdeftimeser=Plots.plot()
+                        srdeftimeser=Plots.plot(title="Defreggental", titlefontsize=12)
                         plot!( Timeseries[index_spinup:end], srdef_timeseries, label = "Sr_def_series", )
                         yaxis!("mm")
                         xaxis!("Date")
                         display(srdeftimeser)
                         #Plots.savefig( path_to_folder*ep_method*"_srdef_timeseries_normal"*string(startyear)*"_"*string(endyear)*"_observed" * string(n) * ".png", )
 
-                        srdeftime=Plots.plot()
+                        srdeftime=Plots.plot(title="Defreggental", titlefontsize=12)
                         plot!( Timeseries[startplot:endplot], srdef_timeseries[startplot:endplot], label = "Sr_def_series", )
                         yaxis!("mm")
                         xaxis!("Date")
                         #Plots.savefig( path_to_folder*ep_method*"_srdef_timeseries_zoom"*string(startyear)*"_"*string(endyear)*"_observed" * string(n) * ".png", )
                         display(srdeftime)
 
-                        srdefcum = Plots.plot()
+                        srdefcum = Plots.plot(title="Defreggental", titlefontsize=12)
                         plot!( Timeseries[index_spinup:end], srdef_continuous, label = "Sr_def", )
                         yaxis!("mm")
                         xaxis!("Date")
                         #Plots.savefig( path_to_folder*ep_method*"_srdef_timeseries_cum_"*string(startyear)*"_"*string(endyear)*"_observed" * string(n) * ".png", )
                         display(srdefcum)
 
-                        cumzoom = Plots.plot()
+                        cumzoom = Plots.plot(title="Defreggental", titlefontsize=12)
                         plot!( Timeseries[startplot:endplot], srdef_continuous[startplot+1:endplot+1], label = "Sr_def", )
                         yaxis!("mm")
                         xaxis!("Date")
                         Plots.savefig( path_to_folder*ep_method*"_srdef_timeseries_cum_zoom_"*string(startyear)*"_"*string(endyear)*"_observed" * string(n) * ".png", )
                         dispaly(cumzoom)
 
-                        alltimeser = Plots.plot()
+                        alltimeser = Plots.plot(title="Defreggental", titlefontsize=12)
                         plot!( Timeseries[startplot:endplot], Er_timeseries[startplot+1:endplot+1], label = "Er", )
                         plot!( Timeseries[startplot:endplot], All_Pe[:, n+1][startplot+1:endplot+1], label = "Pe", )
                         plot!( Timeseries[startplot:endplot], srdef_timeseries[startplot:endplot], label = "Sr_def_series", )
@@ -958,9 +983,18 @@ function run_srdef_GEV_defreggental_obs(path_to_best_parameter, startyear, endye
                         display(alltimeser)
                         #Plots.savefig( path_to_folder*ep_method*"_all_timeseries_normal_"*string(startyear)*"_"*string(endyear)*"_observed" * string(n) * ".png", )
 
+                        alltimeseries = Plots.plot(title="Defreggental", titlefontsize=12)
+                        # plot!( Timeseries[startplot:endplot], Er_timeseries[startplot+1:endplot+1], label = "Er", )
+                        # plot!( Timeseries[startplot:endplot], All_Pe[:, n+1][startplot+1:endplot+1], label = "Pe", )
+                        plot!( Timeseries[startplot:endplot], srdef_timeseries[startplot:endplot], label = "Sr_def_series", )
+                        plot!( Timeseries[startplot:endplot], srdef_continuous[startplot+1:endplot+1], label = "Sr_def_cum", )
+                        yaxis!("mm")
+                        xaxis!("Date")
+                        display(alltimeseries)
+
                         Srmax_forest = Float64[]
                         Srmax_grass = Float64[]
-                        parameters = Plots.plot()
+                        parameters = Plots.plot(title="Defreggental", titlefontsize=12)
                         for n = 1:1:size(parameters_best_calibrations)[1]
                                 beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, Soilstoaragecapacity_Bare, Soilstoaragecapacity_Forest, Soilstoaragecapacity_Grass, Soilstoaragecapacity_Rip, Temp_Thresh = parameters_best_calibrations[n, :]
                                 push!(Srmax_forest, Soilstoaragecapacity_Forest)
@@ -1023,14 +1057,14 @@ function run_srdef_GEV_defreggental_obs(path_to_best_parameter, startyear, endye
 
         #Recurranceinterval
         if ploton =="yes"
-                gev = Plots.plot()
+                gev = Plots.plot(title="Defreggental", titlefontsize=12)
                 scatter!(xt,yt)
                 xaxis!("xti")
                 yaxis!("yti")
                 #Plots.savefig(path_to_folder*string(startyear)*ep_method*"_GEVstart_defreggental_xtyt.png")
                 display(gev)
 
-                gev2  = Plots.plot()
+                gev2  = Plots.plot(title="Defreggental", titlefontsize=12)
                 plot!(T,xt, label="GEV distribution")
                 scatter!(T,xt, label="datapoints")
                 xaxis!("T")
@@ -1166,8 +1200,6 @@ function GEVresult_defreggental(path_to_best_parameter, catchment_name, rcp, rcm
         yaxis!("Sr,max [mm]", font(8))
         Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/"*catchment_name*"/"*rcp*"/"*rcm*"/Grass_parameter_comparison.png")
 
-
-
 end
 
 
@@ -1189,10 +1221,10 @@ function GEVresult_rcps_defreggental(catchment_name)
         end
 end
 
-run_srdef_GEV_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2071,2100,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
-run_srdef_GEV_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1978,2010,"past2100", 3,"no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
-run_srdef_GEV_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2013,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
-run_srdef_GEV_defreggental_obs("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2010,"observed", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
-
-GEVresult_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "Defreggental", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
+run_srdef_GEV_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2071,2100,"future2100", 3, "yes", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
+# run_srdef_GEV_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1978,2010,"past2100", 3,"no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
+# run_srdef_GEV_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2013,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
+# run_srdef_GEV_defreggental_obs("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2010,"observed", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
+#
+# GEVresult_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "Defreggental", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
 #

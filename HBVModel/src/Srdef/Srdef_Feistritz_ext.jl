@@ -299,7 +299,7 @@ function run_srdef_GEV_feistritz( path_to_projection, path_to_best_parameter, st
                         srdef_timeseries = zeros(length(Total_Precipitation_series))
                         srdef_continuous = zeros(length(Total_Precipitation_series))
                         srdef_max_year = Float64[]
-
+                        srdef_max_year2 = Float64[]
 
                         #srdef_timeseries_cum = zeros(length(Total_Precipitation)+1)
 
@@ -345,9 +345,12 @@ function run_srdef_GEV_feistritz( path_to_projection, path_to_best_parameter, st
                                         # end
                                 end
                                 srdef_max = minimum(srdef_continuous[index_year:index_endyear])
+                                srdef_max2 = minimum(srdef_timeseries[index_year:index_endyear])
+
                                 # println(i, srdef_max)
                                 push!(years_index, year)
                                 push!(srdef_max_year, srdef_max)
+                                push!(srdef_max_year2, srdef_max2)
                                 hcat(srdef, srdef_timeseries)
                                 hcat(srdef_cum, srdef_continuous)
 
@@ -370,6 +373,15 @@ function run_srdef_GEV_feistritz( path_to_projection, path_to_best_parameter, st
                                 xaxis!("Year")
                                 #Plots.savefig( path_to_folder*string(startyear)*ep_method*"_srdef_max_year_"*string(startyear)*"_"*string(endyear)*".png", )
                                 display(srdefmaxyear)
+
+                                srdefmaxyear2 = Plots.plot(title="Feistritztal", titlefontsize=12)
+                                scatter!(years, srdef_max_year, label = "Yearly max Srdef,cum")
+                                scatter!(years, srdef_max_year2, label = "Yearly max Srdef,day")
+                                yaxis!("mm")
+                                xaxis!("Year")
+                                #Plots.savefig( path_to_folder*ep_method*"_srdef_max_year"*string(startyear)*"_"*string(endyear)*"_observed.png", )
+                                display(srdefmaxyear2)
+
 
                                 startplot = 2 * 365
                                 endplot = 3 * 365
@@ -834,7 +846,7 @@ function run_srdef_GEV_feistritz_obs(path_to_best_parameter, startyear, endyear,
                 srdef_timeseries = zeros(length(Total_Precipitation_series))
                 srdef_continuous = zeros(length(Total_Precipitation_series))
                 srdef_max_year = Float64[]
-
+                srdef_max_year2 = Float64[]
 
                 #srdef_timeseries_cum = zeros(length(Total_Precipitation)+1)
 
@@ -881,9 +893,11 @@ function run_srdef_GEV_feistritz_obs(path_to_best_parameter, startyear, endyear,
                                 # end
                         end
                         srdef_max = minimum(srdef_continuous[index_year:index_endyear])
+                        srdef_max2 = minimum(srdef_timeseries[index_year:index_endyear])
                         # println(i, srdef_max)
                         push!(years_index, year)
                         push!(srdef_max_year, srdef_max)
+                        push!(srdef_max_year, srdef_max2)
                         hcat(srdef, srdef_timeseries)
                         hcat(srdef_cum, srdef_continuous)
 
@@ -907,6 +921,15 @@ function run_srdef_GEV_feistritz_obs(path_to_best_parameter, startyear, endyear,
                         display(srdefmaxyear)
                         startplot = 4 * 365
                         endplot = 5 * 365
+
+                        srdefmaxyear2 = Plots.plot(title="Feistritztal", titlefontsize=12)
+                        scatter!(years, srdef_max_year, label = "Yearly max Srdef")
+                        scatter!(years, srdef_max_year2, label = "Yearly max Srdef,daily")
+                        yaxis!("mm")
+                        xaxis!("Year")
+                        #Plots.savefig( path_to_folder*ep_method*"_srdef_max_year"*string(startyear)*"_"*string(endyear)*"_observed.png", )
+                        display(srdefmaxyear2)
+
 
                         srdeftimeser=Plots.plot(title="Feistritztal", titlefontsize=12)
                         plot!( Timeseries[index_spinup:end], srdef_timeseries, label = "Sr_def_series", )
@@ -1181,7 +1204,7 @@ function GEVresult_rcps_feistritz(catchment_name)
         end
 end
 
-run_srdef_GEV_feistritz("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Pitten/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2071,2100,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
+run_srdef_GEV_feistritz("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Pitten/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2071,2100,"future2100", 3, "yes", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
 run_srdef_GEV_feistritz("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Pitten/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1978,2010,"past2100", 3,"no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
 run_srdef_GEV_feistritz("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Pitten/", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1981,2013,"future2100", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day" )
 run_srdef_GEV_feistritz_obs("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 1983,2010,"observed", 3, "no", "rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
