@@ -7,7 +7,7 @@ using StatsPlots
 using Plots.PlotMeasures
 using CSV
 
-function runmodelprecipitationzones_validation(Potential_Evaporation::Array{Float64,1}, Precipitation_All_Zones::Array{Array{Float64,2},1}, Temperature_Elevation_Catchment::Array{Float64,2}, Inputs_All_Zones::Array{Array{HRU_Input,1},1}, Storages_All_Zones::Array{Array{Storages,1},1}, SlowStorage::Float64, parameters::Array{Parameters,1}, slow_parameters::Slow_Paramters, Area_Zones::Array{Float64,1}, Area_Zones_Percent::Array{Float64,1}, Elevation_Percentage::Array{Array{Float64,1},1}, Elevation_Zone_Catchment::Array{Float64,1}, ID_Prec_Zones::Array{Int64,1}, Nr_Elevationbands_All_Zones::Array{Int64,1}, observed_snow_cover::Array{Array{Float64,2},1}, index_spinup::Int64, index_last::Int64)
+function runmodelprecipitationzones_validation_srdef(Potential_Evaporation::Array{Float64,1}, Precipitation_All_Zones::Array{Array{Float64,2},1}, Temperature_Elevation_Catchment::Array{Float64,2}, Inputs_All_Zones::Array{Array{HRU_Input,1},1}, Storages_All_Zones::Array{Array{Storages,1},1}, SlowStorage::Float64, parameters::Array{Parameters,1}, slow_parameters::Slow_Paramters, Area_Zones::Array{Float64,1}, Area_Zones_Percent::Array{Float64,1}, Elevation_Percentage::Array{Array{Float64,1},1}, Elevation_Zone_Catchment::Array{Float64,1}, ID_Prec_Zones::Array{Int64,1}, Nr_Elevationbands_All_Zones::Array{Int64,1}, observed_snow_cover::Array{Array{Float64,2},1}, index_spinup::Int64, index_last::Int64)
         Total_Discharge = zeros(length(Precipitation_All_Zones[1][:,1]))
         count = zeros(length(Precipitation_All_Zones[1][:,1]), length(Elevation_Zone_Catchment))
         Snow_Overall_Objective_Function = 0
@@ -39,7 +39,7 @@ function runmodelprecipitationzones_validation(Potential_Evaporation::Array{Floa
         return Total_Discharge::Array{Float64,1}, Snow_Overall_Objective_Function::Float64
 end
 
-function runmodelprecipitationzones_glacier_validation(Potential_Evaporation::Array{Float64,1},  Glacier::Array{Array{Float64,2},1}, Precipitation_All_Zones::Array{Array{Float64,2},1}, Temperature_Elevation_Catchment::Array{Float64,2}, Inputs_All_Zones::Array{Array{HRU_Input,1},1}, Storages_All_Zones::Array{Array{Storages,1},1}, SlowStorage::Float64, parameters::Array{Parameters,1}, slow_parameters::Slow_Paramters, Area_Zones::Array{Float64,1}, Area_Zones_Percent::Array{Float64,1}, Elevation_Percentage::Array{Array{Float64,1},1}, Elevation_Zone_Catchment::Array{Float64,1}, ID_Prec_Zones::Array{Int64,1}, Nr_Elevationbands_All_Zones::Array{Int64,1}, observed_snow_cover::Array{Array{Float64,2},1}, index_spinup::Int64, index_last::Int64)
+function runmodelprecipitationzones_glacier_validation_srdef(Potential_Evaporation::Array{Float64,1},  Glacier::Array{Array{Float64,2},1}, Precipitation_All_Zones::Array{Array{Float64,2},1}, Temperature_Elevation_Catchment::Array{Float64,2}, Inputs_All_Zones::Array{Array{HRU_Input,1},1}, Storages_All_Zones::Array{Array{Storages,1},1}, SlowStorage::Float64, parameters::Array{Parameters,1}, slow_parameters::Slow_Paramters, Area_Zones::Array{Float64,1}, Area_Zones_Percent::Array{Float64,1}, Elevation_Percentage::Array{Array{Float64,1},1}, Elevation_Zone_Catchment::Array{Float64,1}, ID_Prec_Zones::Array{Int64,1}, Nr_Elevationbands_All_Zones::Array{Int64,1}, observed_snow_cover::Array{Array{Float64,2},1}, index_spinup::Int64, index_last::Int64)
         Total_Discharge = zeros(length(Precipitation_All_Zones[1][:,1]))
         count = zeros(length(Precipitation_All_Zones[1][:,1]), length(Elevation_Zone_Catchment))
         Snow_Overall_Objective_Function = 0
@@ -72,7 +72,7 @@ function runmodelprecipitationzones_glacier_validation(Potential_Evaporation::Ar
         return Total_Discharge::Array{Float64,1}, Snow_Overall_Objective_Function::Float64
 end
 
-function run_validation_gailtal(path_to_best_parameter, startyear, endyear)
+function run_validation_gailtal_srdef(path_to_best_parameter, startyear, endyear)
 
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
         # ------------ CATCHMENT SPECIFIC INPUTS----------------
@@ -251,6 +251,9 @@ function run_validation_gailtal(path_to_best_parameter, startyear, endyear)
         #print("worker ", ID, " preparation finished", "\n")
         best_calibrations = readdlm(path_to_best_parameter, ',')
         parameters_best_calibrations = best_calibrations[:,10:29]
+        count_exclude=Float64[]
+        count_include=0
+
 
         #All_discharge = Array{Any, 1}[]
         for n in 1 : 1:size(parameters_best_calibrations)[1]
@@ -271,7 +274,7 @@ function run_validation_gailtal(path_to_best_parameter, startyear, endyear)
                 # parameter ranges
                 #parameters, parameters_array = parameter_selection()
                 #Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, Area_Zones, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, observed_snow_cover, start2000
-                Discharge, Snow_Extend = runmodelprecipitationzones_validation(Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, observed_snow_cover, index_spinup, index_lastdate)
+                Discharge, Snow_Extend = runmodelprecipitationzones_validation_srdef(Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, observed_snow_cover, index_spinup, index_lastdate)
                 #calculate snow for each precipitation zone
                 # don't calculate the goodness of fit for the spinup time!
                 #push!(All_discharge, Discharge)
@@ -282,9 +285,24 @@ function run_validation_gailtal(path_to_best_parameter, startyear, endyear)
                 #if goodness higher than -9999 save it
                 Goodness = [Goodness_Fit, ObjFunctions, parameters_array]
                 Goodness = collect(Iterators.flatten(Goodness))
-                All_Goodness = hcat(All_Goodness, Goodness)
+                if length(Goodness)!=29
+                        push!(count_exclude, n)
+
+                else
+                        All_Goodness = hcat(All_Goodness, Goodness)
+                        count_include+=1
+                end
+
         end
+        writedlm(string(path_to_best_parameter[1:end-4])*"_revised_"*string(length(count_exclude))*".csv", best_calibrations, ",")
+
+        best_calibrations = best_calibrations[setdiff(1:end,count_exclude), :]
+        println("excluded:", count_exclude)
+        println("included", count_include)
         All_Goodness = transpose(All_Goodness[:, 2:end])
+
+        writedlm(path_to_best_parameter, best_calibrations, ",")
+
         return All_Goodness
 end
 
@@ -297,7 +315,7 @@ end
 # Calibration = readdlm("Gailtal/Calibration_8.05/Gailtal_Parameterfit_best100.csv", ',')[:,1:9]
 # Validation = readdlm("Gailtal/Calibration_8.05/Gailtal_Parameterfit_best100_validation.csv", ',')[:,1:9]
 
-function run_validation_palten(path_to_best_parameter, startyear, endyear)
+function run_validation_palten_srdef(path_to_best_parameter, startyear, endyear)
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
         # ------------ CATCHMENT SPECIFIC INPUTS----------------
         ID_Prec_Zones = [106120, 111815, 9900]
@@ -581,6 +599,9 @@ function run_validation_palten(path_to_best_parameter, startyear, endyear)
         parameters_best_calibrations = best_calibrations[:,10:29]
 
         #All_discharge = Array{Any, 1}[]
+        count_exclude=Float64[]
+        count_include=0
+
         for n in 1 : 1:size(parameters_best_calibrations)[1]
                 #print(typeof(all_inputs))
                 Current_Inputs_All_Zones = deepcopy(Inputs_All_Zones)
@@ -596,7 +617,7 @@ function run_validation_palten(path_to_best_parameter, startyear, endyear)
                 parameters = [bare_parameters, forest_parameters, grass_parameters, rip_parameters]
                 parameters_array = parameters_best_calibrations[n, :]
 
-                Discharge, Snow_Extend = runmodelprecipitationzones_validation(Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, observed_snow_cover, index_spinup, index_lastdate)
+                Discharge, Snow_Extend = runmodelprecipitationzones_validation_srdef(Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, observed_snow_cover, index_spinup, index_lastdate)
                 #calculate snow for each precipitation zone
                 # don't calculate the goodness of fit for the spinup time!
                 #push!(All_discharge, Discharge)
@@ -605,13 +626,28 @@ function run_validation_palten(path_to_best_parameter, startyear, endyear)
                 #if goodness higher than -9999 save it
                 Goodness = [Goodness_Fit, ObjFunctions, parameters_array]
                 Goodness = collect(Iterators.flatten(Goodness))
-                All_Goodness = hcat(All_Goodness, Goodness)
+                if length(Goodness)!=29
+                        push!(count_exclude, n)
+
+                else
+                        All_Goodness = hcat(All_Goodness, Goodness)
+                        count_include+=1
+                end
+
         end
+        writedlm(string(path_to_best_parameter[1:end-4])*"_revised_"*string(length(count_exclude))*".csv", best_calibrations, ",")
+
+        best_calibrations = best_calibrations[setdiff(1:end,count_exclude), :]
+        println("excluded:", count_exclude)
+        println("included", count_include)
         All_Goodness = transpose(All_Goodness[:, 2:end])
+
+        writedlm(path_to_best_parameter, best_calibrations, ",")
+
         return All_Goodness
 end
 
-function run_validation_feistritz(path_to_best_parameter, startyear, endyear)
+function run_validation_feistritz_srdef(path_to_best_parameter, startyear, endyear)
 
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
         # ------------ CATCHMENT SPECIFIC INPUTS----------------
@@ -804,6 +840,9 @@ function run_validation_feistritz(path_to_best_parameter, startyear, endyear)
         parameters_best_calibrations = best_calibrations[:,10:29]
 
         #All_discharge = Array{Any, 1}[]
+        count_exclude=Float64[]
+        count_include=0
+
         for n in 1 : 1:size(parameters_best_calibrations)[1]
                 #print(n,"\n")
                 Current_Inputs_All_Zones = deepcopy(Inputs_All_Zones)
@@ -823,7 +862,7 @@ function run_validation_feistritz(path_to_best_parameter, startyear, endyear)
                 # parameter ranges
                 #parameters, parameters_array = parameter_selection()
                 #Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, Area_Zones, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, observed_snow_cover, start2000
-                Discharge, Snow_Extend = runmodelprecipitationzones_validation(Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, observed_snow_cover, index_spinup, index_lastdate)
+                Discharge, Snow_Extend = runmodelprecipitationzones_validation_srdef(Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, observed_snow_cover, index_spinup, index_lastdate)
                 #calculate snow for each precipitation zone
                 # don't calculate the goodness of fit for the spinup time!
                 #push!(All_discharge, Discharge)
@@ -832,13 +871,28 @@ function run_validation_feistritz(path_to_best_parameter, startyear, endyear)
                 #if goodness higher than -9999 save it
                 Goodness = [Goodness_Fit, ObjFunctions, parameters_array]
                 Goodness = collect(Iterators.flatten(Goodness))
-                All_Goodness = hcat(All_Goodness, Goodness)
+                if length(Goodness)!=29
+                        push!(count_exclude, n)
+
+                else
+                        All_Goodness = hcat(All_Goodness, Goodness)
+                        count_include+=1
+                end
+
         end
+        writedlm(string(path_to_best_parameter[1:end-4])*"_revised_"*string(length(count_exclude))*".csv", best_calibrations, ",")
+
+        best_calibrations = best_calibrations[setdiff(1:end,count_exclude), :]
+        println("excluded:", count_exclude)
+        println("included", count_include)
         All_Goodness = transpose(All_Goodness[:, 2:end])
+
+        writedlm(path_to_best_parameter, best_calibrations, ",")
+
         return All_Goodness
 end
 
-function run_validation_silbertal(path_to_best_parameter, startyear, endyear)
+function run_validation_silbertal_srdef(path_to_best_parameter, startyear, endyear)
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
         # ------------ CATCHMENT SPECIFIC INPUTS----------------
         ID_Prec_Zones = [100206]
@@ -1073,7 +1127,7 @@ function run_validation_silbertal(path_to_best_parameter, startyear, endyear)
         GWStorage = 40.0
         best_calibrations = readdlm(path_to_best_parameter, ',')
         parameters_best_calibrations = best_calibrations[:,10:29]
-        count_exclude=0
+        count_exclude=Float64[]
         count_include=0
 
         #All_discharge = Array{Any, 1}[]
@@ -1096,7 +1150,7 @@ function run_validation_silbertal(path_to_best_parameter, startyear, endyear)
                 # parameter ranges
                 #parameters, parameters_array = parameter_selection()
                 #Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, Area_Zones, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, observed_snow_cover, start2000
-                Discharge, Snow_Extend = runmodelprecipitationzones_validation(Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, observed_snow_cover, index_spinup, index_lastdate)
+                Discharge, Snow_Extend = runmodelprecipitationzones_validation_srdef(Potential_Evaporation, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, observed_snow_cover, index_spinup, index_lastdate)
                 #calculate snow for each precipitation zone
                 Discharge = Discharge * 1000 / Area_Catchment * (3600 * 24)
                 # don't calculate the goodness of fit for the spinup time!
@@ -1106,21 +1160,27 @@ function run_validation_silbertal(path_to_best_parameter, startyear, endyear)
                 #provides single elements from the iterator, collect makes these iterators to new array
                 Goodness = collect(Iterators.flatten(Goodness))
                 if length(Goodness)!=29
-                        println(Goodness)
-                        count_exclude +=1
+                        push!(count_exclude, n)
+
                 else
                         All_Goodness = hcat(All_Goodness, Goodness)
                         count_include+=1
                 end
 
         end
+        writedlm(string(path_to_best_parameter[1:end-4])*"_revised_"*string(length(count_exclude))*".csv", best_calibrations, ",")
+
+        best_calibrations = best_calibrations[setdiff(1:end,count_exclude), :]
         println("excluded:", count_exclude)
         println("included", count_include)
         All_Goodness = transpose(All_Goodness[:, 2:end])
+
+        writedlm(path_to_best_parameter, best_calibrations, ",")
+
         return All_Goodness
 end
 
-function run_validation_defreggental(path_to_best_parameter, startyear, endyear)
+function run_validation_defreggental_srdef(path_to_best_parameter, startyear, endyear)
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
         # ------------ CATCHMENT SPECIFIC INPUTS----------------
         ID_Prec_Zones = [17700, 114926]
@@ -1334,6 +1394,9 @@ function run_validation_defreggental(path_to_best_parameter, startyear, endyear)
         parameters_best_calibrations = best_calibrations[:,10:29]
 
         #All_discharge = Array{Any, 1}[]
+        count_exclude=Float64[]
+        count_include=0
+
         for n in 1 : 1:size(parameters_best_calibrations)[1]
                 #print(parameters_best_calibrations[n,:])
                 #print(n,"\n")
@@ -1351,21 +1414,39 @@ function run_validation_defreggental(path_to_best_parameter, startyear, endyear)
                 parameters = [bare_parameters, forest_parameters, grass_parameters, rip_parameters]
                 parameters_array = parameters_best_calibrations[n, :]
                 #parameters, parameters_array = parameter_selection()
-                Discharge, Snow_Extend = runmodelprecipitationzones_glacier_validation(Potential_Evaporation, Glacier_All_Zones, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, observed_snow_cover, index_spinup, index_lastdate)
+                Discharge, Snow_Extend = runmodelprecipitationzones_glacier_validation_srdef(Potential_Evaporation, Glacier_All_Zones, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, observed_snow_cover, index_spinup, index_lastdate)
                 Discharge = Discharge * 1000 / Area_Catchment * (3600 * 24)
                 # don't calculate the goodness of fit for the spinup time!
                 Goodness_Fit, ObjFunctions = objectivefunctions(Discharge[index_spinup:index_lastdate], Snow_Extend, Observed_Discharge_Obj, observed_FDC, observed_AC_1day, observed_AC_90day, observed_monthly_runoff, Area_Catchment, Total_Precipitation_Obj, Timeseries_Obj)
+                #if gooness_fit is too far from real distance, return non-empty value
+
+
                 Goodness = [Goodness_Fit, ObjFunctions, parameters_array]
                 Goodness = collect(Iterators.flatten(Goodness))
-                All_Goodness = hcat(All_Goodness, Goodness)
+
+                if length(Goodness)!=29
+                        push!(count_exclude, n)
+
+                else
+                        All_Goodness = hcat(All_Goodness, Goodness)
+                        count_include+=1
+                end
 
         end
+        writedlm(string(path_to_best_parameter[1:end-4])*"_revised_"*string(length(count_exclude))*".csv", best_calibrations, ",")
 
+        best_calibrations = best_calibrations[setdiff(1:end,count_exclude), :]
+        println("excluded:", count_exclude)
+        println("included", count_include)
         All_Goodness = transpose(All_Goodness[:, 2:end])
+
+        writedlm(path_to_best_parameter, best_calibrations, ",")
+
         return All_Goodness
+
 end
 
-function run_validation_pitztal(path_to_best_parameter, startyear, endyear)
+function run_validation_pitztal_srdef(path_to_best_parameter, startyear, endyear)
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
         # ------------ CATCHMENT SPECIFIC INPUTS----------------
         # 102061 im Norden
@@ -1558,6 +1639,9 @@ function run_validation_pitztal(path_to_best_parameter, startyear, endyear)
         GWStorage = 60.0
         best_calibrations = readdlm(path_to_best_parameter, ',')
         parameters_best_calibrations = best_calibrations[:,10:30]
+        count_exclude=Float64[]
+        count_include=0
+
         for n in 1 : 1:size(parameters_best_calibrations)[1]
                 #print(n,"\n")
                 Current_Inputs_All_Zones = deepcopy(Inputs_All_Zones)
@@ -1575,7 +1659,7 @@ function run_validation_pitztal(path_to_best_parameter, startyear, endyear)
 
                 # parameter ranges
                 #parameters, parameters_array = parameter_selection()
-                Discharge, Snow_Extend = runmodelprecipitationzones_glacier_validation(Potential_Evaporation, Glacier_All_Zones, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, observed_snow_cover, index_spinup, index_lastdate)
+                Discharge, Snow_Extend = runmodelprecipitationzones_glacier_validation_srdef(Potential_Evaporation, Glacier_All_Zones, Precipitation_All_Zones, Temperature_Elevation_Catchment, Current_Inputs_All_Zones, Current_Storages_All_Zones, Current_GWStorage, parameters, slow_parameters, Area_Zones, Area_Zones_Percent, Elevation_Percentage, Elevation_Zone_Catchment, ID_Prec_Zones, Nr_Elevationbands_All_Zones, observed_snow_cover, index_spinup, index_lastdate)
                 #calculate snow for each precipitation zone
                 # don't calculate the goodness of fit for the spinup time!
                 # maximum outtake is 12.1 m³/s
@@ -1586,14 +1670,29 @@ function run_validation_pitztal(path_to_best_parameter, startyear, endyear)
                 Goodness_Fit, ObjFunctions = objectivefunctions(Discharge[index_spinup:index_lastdate], Snow_Extend, Observed_Discharge_Obj, observed_FDC, observed_AC_1day, observed_AC_90day, observed_monthly_runoff, Area_Catchment, Total_Precipitation_Obj, Timeseries_Obj)
                 Goodness = [Goodness_Fit, ObjFunctions, parameters_array]
                 Goodness = collect(Iterators.flatten(Goodness))
-                All_Goodness = hcat(All_Goodness, Goodness)
+                if length(Goodness)!=29
+                        push!(count_exclude, n)
+
+                else
+                        All_Goodness = hcat(All_Goodness, Goodness)
+                        count_include+=1
+                end
+
         end
+        writedlm(string(path_to_best_parameter[1:end-4])*"_revised_"*string(length(count_exclude))*".csv", best_calibrations, ",")
+
+        best_calibrations = best_calibrations[setdiff(1:end,count_exclude), :]
+        println("excluded:", count_exclude)
+        println("included", count_include)
         All_Goodness = transpose(All_Goodness[:, 2:end])
+
+        writedlm(path_to_best_parameter, best_calibrations, ",")
+
         return All_Goodness
 end
 
 #deleted validation 1000
-function plot_validation(path_to_Calibration, path_to_Validation, path_to_save) #path_to_Calibration_1000, path_to_Validation_1000, path_to_save)
+function plot_validation_srdef(path_to_Calibration, path_to_Validation, path_to_save, ep, tf) #path_to_Calibration_1000, path_to_Validation_1000, path_to_save)
         Calibration = readdlm(path_to_Calibration, ',')[:,1:9]
         Validation = readdlm(path_to_Validation, ',')[:,1:9]
         #Calibration_1000 = readdlm(path_to_Calibration_1000, ',')[:,1:9]
@@ -1605,8 +1704,8 @@ function plot_validation(path_to_Calibration, path_to_Validation, path_to_save) 
 
         for obj in 1:size(Objective_Functions)[1]
             Plots.plot()
-            box = boxplot!(["Calibration 10 "],Calibration[1:10,obj],leg = false, color="orange")
-            box =boxplot!(["Validation 10 "],Validation[1:10,obj],leg = false, color="darkorange")
+            box = boxplot!(["Calibration #"],Calibration[1:5,obj],leg = false, color="orange")
+            box =boxplot!(["Validation # "],Validation[1:5,obj],leg = false, color="darkorange")
             box = boxplot!(["Calibration 300 "],Calibration[:,obj],leg = false, color="blue")
             box = boxplot!(["Validation 300 "],Validation[:,obj],leg = false, color="darkblue")
             #box =boxplot!(["Calibration 1000 "],Calibration_1000[1:1000,obj],leg = false, color="lightgreen")
@@ -1619,17 +1718,17 @@ function plot_validation(path_to_Calibration, path_to_Validation, path_to_save) 
             #savefig("Gailtal/Calibration_8.05/Validation"*string(Objective_Functions[obj])*"_new.png")
         end
 
-        Plots.plot(plots_obj[2], plots_obj[3], plots_obj[4], plots_obj[5], plots_obj[6], plots_obj[7], plots_obj[8], plots_obj[9], layout= (2,4), legend = false, size=(1800,1000), left_margin = [5mm 0mm], bottom_margin = 20px, xrotation = 60)
-        Plots.savefig(path_to_save * "obj_Calibration_Validation_limits.png")
+        Plots.plot(plots_obj[2], plots_obj[3], plots_obj[4], plots_obj[5], plots_obj[6], plots_obj[7], plots_obj[8], plots_obj[9], layout= (2,4), legend = false, size=(1800,1000), left_margin = [5mm 0mm], bottom_margin = 20px, xrotation = 60, title=ep*"_"*tf)
+        Plots.savefig(path_to_save * "obj_Calibration_Validation_limits_"*ep*"_"*tf*".png")
 
-        Plots.plot(plots_obj[1], left_margin = [5mm 0mm], bottom_margin = 20px, xrotation = 60)
-        Plots.savefig(path_to_save*"ED_Calibration_Validation_limits.png")
+        Plots.plot(plots_obj[1], left_margin = [5mm 0mm], bottom_margin = 20px, xrotation = 60, title=ep*"_"*tf)
+        Plots.savefig(path_to_save*"ED_Calibration_Validation_limits_"*ep*"_"*tf*".png")
 
         plots_obj = []
         for obj in 1:size(Objective_Functions)[1]
             Plots.plot()
-            box = violin!(["Calibration 10 "],Calibration[1:10,obj],leg = false, color="orange")
-            box =violin!(["Validation 10 "],Validation[1:10,obj],leg = false, color="darkorange")
+            box = violin!(["Calibration 10 "],Calibration[1:5,obj],leg = false, color="orange")
+            box =violin!(["Validation 10 "],Validation[1:5,obj],leg = false, color="darkorange")
             box = violin!(["Calibration 100 "],Calibration[:,obj],leg = false, color="blue")
             box =violin!(["Validation 100 "],Validation[:,obj],leg = false, color="darkblue")
             # box =violin!(["Calibration 1000 "],Calibration_1000[1:1000,obj],leg = false, color="lightgreen")
@@ -1641,46 +1740,100 @@ function plot_validation(path_to_Calibration, path_to_Validation, path_to_save) 
             #savefig("Gailtal/Calibration_8.05/Validation"*string(Objective_Functions[obj])*"_new.png")
         end
 
-        Plots.plot(plots_obj[2], plots_obj[3], plots_obj[4], plots_obj[5], plots_obj[6], plots_obj[7], plots_obj[8], plots_obj[9], layout= (2,4), legend = false, size=(1800,1000), left_margin = [5mm 0mm], bottom_margin = 20px, xrotation = 60)
-        Plots.savefig(path_to_save * "obj_Calibration_Validation_violin.png")
+        Plots.plot(plots_obj[2], plots_obj[3], plots_obj[4], plots_obj[5], plots_obj[6], plots_obj[7], plots_obj[8], plots_obj[9], layout= (2,4), legend = false, size=(1800,1000), left_margin = [10mm 0mm], bottom_margin = 20px, xrotation = 60, title = ep*"_"*tf)
+        Plots.savefig(path_to_save * "obj_Calibration_Validation_violin_"*ep*"_"*tf*".png")
 
-        Plots.plot(plots_obj[1], left_margin = [5mm 0mm], bottom_margin = 20px, xrotation = 60)
-        Plots.savefig(path_to_save*"ED_Calibration_Validation_violin.png")
+        Plots.plot(plots_obj[1], left_margin = [10mm 0mm], bottom_margin = 20px, xrotation = 60, title = ep*"_"*tf)
+        Plots.savefig(path_to_save*"ED_Calibration_Validation_violin_"*ep*"_"*tf*".png")
 
 end
 
+
+function run_All_Goodness()
+        catchment = ["Paltental", "Silbertal"]#["Defreggental", "Feistritz", "Gailtal", "Paltental", "Silbertal"] #"Pitztal"
+        timeframe = ["OP", "MP", "MF"]
+        ep_method = ["HG", "TW"]
+        All_Goodness = Float64[]
+        for (c, cm) in enumerate(catchment)
+                for (e,ep) in enumerate(ep_method)
+                        for (t, tf) in enumerate(timeframe)
+                                if cm == "Gailtal" && ep == "TW" || cm == "Silbertal" && ep == "HG" && tf != "OP" || cm != "Gailtal" && catchment !="Silbertal"
+
+                                        #when palten whene paltental
+                                        path_to_calibration = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_"*tf*"_1.csv"
+                                        validation_title = "Parameterfit_best_10_validation_5years"*ep*"_"*tf*".csv"
+                                        save_validation = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/Validation/"*validation_title
+                                        save_plot = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/Validation/Plots/"
+
+                                        if cm == "Defreggental"
+                                                All_Goodness = run_validation_defreggental_srdef(path_to_calibration, 2003,2013)
+                                        elseif cm == "Feistritz"
+                                                All_Goodness = run_validation_feistritz_srdef(path_to_calibration, 2003,2010)
+                                        elseif cm == "Gailtal"
+                                                All_Goodness = run_validation_gailtal_srdef(path_to_calibration, 2003,2013)
+                                        elseif cm == "Paltental"
+                                                All_Goodness = run_validation_palten_srdef(path_to_calibration, 2003,2013)
+                                        elseif cm == "Pitztal"
+                                                All_Goodness = run_validation_pitztal_srdef(path_to_calibration, 2003,2013)
+                                        elseif cm == "Silbertal"
+                                                All_Goodness = run_validation_silbertal_srdef(path_to_calibration, 2003,2013)
+                                        end
+
+                                        writedlm(save_validation, All_Goodness,',')
+                                        plot_validation_srdef(path_to_calibration, save_validation, save_plot, ep, tf)
+                                end
+                        end
+                end
+
+        end
+        return
+end
+
+
+run_All_Goodness()
+
 #Feistritz
-# All_Goodness = run_validation_feistritz("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003, 2010)
-# writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Validation/Parameterfit_best_100_validation_5years.csv", All_Goodness,',')
-# plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Validation/Parameterfit_best_100_validation_5years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Feistritz/Plots/")
-#
-#Paltental
-# All_Goodness = run_validation_palten("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003, 2013)
+# All_Goodness = run_validation_feistritz(path_to_calibration, 2003, 2010)
+# writedlm(save_validation*validation_title, All_Goodness,',')
+# plot_validation(path_to_calibration, save_validation*validation_title, save_validation"Plots/")
+# #
+# #Paltental
+# All_Goodness = run_validation_palten(path_to_calibration, 2003, 2013)
 # writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Validation/Parameterfit_best_100_validation_8years.csv", All_Goodness,',')
 # plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Plots/")
-
-#Silbertal
-All_Goodness = run_validation_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003, 2013)
-writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Validation/Parameterfit_best_100_validation_8years.csv", All_Goodness,',')
-plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Plots/")
-
-# Gailtal
-# All_Goodness = run_validation_gailtal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003,2013)
+#
+# #Silbertal
+# All_Goodness = run_validation_silbertal_srdef(path_to_calibration, 2003, 2013)
+# writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Validation/Parameterfit_best_100_validation_8years.csv", All_Goodness,',')
+# plot_validation_srdef("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal/Plots/")
+#
+# # Gailtal
+# All_Goodness = run_validation_gailtal_srdef(path_to_calibration, 2003,2013)
 # writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Validation/Parameterfit_best_100_validation_8years.csv", All_Goodness,',')
-# plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Plots/")
-
-#Defreggental
-# All_Goodness = run_validation_defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003,2013)
+# plot_validation_srdef("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal/Plots/")
+#
+# #Defreggental
+# All_Goodness = run_validation_defreggental_srdef(path_to_calibration, 2003,2013)
 # writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Validation/Parameterfit_best_100_validation_8years.csv", All_Goodness,',')
 # plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Plots/")
-#
-# #Pitztal
-# All_Goodness = run_validation_pitztal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 2003,2013)
+# #
+# # #Pitztal
+# All_Goodness = run_validation_pitztal_srdef(path_to_calibration, 2003,2013)
 # writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Validation/Parameterfit_best_100_validation_8years.csv", All_Goodness,',')
-# plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Plots/")
-#plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal_less_dates/Gailtal_Parameterfit_All_less_dates_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal_less_dates/Gailtal_Parameterfit_best100_validation.csv","/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal_less_dates/Gailtal_Parameterfit_All_less_dates_best_1000.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Gailtal_less_dates/Gailtal_Parameterfit_best1000_validation.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Calibration/Gailtal_less_dates/Validation/")
-# plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_All_less_dates_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_best100_validation.csv","/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_All_less_dates_unique_best_300.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_unique_best300_validation.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Calibration/Paltental/Validation/")# All_Goodness = run_validation_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_Snow_Redistribution/Silbertal_Parameterfit_All_runs_snow_redistr_best_300.csv",2003,2013)
+# plot_validation_srdef("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Plots/")
+
+
+
+
+# plot_validation_srdef("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_All_less_dates_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_best100_validation.csv","/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_All_less_dates_unique_best_300.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_unique_best300_validation.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Calibration/Paltental/Validation/")# All_Goodness = run_validation_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_Snow_Redistribution/Silbertal_Parameterfit_All_runs_snow_redistr_best_300.csv",2003,2013)
 # writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_Snow_Redistribution/Silbertal_Parameterfit_b
+
+
+
+
+
+
+
 
 # --------- Defreggental ---------
 #run validation for best 300
