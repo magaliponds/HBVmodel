@@ -1704,8 +1704,8 @@ function plot_validation_srdef(path_to_Calibration, path_to_Validation, path_to_
 
         for obj in 1:size(Objective_Functions)[1]
             Plots.plot()
-            box = boxplot!(["Calibration #"],Calibration[1:5,obj],leg = false, color="orange")
-            box =boxplot!(["Validation # "],Validation[1:5,obj],leg = false, color="darkorange")
+            box = boxplot!(["Calibration #"],Calibration[1:2,obj],leg = false, color="orange")
+            box =boxplot!(["Validation # "],Validation[1:2,obj],leg = false, color="darkorange")
             box = boxplot!(["Calibration 300 "],Calibration[:,obj],leg = false, color="blue")
             box = boxplot!(["Validation 300 "],Validation[:,obj],leg = false, color="darkblue")
             #box =boxplot!(["Calibration 1000 "],Calibration_1000[1:1000,obj],leg = false, color="lightgreen")
@@ -1727,8 +1727,8 @@ function plot_validation_srdef(path_to_Calibration, path_to_Validation, path_to_
         plots_obj = []
         for obj in 1:size(Objective_Functions)[1]
             Plots.plot()
-            box = violin!(["Calibration 10 "],Calibration[1:5,obj],leg = false, color="orange")
-            box =violin!(["Validation 10 "],Validation[1:5,obj],leg = false, color="darkorange")
+            box = violin!(["Calibration 10 "],Calibration[1:2,obj],leg = false, color="orange")
+            box =violin!(["Validation 10 "],Validation[1:2,obj],leg = false, color="darkorange")
             box = violin!(["Calibration 100 "],Calibration[:,obj],leg = false, color="blue")
             box =violin!(["Validation 100 "],Validation[:,obj],leg = false, color="darkblue")
             # box =violin!(["Calibration 1000 "],Calibration_1000[1:1000,obj],leg = false, color="lightgreen")
@@ -1750,14 +1750,29 @@ end
 
 
 function run_All_Goodness()
-        catchment = ["Paltental", "Silbertal"]#["Defreggental", "Feistritz", "Gailtal", "Paltental", "Silbertal"] #"Pitztal"
+        catchment = [ "Silbertal"]#["Defreggental", "Feistritz", "Gailtal", "Paltental", "Silbertal"] #"Pitztal"
         timeframe = ["OP", "MP", "MF"]
         ep_method = ["HG", "TW"]
         All_Goodness = Float64[]
         for (c, cm) in enumerate(catchment)
                 for (e,ep) in enumerate(ep_method)
                         for (t, tf) in enumerate(timeframe)
-                                if cm == "Gailtal" && ep == "TW" || cm == "Silbertal" && ep == "HG" && tf != "OP" || cm != "Gailtal" && catchment !="Silbertal"
+                                go=0
+                                if cm == "Gailtal" && ep == "TW"
+                                        go = 1
+                                elseif cm == "Silbertal"
+                                        if ep == "HG"
+                                                if tf != "OP"
+                                                        go = 1
+                                                end
+                                        end
+                                elseif cm != "Gailtal" && catchment !="Silbertal"
+                                        go = 1
+                                else
+                                        go =0
+                                end
+
+                                if go ==1
 
                                         #when palten whene paltental
                                         path_to_calibration = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_"*tf*"_1.csv"
