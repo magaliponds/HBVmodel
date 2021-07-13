@@ -349,12 +349,12 @@ using Distributed
                         if size(All_Goodness)[2]-1 == 100
                                 All_Goodness = transpose(All_Goodness[:, 2:end])
                                 if count != 100
-                                        open(local_path*"/Calibrations_Srdef/Palten/Paltental_Parameterfit_srdef_test"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations_Srdef/Palten/Palten_Parameterfit_srdef"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count+= 1
                                 else
-                                        open(local_path*"/Calibrations_Srdef/Palten/Paltental_Parameterfit_srdef_test"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations_Srdef/Palten/Palten_Parameterfit_srdef"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count = 1
@@ -370,7 +370,7 @@ using Distributed
                 end
         end
         All_Goodness = transpose(All_Goodness[:, 2:end])
-        open(local_path*"/Calibrations_Srdef/Palten/Paltental_Parameterfit_srdef_"*ep_method*"_"*timeframes*"_"*string(ID)*".csv", "a") do io
+        open(local_path*"Calibrations_Srdef/Palten/Paltental_Parameterfit_srdef_"*ep_method*"_"*timeframes*"_"*string(ID)*".csv", "a") do io
                 writedlm(io, All_Goodness,",")
         end
 end
@@ -416,4 +416,4 @@ function run_MC_time_ep(nmax)
         end
 end
 
-run_MC_time_ep(10)
+run_MC_time_ep(300)

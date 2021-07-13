@@ -315,25 +315,25 @@ function parameter_selection_pitztal_srdef(min_srdef_Grass, min_srdef_Forest, mi
         Ratio_Pref = rand(0.2:precission:0.9)
         # Parameter Constrain SOilstoragecapacity Forest >= Grass >= Rip/Bare
         srdef_Forest = rand(min_srdef_Forest:precission_soilcap:max_srdef_Forest)
-        println(srdef_Forest)
+        # println(srdef_Forest)
 
-        if srdef_Forest < max_srdef_Grass
-                srdef_Grass = rand(min_srdef_Grass:precission_soilcap:srdef_Forest - precission_soilcap)
-        else
+        # if srdef_Forest < max_srdef_Grass
+        #         srdef_Grass = rand(min_srdef_Grass:precission_soilcap:srdef_Forest - precission_soilcap)
+        #else
                 srdef_Grass = rand(min_srdef_Grass:precission_soilcap: max_srdef_Grass)
-        end
-        println(srdef_Grass)
-        if srdef_Grass < max_srdef_Rip
-                srdef_Rip = rand(min_srdef_Rip:precission_soilcap:srdef_Grass - precission_soilcap)
-        else
+        # end
+        # println(srdef_Grass)
+        # if srdef_Grass < max_srdef_Rip
+        #         srdef_Rip = rand(min_srdef_Rip:precission_soilcap:srdef_Grass - precission_soilcap)
+        # else
                 srdef_Rip = rand(min_srdef_Rip:precission_soilcap: max_srdef_Rip)
-        end
+        # end
 
-        if srdef_Grass < max_srdef_Bare
-                srdef_Bare = rand(1.0:precission_soilcap:srdef_Grass - precission_soilcap)
-        else
+        # if srdef_Grass < max_srdef_Bare
+        #         srdef_Bare = rand(1.0:precission_soilcap:srdef_Grass - precission_soilcap)
+        # else
                 srdef_Bare = rand(1.0:precission_soilcap: max_srdef_Bare)
-        end
+        # end
 
         Temp_Thresh = rand(-2.5:precission:2.5)
         Ratio_Riparian = rand(0.05:precission:0.5)
@@ -344,8 +344,10 @@ function parameter_selection_pitztal_srdef(min_srdef_Grass, min_srdef_Forest, mi
         grass_parameters = Parameters(beta_Grass, Ce, 0, Interceptioncapacity_Grass, Kf, Meltfactor, Mm, Ratio_Pref, srdef_Grass, Temp_Thresh)
         rip_parameters = Parameters(beta_Rip, Ce, Drainagecapacity, Interceptioncapacity_Rip, Kf, Meltfactor, Mm, Ratio_Pref, srdef_Rip, Temp_Thresh)
         slow_parameters = Slow_Paramters(Ks, Ratio_Riparian)
+        loss_parameter = rand(0.01:0.0001:0.08)
 
-        parameters_array = [beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, srdef_Bare, srdef_Forest, srdef_Grass, srdef_Rip, Temp_Thresh]
+
+        parameters_array = [beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, srdef_Bare, srdef_Forest, srdef_Grass, srdef_Rip, Temp_Thresh, loss_parameter]
 
         return [bare_parameters, forest_parameters, grass_parameters, rip_parameters], slow_parameters, parameters_array
 end

@@ -17,18 +17,18 @@ $(SIGNATURES)
 
 """
 
-function getbest_parametersets(path_to_file, path_to_folder, number_best)
+function getbest_parametersets_srdef(path_to_file, path_to_folder, number_best)
     calibration = readdlm(path_to_file, ',')
     # sort the calibration according to the euclidean distance
 
     calibration_sorted = sortslices(calibration, dims=1)#5:end,:]
     #number_best = 10
     calibration_best = calibration_sorted[1:number_best,:]
-    writedlm(path_to_folder*"/Parameterfit_less_dates_snow_redistr_best_"*string(number_best)*".csv", calibration_best, ',')
+    writedlm(path_to_folder*"/Parameterfit_srdef_best_"*string(number_best)*".csv", calibration_best, ',')
 end
 
-getbest_parametersets("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Parameterfit_less_dates_snow_redistr_combined.csv",
-"/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Best/",100)
+# getbest_parametersets_srdef("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Parameterfit_less_dates_snow_redistr_combined.csv",
+# "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Pitztal/Best/",100)
 
 
 
@@ -145,7 +145,7 @@ function calibration_statistics(catchment, number_best, lower_boundary_y_axis)
     # savefig(path_to_file[1:end_file+1]*string(number_best)*"_loss_parameters.png")
 end
 
-function calibration_statistics("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", 100, 0.7)
+# function calibration_statistics(path_to_file, 100, 0.7)
 
 function calibration_statistics_pitztal(path_to_file, number_best, lower_boundary_y_axis)
     max_Obj = Float64[]

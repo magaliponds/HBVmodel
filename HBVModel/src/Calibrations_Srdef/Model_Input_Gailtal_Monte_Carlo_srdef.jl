@@ -313,4 +313,4 @@ function run_MC_time_ep(nmax)
         end
 end
 
-run_MC_time_ep(10)
+run_MC_time_ep(300)

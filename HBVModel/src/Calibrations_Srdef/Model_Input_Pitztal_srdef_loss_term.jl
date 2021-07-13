@@ -11,8 +11,8 @@ using Distributed
 @everywhere module_dir = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/HBVModel/src/"
 @everywhere push!(LOAD_PATH, $module_dir)
 
-@everywhere function loss(Discharge, loss_parameter)
-      loss = loss_parameter .* Discharge.^2
+function loss(Discharge, loss_parameter)
+      loss = loss_parameter * Discharge.^2
       loss[loss.>12.1] .= 12.1
       return loss
 end
@@ -254,6 +254,7 @@ end
         # print("startvalue ", 1+71430*(ID-1), "endvalue", 71430*ID)
 
         #All_discharge = Array{Any, 1}[]
+
         for n in 1 : nmax#1:size(parameters_best_calibrations)[1]
                 Current_Inputs_All_Zones = deepcopy(Inputs_All_Zones)
                 Current_Storages_All_Zones = deepcopy(Storages_All_Zones)
@@ -278,7 +279,7 @@ end
                 # don't calculate the goodness of fit for the spinup time!
                 # maximum outtake is 12.1 m³/s
                 # the maximum outtake is reached between 12 and 35m³/s
-                #loss_parameter = rand(0.01:0.0001:0.08)
+                loss_parameter = parameters_array[end]
                 Discharge = Discharge - loss(Discharge, loss_parameter)
                 Discharge = Discharge * 1000 / Area_Catchment * (3600 * 24)
                 Discharge_Obj = Discharge[index_spinup:index_lastdate]
@@ -313,10 +314,11 @@ end
                 end
         end
         All_Goodness = transpose(All_Goodness[:, 2:end])
-        open(local_path*"Calibrations_Srdef/Pitztal/Pitztal_Parameterfit_loss__srdef_"*ep_method*"_"*timeframes*"_"*string(ID)*".csv", "a") do io
+        open(local_path*"Calibrations_Srdef/Pitztal/Pitztal_Parameterfit_srdef_"*ep_method*"_"*timeframes*"_"*string(ID)*".csv", "a") do io
                 writedlm(io, All_Goodness,",")
         end
 end
+
 # #
 #nmax = readdlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/Pitztal_loss_less_dates/Pitztal_Parameterfit_All_runs_best_500020.csv", ',')[:,10:30]
 # @time begin
@@ -350,7 +352,6 @@ function run_MC_time_ep(nmax)
                         max_srdef_Rip = parameter_range[t,2*e+1] * Area_r
                         max_srdef_Bare = 4.0 * Area_b
                         max_srdef_Forest = parameter_range[t+3,2*e+1] * Area_f
-                        println(min_srdef_Grass, " ", min_srdef_Forest, " ", min_srdef_Bare, " ", min_srdef_Rip, " ", max_srdef_Grass, " ", max_srdef_Forest, " ", max_srdef_Bare, " ", max_srdef_Rip)
                         @time begin
                         #run_MC(1,100)
                         pmap(ID -> run_MC(ID, nmax, min_srdef_Grass, min_srdef_Forest, min_srdef_Bare, min_srdef_Rip, max_srdef_Grass, max_srdef_Forest, max_srdef_Bare, max_srdef_Rip, ep_method, timeframes) , [1])
@@ -359,4 +360,4 @@ function run_MC_time_ep(nmax)
         end
 end
 
-run_MC_time_ep(10)
+run_MC_time_ep(300)
