@@ -6,6 +6,7 @@ using Plots
 using StatsPlots
 using Plots.PlotMeasures
 using CSV
+using PyPlot
 
 function runmodelprecipitationzones_validation_srdef(Potential_Evaporation::Array{Float64,1}, Precipitation_All_Zones::Array{Array{Float64,2},1}, Temperature_Elevation_Catchment::Array{Float64,2}, Inputs_All_Zones::Array{Array{HRU_Input,1},1}, Storages_All_Zones::Array{Array{Storages,1},1}, SlowStorage::Float64, parameters::Array{Parameters,1}, slow_parameters::Slow_Paramters, Area_Zones::Array{Float64,1}, Area_Zones_Percent::Array{Float64,1}, Elevation_Percentage::Array{Array{Float64,1},1}, Elevation_Zone_Catchment::Array{Float64,1}, ID_Prec_Zones::Array{Int64,1}, Nr_Elevationbands_All_Zones::Array{Int64,1}, observed_snow_cover::Array{Array{Float64,2},1}, index_spinup::Int64, index_last::Int64)
         Total_Discharge = zeros(length(Precipitation_All_Zones[1][:,1]))
@@ -1189,7 +1190,7 @@ function run_validation_defreggental_srdef(path_to_best_parameter, startyear, en
         Area_Catchment = sum(Area_Zones)
         Area_Zones_Percent = Area_Zones / Area_Catchment
         Snow_Threshold = 600
-        Height_Threshold = 2700
+        Height_Threshold = 2800
 
         Mean_Elevation_Catchment =  2300 # in reality 2233.399986
         Elevations_Catchment = Elevations(200.0, 1000.0, 3600.0, 1385., 1385.) # take temp at 17700
@@ -1456,7 +1457,7 @@ function run_validation_pitztal_srdef(path_to_best_parameter, startyear, endyear
         Area_Catchment = sum(Area_Zones)
         Area_Zones_Percent = Area_Zones / Area_Catchment
         Snow_Threshold = 600
-        Height_Threshold = 2700
+        Height_Threshold = 2800
 
         Mean_Elevation_Catchment = 2500 # in reality 2558
         # elevation of catchment and height of temp measurement
@@ -1719,10 +1720,10 @@ function plot_validation_srdef(path_to_Calibration, path_to_Validation, path_to_
             #savefig("Gailtal/Calibration_8.05/Validation"*string(Objective_Functions[obj])*"_new.png")
         end
 
-        Plots.plot(plots_obj[2], plots_obj[3], plots_obj[4], plots_obj[5], plots_obj[6], plots_obj[7], plots_obj[8], plots_obj[9], layout= (2,4), legend = false, size=(1800,1000), left_margin = [5mm 0mm], bottom_margin = 20px, xrotation = 60, title=ep*"_"*tf)
+        Plots.plot(plots_obj[2], plots_obj[3], plots_obj[4], plots_obj[5], plots_obj[6], plots_obj[7], plots_obj[8], plots_obj[9], layout= (2,4), legend = false, size=(1800,1000), left_margin = [8mm 8mm], bottom_margin = 20px, xrotation = 60, title=ep*"_"*tf)
         Plots.savefig(path_to_save * "obj_Calibration_Validation_limits_"*ep*"_"*tf*".png")
 
-        Plots.plot(plots_obj[1], left_margin = [5mm 0mm], bottom_margin = 20px, xrotation = 60, title=ep*"_"*tf)
+        Plots.plot(plots_obj[1], left_margin = [8mm 8mm], bottom_margin = 20px, xrotation = 60, title=ep*"_"*tf)
         Plots.savefig(path_to_save*"ED_Calibration_Validation_limits_"*ep*"_"*tf*".png")
 
         plots_obj = []
@@ -1750,8 +1751,8 @@ function plot_validation_srdef(path_to_Calibration, path_to_Validation, path_to_
 end
 
 
-function run_All_Goodness(nr_best)
-        catchment = ["Defreggental", "Feistritz", "Gailtal", "Palten", "Pitztal", "Silbertal"]
+function run_All_Goodness()
+        catchment = ["Silbertal"]#["Defreggental", "Feistritz", "Gailtal", "Palten", "Pitztal", "Silbertal"]
         timeframe = ["OP", "MP", "MF"]
         ep_method = ["HG", "TW"]
         All_Goodness = Float64[]
@@ -1759,47 +1760,41 @@ function run_All_Goodness(nr_best)
                 for (e,ep) in enumerate(ep_method)
                         for (t, tf) in enumerate(timeframe)
                                 go=0
-                                if cm == "Gailtal" && ep == "TW"
-                                        go = 1
-                                elseif cm == "Silbertal"
-                                        if ep == "HG"
-                                                if tf != "OP"
-                                                        go = 1
-                                                end
-                                        end
-                                elseif cm != "Gailtal" && catchment !="Silbertal"
-                                        go = 1
+                                if cm == "Gailtal" && ep == "HG"
+                                        go = 0
+                                elseif cm == "Silbertal" && ep == "HG" && tf == "OP"
+                                        go = 0
                                 else
-                                        go =0
+                                        go = 1
                                 end
-
-                                if go ==1
+                                println("hii", cm, ep, tf, go)
+                                if go == 1
 
                                         #when palten whene paltental
                                         path_to_calibration = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_"*tf*"_1.csv"
-                                        getbest_parametersets_srdef(path_to_calibration, "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/Best/", nr_best)
 
-                                        path_to_calibration_best = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/Best/Parameterfit_srdef_best_"*string(nr_best)*".csv"
+                                        #getbest_parametersets_srdef(path_to_calibration, "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/Best/", nr_best)
+                                        #calibration_sorted = sortslices(path_to_calibration, dims=1)#5:end,:]
                                         validation_title = "Parameterfit_best_10_validation_5years"*ep*"_"*tf*".csv"
                                         save_validation = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/Validation/"*validation_title
                                         save_plot = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/Validation/Plots/"
 
                                         if cm == "Defreggental"
-                                                All_Goodness = run_validation_defreggental_srdef(path_to_calibration_best, 2003,2013)
+                                                All_Goodness = run_validation_defreggental_srdef(path_to_calibration, 2003,2013)
                                         elseif cm == "Feistritz"
-                                                All_Goodness = run_validation_feistritz_srdef(path_to_calibration_best, 2003,2010)
+                                                All_Goodness = run_validation_feistritz_srdef(path_to_calibration, 2003,2010)
                                         elseif cm == "Gailtal"
-                                                All_Goodness = run_validation_gailtal_srdef(path_to_calibration_best, 2003,2013)
+                                                All_Goodness = run_validation_gailtal_srdef(path_to_calibration, 2003,2013)
                                         elseif cm == "Paltental"
-                                                All_Goodness = run_validation_palten_srdef(path_to_calibration_best, 2003,2013)
+                                                All_Goodness = run_validation_palten_srdef(path_to_calibration, 2003,2013)
                                         elseif cm == "Pitztal"
-                                                All_Goodness = run_validation_pitztal_srdef(path_to_calibration_best, 2003,2013)
+                                                All_Goodness = run_validation_pitztal_srdef(path_to_calibration, 2003,2013)
                                         elseif cm == "Silbertal"
-                                                All_Goodness = run_validation_silbertal_srdef(path_to_calibration_best, 2003,2013)
+                                                All_Goodness = run_validation_silbertal_srdef(path_to_calibration, 2003,2013)
                                         end
 
                                         writedlm(save_validation, All_Goodness,',')
-                                        plot_validation_srdef(path_to_calibration_best, save_validation, save_plot, ep, tf)
+                                        plot_validation_srdef(path_to_calibration, save_validation, save_plot, ep, tf)
                                 end
                         end
                 end
@@ -1809,77 +1804,108 @@ function run_All_Goodness(nr_best)
 end
 
 
-run_All_Goodness(100)
+#run_All_Goodness()
 
 function plot_total_validation_srdef() #path_to_Calibration_1000, path_to_Validation_1000, path_to_save)
-        catchment = ["Defreggental", "Feistritz", "Gailtal", "Palten", "Pitztal", "Silbertal"]
-        timeframe = ["OP", "MP", "MF"]
+        local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
+        catchment = ["Defreggental", "Feistritz", "Gailtal", "Pitztal", "Silbertal"] #, "Palten"
+        #timeframe = ["OP", "MP", "MF"]
         ep_method = ["HG", "TW"]
+        for (c,cm) in enumerate(catchment)
+                path_to_save = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/Validation/Plots/Overview/"
+                years = 0
+                if cm == "Feistritz"
+                        years = 5
+                else
+                        years = 8
+                end
+                println(years)
+                for (e, ep) in enumerate(ep_method)
 
-        cal_OP =
-        val_OP =
-        cal_MP =
-        val_MP =
-        cal_MF =
-        val_MP =
+                        exclude = 0
+                        if cm == "Gailtal" && ep =="HG"
+                                exclude= 2
+                        elseif cm =="Silbertal" && ep=="HG"
+                                cal_S = readdlm(local_path*"Calibrations/"*cm*"/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", ',')[:,1:9]
+                                val_S = readdlm(local_path*"Calibrations/"*cm*"/Validation/Parameterfit_best_100_validation_"*string(years)*"years.csv", ',')[:,1:9]
+                                cal_MP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_MP_1.csv", ',')[:,1:9]
+                                val_MP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/Validation/Parameterfit_best_10_validation_5years"*ep*"_MP.csv", ',')[:,1:9]
+                                # cal_MF = readdlm(local_path*"Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_MF_1.csv", ',')[:,1:9]
+                                # val_MF = readdlm(local_path*"Calibrations_Srdef/"*cm*"/Validation/Parameterfit_best_10_validation_5years"*ep*"_MF.csv", ',')[:,1:9]
+                                exclude = 1
+                        else
+                                cal_S = readdlm(local_path*"Calibrations/"*cm*"/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", ',')[:,1:9]
+                                val_S = readdlm(local_path*"Calibrations/"*cm*"/Validation/Parameterfit_best_100_validation_"*string(years)*"years.csv", ',')[:,1:9]
+                                cal_OP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_OP_1.csv", ',')[:,1:9]
+                                val_OP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/Validation/Parameterfit_best_10_validation_5years"*ep*"_OP.csv", ',')[:,1:9]
+                                cal_MP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_MP_1.csv", ',')[:,1:9]
+                                val_MP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/Validation/Parameterfit_best_10_validation_5years"*ep*"_MP.csv", ',')[:,1:9]
+                                # cal_MF = readdlm(local_path*"Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_MF_1.csv", ',')[:,1:9]
+                                # val_MF = readdlm(local_path*"Calibrations_Srdef/"*cm*"/Validation/Parameterfit_best_10_validation_5years"*ep*"_MF.csv", ',')[:,1:9]
+                                exclude=0
+                        end
+                #         Calibration = readdlm(path_to_Calibration, ',')[:,1:9]
+                #       Validation = readdlm(path_to_Validation, ',')[:,1:9]
 
-        Calibration = readdlm(path_to_Calibration, ',')[:,1:9]
-        Validation = readdlm(path_to_Validation, ',')[:,1:9]
-        #Calibration_1000 = readdlm(path_to_Calibration_1000, ',')[:,1:9]
-        #Validation_1000 = readdlm(path_to_Validation_1000, ',')[:,1:9]
-        number_best = size(Calibration)[1]
-        number = collect(1:number_best)
-        Objective_Functions = ["Euclidean Distance","NSE", "NSElog", "VE", "NSElog_FDC", "Reative_Error_AC_1day", "NSE_AC_90day", "NSE_Runoff", "Snow_Cover"]
-        plots_obj = []
+                        # number_best = size(Calibration)[1]
+                        # number = collect(1:number_best)
+                        Objective_Functions = ["Euclidean Distance","NSE", "NSElog", "VE", "NSElog_FDC", "Reative_Error_AC_1day", "NSE_AC_90day", "NSE_Runoff", "Snow_Cover"]
+                        if exclude!=2
+                                plots_obj = []
+                                for obj in 1:size(Objective_Functions)[1]
+                                    Plots.plot()
+                                    box = boxplot!(["C S"],cal_S[:,obj],leg = false, color="pink")
+                                    box = boxplot!(["V S"],val_S[:,obj],leg = false, color="lightpink")
+                                    if exclude!=1
+                                            box = boxplot!(["C OP"],cal_OP[:,obj],leg = false, color="orange")
+                                            box = boxplot!(["V OP"],val_OP[:,obj],leg = false, color="darkorange")
+                                    end
+                                    box = boxplot!(["C MP"],cal_MP[:,obj],leg = false, color="blue")
+                                    box = boxplot!(["V MP"],val_MP[:,obj],leg = false, color="darkblue")
+                                    # box = boxplot!(["C MF"],cal_MF[:,obj],leg = false, color="lightblue")
+                                    # box = boxplot!(["V MF"],val_MF[:,obj],leg = false, color="lightgreen")
 
+                                    ylabel!(Objective_Functions[obj])
+                                   # xlabel!(ep)
+                                    #ylims!(0.5,1)
+                                    push!(plots_obj, box)
+                                end
 
+                                Plots.plot(plots_obj[2], plots_obj[3], plots_obj[4], plots_obj[5], plots_obj[6], plots_obj[7], plots_obj[8], plots_obj[9], layout= (4,2), legend = false, size=(1900,1500), left_margin = [8mm 8mm], bottom_margin = 20px, xrotation = 60, title=cm*" "*ep)
+                                Plots.savefig(path_to_save * "obj_"*ep*"_Calibration_Validation_limits__Boxplot.png")
 
-        for obj in 1:size(Objective_Functions)[1]
-            Plots.plot()
-            box = boxplot!(["Calibration #"],Calibration[1:2,obj],leg = false, color="orange")
-            box =boxplot!(["Validation # "],Validation[1:2,obj],leg = false, color="darkorange")
-            box = boxplot!(["Calibration 300 "],Calibration[:,obj],leg = false, color="blue")
-            box = boxplot!(["Validation 300 "],Validation[:,obj],leg = false, color="darkblue")
-            #box =boxplot!(["Calibration 1000 "],Calibration_1000[1:1000,obj],leg = false, color="lightgreen")
-            #box =boxplot!(["Validation 1000 "],Validation_1000[1:1000,obj],leg = false, color="darkgreen")
-            #box =boxplot!(["Calibration 300 "],Calibration_1000[1:300,obj],leg = false, color="lightgrey")
-            #box =boxplot!(["Validation 300 "],Validation_1000[1:300,obj],leg = false, color="darkgrey")
-            ylabel!(Objective_Functions[obj])
-            #ylims!(0.5,1)
-            push!(plots_obj, box)
-            #savefig("Gailtal/Calibration_8.05/Validation"*string(Objective_Functions[obj])*"_new.png")
+                                Plots.plot(plots_obj[1], left_margin = [8mm 8mm], bottom_margin = 20px, xrotation = 60, title=cm*" "*ep)
+                                Plots.savefig(path_to_save*"ED_"*ep*"_Calibration_Validation_limits_Boxplot.png")
+
+                                plots_obj = []
+                                for obj in 1:size(Objective_Functions)[1]
+
+                                    Plots.plot()
+                                    box = violin!(["C S"],cal_S[:,obj],leg = false, color="pink")
+                                    box = violin!(["V S"],val_S[:,obj],leg = false, color="lightpink")
+                                    if exclude!=1
+                                            box = violin!(["C OP"],cal_OP[:,obj],leg = false, color="orange")
+                                            box = violin!(["V OP"],val_OP[:,obj],leg = false, color="darkorange")
+                                    end
+                                    box = violin!(["C MP"],cal_MP[:,obj],leg = false, color="blue")
+                                    box = violin!(["V MP"],val_MP[:,obj],leg = false, color="darkblue")
+                                    # box = violin!(["C MF"],cal_MF[:,obj],leg = false, color="lightblue")
+                                    # box = violin!(["V MF"],val_MF[:,obj],leg = false, color="lightgreen")
+
+                                    ylabel!(Objective_Functions[obj])
+                                    push!(plots_obj, box)
+                                end
+
+                                Plots.plot(plots_obj[2], plots_obj[3], plots_obj[4], plots_obj[5], plots_obj[6], plots_obj[7], plots_obj[8], plots_obj[9], layout= (4,2), legend = false, size=(1900,1500), left_margin = [8mm 8mm], bottom_margin = 20px, xrotation = 60, title=cm*" "*ep)
+                                Plots.savefig(path_to_save*"obj_"*ep*"_Calibration_Validation_limits_Violin.png")
+                                Plots.plot(plots_obj[1], left_margin = [8mm 8mm], bottom_margin = 20px, xrotation = 60, title=cm*" "*ep)
+                                Plots.savefig(path_to_save*"ED_"*ep*"_Calibration_Validation_limits_Violin.png")
+                        end
+                end
         end
-
-        Plots.plot(plots_obj[2], plots_obj[3], plots_obj[4], plots_obj[5], plots_obj[6], plots_obj[7], plots_obj[8], plots_obj[9], layout= (2,4), legend = false, size=(1800,1000), left_margin = [5mm 0mm], bottom_margin = 20px, xrotation = 60, title=ep*"_"*tf)
-        Plots.savefig(path_to_save * "obj_Calibration_Validation_limits_"*ep*"_"*tf*".png")
-
-        Plots.plot(plots_obj[1], left_margin = [5mm 0mm], bottom_margin = 20px, xrotation = 60, title=ep*"_"*tf)
-        Plots.savefig(path_to_save*"ED_Calibration_Validation_limits_"*ep*"_"*tf*".png")
-
-        plots_obj = []
-        for obj in 1:size(Objective_Functions)[1]
-            Plots.plot()
-            box = violin!(["Calibration 10 "],Calibration[1:2,obj],leg = false, color="orange")
-            box =violin!(["Validation 10 "],Validation[1:2,obj],leg = false, color="darkorange")
-            box = violin!(["Calibration 100 "],Calibration[:,obj],leg = false, color="blue")
-            box =violin!(["Validation 100 "],Validation[:,obj],leg = false, color="darkblue")
-            # box =violin!(["Calibration 1000 "],Calibration_1000[1:1000,obj],leg = false, color="lightgreen")
-            # box =violin!(["Validation 1000 "],Validation_1000[1:1000,obj],leg = false, color="darkgreen")
-            # box =violin!(["Calibration 300 "],Calibration_1000[1:300,obj],leg = false, color="lightgrey")
-            # box =violin!(["Validation 300 "],Validation_1000[1:300,obj],leg = false, color="darkgrey")
-            ylabel!(Objective_Functions[obj])
-            push!(plots_obj, box)
-            #savefig("Gailtal/Calibration_8.05/Validation"*string(Objective_Functions[obj])*"_new.png")
-        end
-
-        Plots.plot(plots_obj[2], plots_obj[3], plots_obj[4], plots_obj[5], plots_obj[6], plots_obj[7], plots_obj[8], plots_obj[9], layout= (2,4), legend = false, size=(1800,1000), left_margin = [10mm 0mm], bottom_margin = 20px, xrotation = 60, title = ep*"_"*tf)
-        Plots.savefig(path_to_save * "obj_Calibration_Validation_violin_"*ep*"_"*tf*".png")
-
-        Plots.plot(plots_obj[1], left_margin = [10mm 0mm], bottom_margin = 20px, xrotation = 60, title = ep*"_"*tf)
-        Plots.savefig(path_to_save*"ED_Calibration_Validation_violin_"*ep*"_"*tf*".png")
-
 end
 
+plot_total_validation_srdef()
 #Feistritz
 # All_Goodness = run_validation_feistritz(path_to_calibration, 2003, 2010)
 # writedlm(save_validation*validation_title, All_Goodness,',')
