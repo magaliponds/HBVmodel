@@ -255,7 +255,7 @@ using Distributed
                 Current_Inputs_All_Zones = deepcopy(Inputs_All_Zones)
                 Current_Storages_All_Zones = deepcopy(Storages_All_Zones)
                 Current_GWStorage = deepcopy(GWStorage)
-                parameters, slow_parameters, parameters_array = parameter_selection_defreggental_srdef(min_srdef_Grass, min_srdef_Forest, min_srdef_Bare, min_srdef_Rip, max_srdef_Grass, max_srdef_Forest, max_srdef_Bare, max_srdef_Rip)
+                parameters, slow_parameters, parameters_array = parameter_selection_defreggental_srdef2(min_srdef_Grass, min_srdef_Forest, min_srdef_Bare, min_srdef_Rip, max_srdef_Grass, max_srdef_Forest, max_srdef_Bare, max_srdef_Rip)
                 #beta_Bare, beta_Forest, beta_Grass, beta_Rip, Ce, Interceptioncapacity_Forest, Interceptioncapacity_Grass, Interceptioncapacity_Rip, Kf_Rip, Kf, Ks, Meltfactor, Mm, Ratio_Pref, Ratio_Riparian, Soilstoaragecapacity_Bare, Soilstoaragecapacity_Forest, Soilstoaragecapacity_Grass, Soilstoaragecapacity_Rip, Temp_Thresh = parameters_best_calibrations[n, :]
                 # bare_parameters = Parameters(beta_Bare, Ce, 0, 0.0, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Bare, Temp_Thresh)
                 # forest_parameters = Parameters(beta_Forest, Ce, 0, Interceptioncapacity_Forest, Kf, Meltfactor, Mm, Ratio_Pref, Soilstoaragecapacity_Forest, Temp_Thresh)
@@ -287,12 +287,12 @@ using Distributed
                                 All_Goodness = transpose(All_Goodness[:, 2:end])
                                 #stores matrices in sets of 100, new file for every
                                 if count != 100
-                                        open(local_path*"Calibrations_Srdef/Defreggental/Defreggental_Parameterfit_srdef_"*ep_method*"_"*timeframes*"_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations_Srdef/Defreggental/Defreggental_Parameterfit_srdef_retry_"*ep_method*"_"*timeframes*"_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count+= 1
                                 else
-                                        open(local_path*"Calibrations_Srdef/Defreggental/Defreggental_Parameterfit_srdef_"*ep_method*"_"*timeframes*"_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations_Srdef/Defreggental/Defreggental_Parameterfit_srdef_retry_"*ep_method*"_"*timeframes*"_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count = 1
@@ -313,7 +313,7 @@ using Distributed
         #transform shape from (29,n(passed)) to (n(passed),29)
         All_Goodness = transpose(All_Goodness[:, 2:end])
         #println(length(All_Goodness))
-        open(local_path*"Calibrations_Srdef/Defreggental/Defreggental_Parameterfit_srdef_"*ep_method*"_"*timeframes*"_"*string(ID)*".csv", "a") do io
+        open(local_path*"Calibrations_Srdef/Defreggental/Defreggental_Parameterfit_srdef_retry_"*ep_method*"_"*timeframes*"_"*string(ID)*".csv", "a") do io
                 writedlm(io, All_Goodness,",")
         #println(ID, "file saved")
         end
@@ -337,8 +337,8 @@ function run_MC_time_ep(nmax)
         Area_r = (sum(Percentage_HRU[4,2:end])/Area_Catchment)
         Area_b = (sum(Percentage_HRU[1,2:end])/Area_Catchment)
 
-        PEmethod = ["HG"]#""TW", "HG"]
-        Timeframes = ["OP"]#, "MP", "MF"]
+        PEmethod = ["TW", "HG"]
+        Timeframes = ["OP", "MP", "MF"]
         parameter_range = CSV.read("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Srdef_ranges/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental_srdef_range.csv", DataFrame, decimal = '.', delim = ',' )
 
         for (e, ep_method) in enumerate(PEmethod)

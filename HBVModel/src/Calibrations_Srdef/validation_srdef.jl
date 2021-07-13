@@ -1826,7 +1826,9 @@ function plot_total_validation_srdef() #path_to_Calibration_1000, path_to_Valida
                         if cm == "Gailtal" && ep =="HG"
                                 exclude= 2
                         elseif cm =="Silbertal" && ep=="HG"
-                                cal_S = readdlm(local_path*"Calibrations/"*cm*"/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", ',')[:,1:9]
+                                # cal_S = readdlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Defreggental_Parameterfit_less_dates_snow_redistr_try_total1.csv", ',')[:,1:9]
+                                cal_S = local_path*"Calibrations/"*cm*"/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", ',')[:,1:9]
+                                # val_S = readdlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Validation/Parameterfit_validation_try_8years.csv", ',')[:,1:9]
                                 val_S = readdlm(local_path*"Calibrations/"*cm*"/Validation/Parameterfit_best_100_validation_"*string(years)*"years.csv", ',')[:,1:9]
                                 cal_MP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_MP_1.csv", ',')[:,1:9]
                                 val_MP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/Validation/Parameterfit_best_10_validation_5years"*ep*"_MP.csv", ',')[:,1:9]
@@ -1834,6 +1836,9 @@ function plot_total_validation_srdef() #path_to_Calibration_1000, path_to_Valida
                                 # val_MF = readdlm(local_path*"Calibrations_Srdef/"*cm*"/Validation/Parameterfit_best_10_validation_5years"*ep*"_MF.csv", ',')[:,1:9]
                                 exclude = 1
                         else
+                                # cal_S = readdlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Defreggental_Parameterfit_less_dates_snow_redistr_try_total1.csv", ',')[:,1:9]#local_path*"Calibrations/"*cm*"/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", ',')[:,1:9]
+                                # val_S = readdlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Validation/Parameterfit_validation_try_8years.csv",',')[:,1:9]#readdlm(local_path*"Calibrations/"*cm*"/Validation/Parameterfit_best_100_validation_"*string(years)*"years.csv", ',')[:,1:9]
+
                                 cal_S = readdlm(local_path*"Calibrations/"*cm*"/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", ',')[:,1:9]
                                 val_S = readdlm(local_path*"Calibrations/"*cm*"/Validation/Parameterfit_best_100_validation_"*string(years)*"years.csv", ',')[:,1:9]
                                 cal_OP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_OP_1.csv", ',')[:,1:9]
@@ -1872,11 +1877,11 @@ function plot_total_validation_srdef() #path_to_Calibration_1000, path_to_Valida
                                 end
 
                                 Plots.plot(plots_obj[2], plots_obj[3], plots_obj[4], plots_obj[5], plots_obj[6], plots_obj[7], plots_obj[8], plots_obj[9], layout= (4,2), legend = false, size=(1900,1500), left_margin = [8mm 8mm], bottom_margin = 20px, xrotation = 60, title=cm*" "*ep)
-                                Plots.savefig(path_to_save * "obj_"*ep*"_Calibration_Validation_limits__Boxplot.png")
-
+                                # Plots.savefig(path_to_save * "obj_"*ep*"_Calibration_Validation_limits__Boxplot.png")
+                                Plots.savefig(path_to_save*"trial"*ep*".png")
                                 Plots.plot(plots_obj[1], left_margin = [8mm 8mm], bottom_margin = 20px, xrotation = 60, title=cm*" "*ep)
-                                Plots.savefig(path_to_save*"ED_"*ep*"_Calibration_Validation_limits_Boxplot.png")
-
+                                # Plots.savefig(path_to_save*"ED_"*ep*"_Calibration_Validation_limits_Boxplot.png")
+                                Plots.savefig(path_to_save*"trial2"*ep*".png")
                                 plots_obj = []
                                 for obj in 1:size(Objective_Functions)[1]
 
@@ -1897,9 +1902,13 @@ function plot_total_validation_srdef() #path_to_Calibration_1000, path_to_Valida
                                 end
 
                                 Plots.plot(plots_obj[2], plots_obj[3], plots_obj[4], plots_obj[5], plots_obj[6], plots_obj[7], plots_obj[8], plots_obj[9], layout= (4,2), legend = false, size=(1900,1500), left_margin = [8mm 8mm], bottom_margin = 20px, xrotation = 60, title=cm*" "*ep)
-                                Plots.savefig(path_to_save*"obj_"*ep*"_Calibration_Validation_limits_Violin.png")
+                                # Plots.savefig(path_to_save*"obj_"*ep*"_Calibration_Validation_limits_Violin.png")
+                                Plots.savefig(path_to_save*"trial3"*ep*".png")
+
                                 Plots.plot(plots_obj[1], left_margin = [8mm 8mm], bottom_margin = 20px, xrotation = 60, title=cm*" "*ep)
-                                Plots.savefig(path_to_save*"ED_"*ep*"_Calibration_Validation_limits_Violin.png")
+                                # Plots.savefig(path_to_save*"ED_"*ep*"_Calibration_Validation_limits_Violin.png")
+                                Plots.savefig(path_to_save*"trial4"*ep*".png")
+
                         end
                 end
         end
