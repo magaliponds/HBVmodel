@@ -287,12 +287,12 @@ using Distributed
                                 All_Goodness = transpose(All_Goodness[:, 2:end])
                                 #stores matrices in sets of 100, new file for every
                                 if count != 100
-                                        open(local_path*"Calibrations_Srdef/Defreggental/Defreggental_Parameterfit_srdef_test"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations_Srdef/Defreggental/Defreggental_Parameterfit_srdef_"*ep_method*"_"*timeframes*"_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count+= 1
                                 else
-                                        open(local_path*"Calibrations_Srdef/Defreggental/Defreggental_Parameterfit_srdef_test"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations_Srdef/Defreggental/Defreggental_Parameterfit_srdef_"*ep_method*"_"*timeframes*"_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count = 1
@@ -337,8 +337,8 @@ function run_MC_time_ep(nmax)
         Area_r = (sum(Percentage_HRU[4,2:end])/Area_Catchment)
         Area_b = (sum(Percentage_HRU[1,2:end])/Area_Catchment)
 
-        PEmethod = ["TW", "HG"]
-        Timeframes = ["OP", "MP", "MF"]
+        PEmethod = ["HG"]#""TW", "HG"]
+        Timeframes = ["OP"]#, "MP", "MF"]
         parameter_range = CSV.read("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Srdef_ranges/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental_srdef_range.csv", DataFrame, decimal = '.', delim = ',' )
 
         for (e, ep_method) in enumerate(PEmethod)
@@ -360,4 +360,4 @@ function run_MC_time_ep(nmax)
         end
 end
 
-run_MC_time_ep(10)
+run_MC_time_ep(300)

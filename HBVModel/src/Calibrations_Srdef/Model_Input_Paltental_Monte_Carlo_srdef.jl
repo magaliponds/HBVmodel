@@ -370,7 +370,7 @@ using Distributed
                 end
         end
         All_Goodness = transpose(All_Goodness[:, 2:end])
-        open(local_path*"Calibrations_Srdef/Palten/Paltental_Parameterfit_srdef_"*ep_method*"_"*timeframes*"_"*string(ID)*".csv", "a") do io
+        open(local_path*"Calibrations_Srdef/Palten/Palten_Parameterfit_srdef_"*ep_method*"_"*timeframes*"_"*string(ID)*".csv", "a") do io
                 writedlm(io, All_Goodness,",")
         end
 end

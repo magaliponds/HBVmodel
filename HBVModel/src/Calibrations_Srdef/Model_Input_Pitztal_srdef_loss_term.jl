@@ -293,12 +293,12 @@ end
                         if size(All_Goodness)[2]-1 == 100
                                 All_Goodness = transpose(All_Goodness[:, 2:end])
                                 if count != 100
-                                        open(local_path*"Calibrations_Srdef/Pitztal/Pitztal_Parameterfit_loss_less_dates_snow_redistr_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations_Srdef/Pitztal/Pitztal_Parameterfit_srdef_"*ep_method*"_"*timeframes*"_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count+= 1
                                 else
-                                        open(local_path*"Calibrations_Srdef/Pitztal/Pitztal_Parameterfit_loss_less_dates_snow_redistr_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations_Srdef/Pitztal/Pitztal_Parameterfit_srdef_"*ep_method*"_"*timeframes*"_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count = 1
