@@ -19,6 +19,11 @@ catchments = ["Defreggental", "Gailtal", "Feistritz", "Palten", "Pitztal", "Silb
 coeff = DataFrame(Catchment = catchments, AI_TW= AI_obs_tw, AI_HG = AI_obs_hg, RC = RC_obs)
 #println(coeff)
 
+"""
+Returns GEV curves for all catchments
+    $SIGNATURES
+
+"""
 function GEV_total_plot()
     catchments = ["Defreggental", "Gailtal", "Feistritz", "Paltental", "Pitztal", "Silbertal"]
     Color = palette(:tab10)
@@ -37,6 +42,10 @@ end
 
 #GEV_total_plot()
 
+"""
+Returns GEV curves for all catchments to compare with literature
+    $SIGNATURES
+"""
 function GEV_total_plot2()
     catchments = ["Defreggental", "Gailtal", "Feistritz", "Paltental", "Pitztal", "Silbertal"]
     Color = palette(:tab10)
@@ -68,6 +77,12 @@ function GEV_total_plot2()
 end
 
 GEV_total_plot2()
+
+"""
+Returns mean values of all Sr,def,wb ranges
+$SIGNATURES
+
+"""
 
 function GEV_total_plot_mean(rcp, rcm)
     catchments = ["Defreggental", "Gailtal", "Feistritz", "Palten", "Pitztal", "Silbertal"]
@@ -146,6 +161,11 @@ function GEV_total_plot_mean(rcp, rcm)
     return
 end
 
+"""
+Returns mean values of all Sr,def,wb ranges
+$SIGNATURES
+
+"""
 function GEV_total_plot_median(rcp, rcm)
     catchments = ["Defreggental", "Gailtal", "Feistritz", "Palten", "Pitztal", "Silbertal"]
     Color = palette(:tab10)

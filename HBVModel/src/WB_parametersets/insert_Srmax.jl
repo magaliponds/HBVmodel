@@ -7,6 +7,11 @@ using Plots.PlotMeasures
 using CSV
 using Dates
 
+"""
+This function creates new parameter sets from the older ones
+    $SIGNATURES
+"""
+
 function create_new_parametersets(rcm, rcp)
     Catchments = ["Defreggental", "Feistritz", "Gailtal", "Paltental", "Pitztal", "Silbertal"]
     Timeframe = ["OP", "MP", "MF"]

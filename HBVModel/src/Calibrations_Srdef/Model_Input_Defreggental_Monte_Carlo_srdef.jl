@@ -287,12 +287,12 @@ using Distributed
                                 All_Goodness = transpose(All_Goodness[:, 2:end])
                                 #stores matrices in sets of 100, new file for every
                                 if count != 100
-                                        open(local_path*"Calibrations_Srdef/Defreggental/Defreggental_Parameterfit_srdef_retry_"*ep_method*"_"*timeframes*"_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations_Srdef/Defreggental/Defreggental_Parameterfit_srdef_"*ep_method*"_"*timeframes*"_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count+= 1
                                 else
-                                        open(local_path*"Calibrations_Srdef/Defreggental/Defreggental_Parameterfit_srdef_retry_"*ep_method*"_"*timeframes*"_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations_Srdef/Defreggental/Defreggental_Parameterfit_srdef_"*ep_method*"_"*timeframes*"_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count = 1
@@ -313,7 +313,7 @@ using Distributed
         #transform shape from (29,n(passed)) to (n(passed),29)
         All_Goodness = transpose(All_Goodness[:, 2:end])
         #println(length(All_Goodness))
-        open(local_path*"Calibrations_Srdef/Defreggental/Defreggental_Parameterfit_srdef_retry_"*ep_method*"_"*timeframes*"_"*string(ID)*".csv", "a") do io
+        open(local_path*"Calibrations_Srdef/Defreggental/Defreggental_Parameterfit_srdef_"*ep_method*"_"*timeframes*"_"*string(ID)*".csv", "a") do io
                 writedlm(io, All_Goodness,",")
         #println(ID, "file saved")
         end
