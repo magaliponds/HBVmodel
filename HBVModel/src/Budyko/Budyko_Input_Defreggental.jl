@@ -17,12 +17,12 @@ using NLsolve
 using DataFrames
 using PlotlyBase
 """
-Calculates the aridity and evaporative index for all climate projections with best parameter sets for the given path.
+Calculates the aridity (Ep/P) and evaporative index(Ea/P) for all climate projections, with best parameter sets for the given path.
 For the calculations the mean discharge, potential evaporation and precipitation over the whole time period is taken.
 
 $(SIGNATURES)
 
-The function returns the past and future aridity index (Array length: Number of climate projections) and past and future evaporative index (Array Length: Number Climate Projections x Number Parameter Sets).
+The function returns the past and future aridity index, meanP, meanEp_hg, and mean Ep_tw values (Array length: Number of climate projections) and past and future evaporative index (Array Length: Number Climate Projections x Number Parameter Sets).
     It takes as input the path to the projections.
 """
 function aridity_evaporative_index_Defreggental(startyear, endyear)
@@ -173,8 +173,19 @@ function aridity_evaporative_index_Defreggental(startyear, endyear)
 
         return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_, mean(P_observed), mean(Epot_observed_tw), mean(Epot_observed_hg) #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
+
 print(aridity_evaporative_index_Defreggental(1983,2005))
 
+"""
+Calculates the aridity (Ep/P) and evaporative index(Ea/P) & runoff coefficient(Q/P) for all climate projections, with best parameter sets for the given path.
+For the calculations the mean discharge, potential evaporation and precipitation over the whole time period is taken.
+It uses the calculated catchment specific parameter.
+
+$(SIGNATURES)
+
+The function returns the past and future aridity index & runoff coefficients (Array length: Number of climate projections) and past and future evaporative index (Array Length: Number Climate Projections x Number Parameter Sets).
+    It takes as input the path to the projections.
+"""
 function runoff_coefficient_Defreggental(path_to_projection)
 
     local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
@@ -316,6 +327,12 @@ function runoff_coefficient_Defreggental(path_to_projection)
 end
 
 #print(runoff_coefficient_Defreggental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental/"))
+
+"""
+This function is used in the Runoff_coefficient calculation
+    it determines future AI en EI indicies
+    $SIGNATURES
+"""
 
 function future_indices_Defreggental(path_to_projection, startyear, endyear)
 
