@@ -157,7 +157,9 @@ function soilstorage(Effective_Precipitation::Float64, Interception_Evaporation:
         #Saturation runoff
         R =  Effective_Precipitation - Soilstoragecapacity + Soilstorage +
                 (Soilstoragecapacity * (1- min(1,((Effective_Precipitation+Sum)/((1+beta)*Soilstoragecapacity))))^(1+beta))
-
+        if R < 0
+            R = 0
+        end
         Q_Soil = Effective_Precipitation  - R
         #Small error between Q_soil
         if Q_Soil < 10^-14
@@ -190,6 +192,9 @@ function soilstorage(Effective_Precipitation::Float64, Interception_Evaporation:
     # if Soilstorage > Soilstoragecapacity
     #     print("evap", Soilstorage, " ", Soilstoragecapacity, "\n")
     # end
+    if Overlandflow <0
+        print(Overlandflow)
+    end
     @assert Overlandflow >= 0
     @assert Preferentialflow >= 0
     @assert Soil_Evaporation <= Potential_Evaporation - Interception_Evaporation
