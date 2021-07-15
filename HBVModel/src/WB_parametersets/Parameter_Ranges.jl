@@ -1,23 +1,25 @@
+"""
+This function selects the maxima and minima of all WB Sr,def estimates for each catchment
+    $SIGNATURES
+"""
+
 function ranges_srdef(rcp, rcm)
     local_path="/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/"
     folder_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Srdef_ranges/"
-    catchments = ["Defreggental", "Feistritz", "Gailtal", "Palten", "Pitztal", "Silbertal"]
+    catchments = ["Defreggental"]#, "Feistritz", "Gailtal", "Palten", "Pitztal", "Silbertal"]
     mode =0
     for (c, catchment_name) in enumerate(catchments)
-        if catchment_name =="Palten"
-            catchment_name = "Paltental"
-        end
 
-        mod_past = CSV.read(local_path*catchment_name*"/"*rcp*"/"*rcm*"/1981_GEV_T_total_titled.csv", DataFrame, decimal = '.', delim = ',')
-        mod_future = CSV.read(local_path*catchment_name*"/"*rcp*"/"*rcm*"/2068_GEV_T_total_titled.csv",DataFrame, decimal = '.', delim = ',')
-        obs_past = CSV.read(local_path*catchment_name*"/"*rcp*"/"*rcm*"/Past_GEV_T_total_titled.csv", DataFrame, decimal = '.', delim = ',')
+        mod_past = CSV.read(local_path*catchment_name*"/"*rcp*"/"*rcm*"/1981_GEV_T_total_titled_test.csv", DataFrame, decimal = '.', delim = ',')
+        mod_future = CSV.read(local_path*catchment_name*"/"*rcp*"/"*rcm*"/2068_GEV_T_total_titled_test.csv",DataFrame, decimal = '.', delim = ',')
+        obs_past = CSV.read(local_path*catchment_name*"/"*rcp*"/"*rcm*"/Past_GEV_T_total_titled_test.csv", DataFrame, decimal = '.', delim = ',')
 
         minima_hg = zeros(6)
         minima_tw=zeros(6)
         maxima_hg = zeros(6)
         maxima_tw=zeros(6)
 
-        PE= ["Thorntwaite", "Hargreaves"]
+        PE= ["Thorntwaite"]#, "Hargreaves"]
         for (e,ep_method) in enumerate(PE)
 
             if catchment_name == "Gailtal"
@@ -93,14 +95,14 @@ function ranges_srdef(rcp, rcm)
                 end
             end
         index = ["OP_grass", "MP_grass", "MF_grass", "OP_forest", "MP_forest", "MF_forest"]
-        df = DataFrame(index = index, TW_min = minima_tw, TW_max = maxima_tw, HG_min = minima_hg, HG_max = maxima_hg)
-        CSV.write( folder_path*"/"*rcp*"/"*rcm*"/"*catchment_name* "_srdef_range.csv", df)
+        df = DataFrame(index = index, TW_min = minima_tw, TW_max = maxima_tw)#, HG_min = minima_hg, HG_max = maxima_hg)
+        CSV.write( folder_path*"/"*rcp*"/"*rcm*"/"*catchment_name* "_srdef_range_test.csv", df)
     end
     end
     return
 end
 
-ranges_srdef("rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
+#ranges_srdef("rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
 
 function loop_ranges_srdef()
     rcps=["rcp45", "rcp85"]
@@ -119,3 +121,59 @@ end
 
 
 #loop_ranges_srdef()
+
+function plot_parameter_range()
+
+    local_path="/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/"
+    folder_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Test_#runs/"
+    catchments = ["Defreggental"]#, "Feistritz", "Gailtal", "Palten", "Pitztal", "Silbertal"]
+
+    vegetationtype = ["Forest", "Grass"]
+    samplesize = [50, 100, 300, 500, 3805]
+    timeframe = ["OP", "MP", "MF"]
+    minmax = ["min", "max"]
+    Color = palette(:tab10)
+    Markers = [:dtriangle, :circle, :rectangle]
+    colours = ["orange", "pink", "royalblue"]
+    # labels = [ep_method*" Observed Past", ep_method*" Modelled Past", ep_method*" Modelled Future", "Calibrated"]
+
+
+    ranges = Plots.plot()
+    for (s, sz) in enumerate(samplesize)
+        # if sz==300
+        #     data = CSV.read(folder_path*"Defreggental_srdef_range.csv", DataFrame, decimal = '.', delim = ',')
+        # else
+            data = CSV.read(folder_path*"Defreggental_srdef_range_test"*string(sz)*".csv", DataFrame, decimal = '.', delim = ',')
+        # end
+
+        for (t,tf) in enumerate(timeframe)
+            for (v,vt) in enumerate(vegetationtype)
+                for (m,mm) in enumerate(minmax)
+
+
+                        # if c>1
+                        #     setlabel = [false, false, false, false]
+                        # elseif c ==1
+                        #     setlabel = labels
+                        # end
+                        # if e==1
+                        if s==1
+                            legend=tf*vt*mm
+                        else
+                            legend=false
+                        end
+                        # println("info for ss x tf",sz, tf, mm)
+                        # println(data[t+(v-1)*3,m+1])
+                        scatter!([s], [data[t+(v-1)*3,m+1]], color=colours[t], marker = Markers[v], markerstrokewidth=0, label=legend, legend=:outerright)
+                end
+            end
+        end
+    end
+    xaxis!("Samplesize")
+    yaxis!("Sr,def,range [m]")
+    xticks!([1:5;],["50", "100", "300", "500", "3805"])
+    display(ranges)
+    Plots.savefig(folder_path*"Runs_vs_range_comparison.png")
+end
+
+plot_parameter_range()

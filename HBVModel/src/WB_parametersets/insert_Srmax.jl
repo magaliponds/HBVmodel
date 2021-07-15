@@ -8,12 +8,13 @@ using CSV
 using Dates
 
 """
-This function creates new parameter sets from the older ones
+OLD: This function creates new parameter sets from the older ones. It takes minima and maxima, multiplies it with the % the HRU covers (to account for total storage no Max/avg storage)
+    Sets this value and min/max in the parameter selection funciton and than retrieves new sets. It does so for OP, MP, MF data
     $SIGNATURES
 """
 
 function create_new_parametersets(rcm, rcp)
-    Catchments = ["Defreggental", "Feistritz", "Gailtal", "Paltental", "Pitztal", "Silbertal"]
+    Catchments = ["Defreggental", "Feistritz", "Gailtal", "Palten", "Pitztal", "Silbertal"]
     Timeframe = ["OP", "MP", "MF"]
     Area_Grass_percent = [0.32, 0.25, 0.335, 0.32, 0.23, 0.46]
     Area_Forest_percent = [0.23, 0.72, 0.565, 0.61, 0.06, 0.32]

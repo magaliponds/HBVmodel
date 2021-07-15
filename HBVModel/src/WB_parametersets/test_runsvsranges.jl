@@ -9,6 +9,11 @@ using Dates
 using Random
 using StatsBase
 
+"""
+This function investigates the impact of nr of parameters used to estimate the range in Srdef.
+    $SIGNATURES
+"""
+
 function runsvsrange()
     local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
     directing_tree = "Results/Rootzone/Test_#runs/"

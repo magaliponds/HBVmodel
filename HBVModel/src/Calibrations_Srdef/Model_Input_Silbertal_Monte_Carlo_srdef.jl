@@ -33,6 +33,11 @@ using Distributed
 @everywhere include(module_dir*"Model_Core/runmodel_Prec_Zones.jl")
 #
 #
+
+"""
+These functions runs the obtained parametersets, using Sr,def ranges for Sr,def values, and validates them to observed streamflow data]
+$SIGNATURES
+"""
 @everywhere function run_MC(ID, nmax, min_srdef_Grass, min_srdef_Forest, min_srdef_Bare, min_srdef_Rip, max_srdef_Grass, max_srdef_Forest, max_srdef_Bare, max_srdef_Rip, ep_method, timeframes)
 
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
@@ -313,20 +318,20 @@ function run_MC_time_ep(nmax)
         Area_g = sum(Percentage_HRU[3,2:end])/Area_Catchment
         Area_r = sum(Percentage_HRU[4,2:end])/Area_Catchment
         Area_b = sum(Percentage_HRU[1,2:end])/Area_Catchment
-        PEmethod = ["TW", "HG"]
+        PEmethod = ["TW"]#, "HG"]
 
         parameter_range = CSV.read("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Srdef_ranges/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Silbertal_srdef_range.csv", DataFrame, decimal = '.', delim = ',' )
 
         for (e, ep_method) in enumerate(PEmethod)
-                if e == 1
-                        Timeframes = ["OP", "MP", "MF"]
-                elseif e == 2
-                        Timeframes = ["MP", "MF"]
-                end
+                # if e == 1
+                #         Timeframes = ["OP", "MP", "MF"]
+                # elseif e == 2
+                #         Timeframes = ["MP", "MF"]
+                # end
                 for (t,timeframes) in enumerate(Timeframes)
-                        if e==2
-                                t=t+1
-                        end
+                        # if e==2
+                        #         t=t+1
+                        # end
                         println("current loop: ", ep_method, " ", timeframes)
                         min_srdef_Grass = parameter_range[t,2*e] * Area_g
                         min_srdef_Rip = parameter_range[t,2*e] * Area_r

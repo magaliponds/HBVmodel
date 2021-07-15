@@ -9,6 +9,11 @@ using Distributed
 @everywhere using DataFrames
 @everywhere using Random
 
+"""
+These functions runs the obtained parametersets, using Sr,def ranges for Sr,def values, and validates them to observed streamflow data]
+$SIGNATURES
+"""
+
 @everywhere module_dir = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/HBVModel/src/"
 @everywhere push!(LOAD_PATH, $module_dir)
 
@@ -337,7 +342,7 @@ function run_MC_time_ep(nmax)
         Area_r = (sum(Percentage_HRU[4,2:end])/Area_Catchment)
         Area_b = (sum(Percentage_HRU[1,2:end])/Area_Catchment)
 
-        PEmethod = ["TW", "HG"]
+        PEmethod = ["TW"]#, "HG"]
         Timeframes = ["OP", "MP", "MF"]
         parameter_range = CSV.read("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Srdef_ranges/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Defreggental_srdef_range.csv", DataFrame, decimal = '.', delim = ',' )
 

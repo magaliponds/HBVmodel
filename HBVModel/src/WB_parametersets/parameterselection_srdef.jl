@@ -1,4 +1,10 @@
 using Random
+
+"""
+Note: OLD VERSION. These functions facilitate the process of paramter selection, adapted for Srdef,ranges.
+$SIGNATURES
+according to min/max srdef values AND prior constraints
+"""
 function parameter_selection_gailtal_srdef(min_srdef_Grass, min_srdef_Forest, min_srdef_Bare, min_srdef_Rip, max_srdef_Grass, max_srdef_Forest, max_srdef_Bare, max_srdef_Rip)
         # maximum parameter
 
@@ -261,6 +267,11 @@ function parameter_selection_feistritz_srdef(min_srdef_Grass, min_srdef_Forest, 
         return [bare_parameters, forest_parameters, grass_parameters, rip_parameters], slow_parameters, parameters_array
 end
 
+"""
+Note: OLD VERSION. These functions facilitate the process of paramter selection, adapted for Srdef,ranges.
+$SIGNATURES
+according to min/max srdef values NO prior constraints
+"""
 function parameter_selection_pitztal_srdef(min_srdef_Grass, min_srdef_Forest, min_srdef_Bare, min_srdef_Rip, max_srdef_Grass, max_srdef_Forest, max_srdef_Bare, max_srdef_Rip)
         # maximum parameter
 

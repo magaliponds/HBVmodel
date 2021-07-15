@@ -1,4 +1,10 @@
 using DocStringExtensions
+
+"""
+These functions are at the core of the Sr,def calculations. they are adapted so as to return Pe and Ei
+
+$SIGNATURES
+"""
 function Storage_Total_srdef(Storage::Storages, Input::HRU_Input_srdef)
     #print([bare_storage.Interception[1] * bare_input.Area_Elevations[1], forest_storage.Interception[1] * forest_input.Area_Elevations[1] , grass_storage.Interception[1] * grass_input.Area_Elevations[1], rip_storage.Interception[1] * rip_input.Area_Elevations[1]])
     # this function gives the total storage stored in reservoirs that are elevation distributed

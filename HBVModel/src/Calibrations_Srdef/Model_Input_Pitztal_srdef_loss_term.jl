@@ -16,7 +16,10 @@ function loss(Discharge, loss_parameter)
       loss[loss.>12.1] .= 12.1
       return loss
 end
-
+"""
+These functions runs the obtained parametersets, using Sr,def ranges for Sr,def values, and validates them to observed streamflow data]
+$SIGNATURES
+"""
 # # load list of structs
 # @everywhere include(module_dir*"Model_Core/structs.jl")
 # # load components of models represented by buckets
@@ -336,7 +339,7 @@ function run_MC_time_ep(nmax)
         Area_g = sum(Percentage_HRU[3,2:end])/Area_Catchment
         Area_r = sum(Percentage_HRU[4,2:end])/Area_Catchment
         Area_b = sum(Percentage_HRU[1,2:end])/Area_Catchment
-        PEmethod = ["TW", "HG"]
+        PEmethod = ["TW"]#, "HG"]
         Timeframes = ["OP", "MP", "MF"]
 
         parameter_range = CSV.read("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Srdef_ranges/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Pitztal_srdef_range.csv", DataFrame, decimal = '.', delim = ',' )

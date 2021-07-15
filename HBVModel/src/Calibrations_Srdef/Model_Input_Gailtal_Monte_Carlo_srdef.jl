@@ -8,6 +8,11 @@ using Distributed
 @everywhere using DataFrames
 @everywhere using Random
 
+"""
+These functions runs the obtained parametersets, using Sr,def ranges for Sr,def values, and validates them to observed streamflow data]
+$SIGNATURES
+"""
+
 @everywhere module_dir = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/HBVModel/src/"
 @everywhere push!(LOAD_PATH, $module_dir)
 
