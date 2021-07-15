@@ -25,7 +25,7 @@ function budyko_runoff_projections(rcp, modelpath, startyear_proj, endyear_proj,
     Budyko_Eact_P_fu = (ones(length(Epot_Prec))) + Epot_Prec .* ones(length(Epot_Prec)) - ((ones(length(Epot_Prec)))+ Epot_Prec.^w).^(1/w)
     Budyko_Eact_P = ( Epot_Prec .* tanh.(1 ./Epot_Prec) .* (ones(length(Epot_Prec)) - exp.(-Epot_Prec))).^0.5
 
-    All_Catchments = ["Defreggental", "Gailtal", "Feistritz", "Paltental", "Pitztal", "Silbertal"]
+    All_Catchments = ["Defreggental", "Gailtal", "Feistritz", "Palten", "Pitztal", "Silbertal"]
     AI_pro_tw = Float64[]
     AI_pro_hg = Float64[]
     EI_pro_tw = Float64[]
@@ -100,10 +100,10 @@ function budyko_runoff_projections(rcp, modelpath, startyear_proj, endyear_proj,
             Epot_proj_fut_tw, Epot_proj_fut_hg, P_proj_fut= future_indices_Feistritz(path_to_projection, startyear_proj, endyear_proj)
             Epot_proj_hist_tw, Epot_proj_hist_hg, P_proj_hist = future_indices_Feistritz(path_to_projection, startyear_hist, endyear_hist)
             end
-        if catchment == "Paltental"
+        if catchment == "Palten"
             path_to_projection = local_path*"/Data/Projections/"*rcp*"/"*modelpath*"/Palten/"
-            Epot_proj_fut_tw, Epot_proj_fut_hg, P_proj_fut= future_indices_Paltental(path_to_projection, startyear_proj, endyear_proj)
-            Epot_proj_hist_tw, Epot_proj_hist_hg, P_proj_hist = future_indices_Paltental(path_to_projection, startyear_hist, endyear_hist)
+            Epot_proj_fut_tw, Epot_proj_fut_hg, P_proj_fut= future_indices_Palten(path_to_projection, startyear_proj, endyear_proj)
+            Epot_proj_hist_tw, Epot_proj_hist_hg, P_proj_hist = future_indices_Palten(path_to_projection, startyear_hist, endyear_hist)
             end
 
         if catchment == "Pitztal"
@@ -297,7 +297,7 @@ function Budyko_plot_catchment(startyear_hist, startyear_proj)
         Color = palette(:tab10)
         Markers = [:rect, :circle, :dtriangle, :cross]
         rcps=["rcp45", "rcp85"]
-        All_Catchments = ["Defreggental", "Gailtal", "Feistritz", "Paltental", "Pitztal", "Silbertal"]
+        All_Catchments = ["Defreggental", "Gailtal", "Feistritz", "Palten", "Pitztal", "Silbertal"]
 
         Epot_Prec = collect(0:0.1:5)
         Budyko_eact_P_all_tw = zeros(length(Epot_Prec), length(All_Catchments))

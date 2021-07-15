@@ -29,7 +29,7 @@ startindex = findfirst(isequal("01.01."*string(startyear)*" 00:00:00"), Discharg
 endindex = findfirst(isequal("31.12."*string(endyear)*" 00:00:00"), Discharge)
 Observed_Discharge = Array{Float64,1}[]
 push!(Observed_Discharge, Discharge[startindex[1]:endindex[1],2])
-Observed_Discharge_Paltental = Observed_Discharge[1]
+Observed_Discharge_Palten = Observed_Discharge[1]
 
 Area_Catchment_Defreggental = sum([235811198.0, 31497403.0])
 Discharge = CSV.read("Defreggental/Q-Tagesmittel-212100.csv", header= false, skipto=26, decimal=',', delim = ';', types=[String, Float64])

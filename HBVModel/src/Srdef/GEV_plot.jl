@@ -25,7 +25,7 @@ Returns GEV curves for all catchments
 
 """
 function GEV_total_plot()
-    catchments = ["Defreggental", "Gailtal", "Feistritz", "Paltental", "Pitztal", "Silbertal"]
+    catchments = ["Defreggental", "Gailtal", "Feistritz", "Palten", "Pitztal", "Silbertal"]
     Color = palette(:tab10)
     GEV_plotall = Plots.plot(title = "GEV all catchments", titlefontsize=12)
     for (c,catchment) in enumerate(catchments)
@@ -47,7 +47,7 @@ Returns GEV curves for all catchments to compare with literature
     $SIGNATURES
 """
 function GEV_total_plot2()
-    catchments = ["Defreggental", "Gailtal", "Feistritz", "Paltental", "Pitztal", "Silbertal"]
+    catchments = ["Defreggental", "Gailtal", "Feistritz", "Palten", "Pitztal", "Silbertal"]
     Color = palette(:tab10)
     GEV_plotall2 = Plots.plot(title = "GEV all catchments", titlefontsize=12, size=(550,600))
     for (c,catchment) in enumerate(catchments)
@@ -96,7 +96,7 @@ function GEV_total_plot_mean(rcp, rcm)
         parameters_best_calibrations = best_calibrations[:, 10:29]
 
         if catchment =="Palten"
-            catchment = "Paltental"
+            catchment = "Palten"
         end
         Srmax_forest = Float64[]
         Srmax_grass = Float64[]
@@ -112,7 +112,7 @@ function GEV_total_plot_mean(rcp, rcm)
         end
         df = DataFrame(Srmax_forest = Srmax_forest, Srmax_grass = Srmax_grass)
 
-            #xt2, xt20 = GEVresult_Paltental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Paltental/", "Palten", rcp, rcm)
+            #xt2, xt20 = GEVresult_Palten("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Palten/", "Palten", rcp, rcm)
         Color = palette(:tab10)
         Markers = [:dtriangle, :cross, :circle, :rectangle]
         colour = ["red", "pink"]
@@ -178,7 +178,7 @@ function GEV_total_plot_median(rcp, rcm)
         parameters_best_calibrations = best_calibrations[:, 10:29]
 
         if catchment =="Palten"
-            catchment = "Paltental"
+            catchment = "Palten"
         end
         Srmax_forest = Float64[]
         Srmax_grass = Float64[]
@@ -194,7 +194,7 @@ function GEV_total_plot_median(rcp, rcm)
         end
         df = DataFrame(Srmax_forest = Srmax_forest, Srmax_grass = Srmax_grass)
 
-            #xt2, xt20 = GEVresult_Paltental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Paltental/", "Palten", rcp, rcm)
+            #xt2, xt20 = GEVresult_Palten("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Palten/", "Palten", rcp, rcm)
         Color = palette(:tab10)
         Markers = [:dtriangle, :cross, :circle, :rectangle]
         colour = ["red", "pink"]

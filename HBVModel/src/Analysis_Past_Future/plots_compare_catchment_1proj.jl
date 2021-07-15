@@ -203,7 +203,7 @@ function plot_ecdf_timing_AMF_proj(All_Catchment_Names, Elevation, time)
         elseif Catchment_Name == "IllSugadin"
             title!("Silbertal ("*string(Elevation[i])*"m)", titlefont = font(20))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[i])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[i])*"m)", titlefont = font(20))
         else
             title!(Catchment_Name*" ("*string(Elevation[i])*"m)", titlefont = font(20))
         end
@@ -263,7 +263,7 @@ function plot_ecdf_magnitude_AMF_proj(All_Catchment_Names, Area_Catchments, Elev
         elseif Catchment_Name == "IllSugadin"
             title!("Silbertal ("*string(Elevation[i])*"m)", titlefont = font(20))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[i])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[i])*"m)", titlefont = font(20))
         else
             title!(Catchment_Name*" ("*string(Elevation[i])*"m)", titlefont = font(20))
         end
@@ -336,7 +336,7 @@ function plot_ecdf_timing_AMF_proj_all_years(All_Catchment_Names, Elevation, tim
         elseif Catchment_Name == "IllSugadin"
             title!("Silbertal ("*string(Elevation[i])*"m)", titlefont = font(20))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[i])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[i])*"m)", titlefont = font(20))
         else
             title!(Catchment_Name*" ("*string(Elevation[i])*"m)", titlefont = font(20))
         end
@@ -377,7 +377,7 @@ function plot_ecdf_timing_AMF_proj_all_years(All_Catchment_Names, Elevation, tim
         elseif Catchment_Name == "IllSugadin"
             title!("Silbertal ("*string(Elevation[i])*"m)", titlefont = font(20))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[i])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[i])*"m)", titlefont = font(20))
         else
             title!(Catchment_Name*" ("*string(Elevation[i])*"m)", titlefont = font(20))
         end
@@ -441,7 +441,7 @@ function plot_ecdf_magnitude_AMF_proj_all_years(All_Catchment_Names, Area_Catchm
         elseif Catchment_Name == "IllSugadin"
             title!("Silbertal ("*string(Elevation[i])*"m)", titlefont = font(20))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[i])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[i])*"m)", titlefont = font(20))
         else
             title!(Catchment_Name*" ("*string(Elevation[i])*"m)", titlefont = font(20))
         end
@@ -475,7 +475,7 @@ function plot_ecdf_magnitude_AMF_proj_all_years(All_Catchment_Names, Area_Catchm
         elseif Catchment_Name == "IllSugadin"
             title!("Silbertal ("*string(Elevation[i])*"m)", titlefont = font(20))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[i])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[i])*"m)", titlefont = font(20))
         else
             title!(Catchment_Name*" ("*string(Elevation[i])*"m)", titlefont = font(20))
         end
@@ -560,7 +560,7 @@ function plot_ecdf_timing_min_flow_proj_all_years(All_Catchment_Names, Elevation
         elseif Catchment_Name == "IllSugadin"
             title!("Silbertal ("*string(Elevation[i])*"m)", titlefont = font(20))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[i])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[i])*"m)", titlefont = font(20))
         else
             title!(Catchment_Name*" ("*string(Elevation[i])*"m)", titlefont = font(20))
         end
@@ -596,7 +596,7 @@ function plot_ecdf_timing_min_flow_proj_all_years(All_Catchment_Names, Elevation
         elseif Catchment_Name == "IllSugadin"
             title!("Silbertal ("*string(Elevation[i])*"m)", titlefont = font(20))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[i])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[i])*"m)", titlefont = font(20))
         else
             title!(Catchment_Name*" ("*string(Elevation[i])*"m)", titlefont = font(20))
         end
@@ -662,7 +662,7 @@ function plot_ecdf_magnitude_min_flow_proj_all_years(All_Catchment_Names, Area_C
         elseif Catchment_Name == "IllSugadin"
             title!("Silbertal ("*string(Elevation[i])*"m)", titlefont = font(20))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[i])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[i])*"m)", titlefont = font(20))
         else
             title!(Catchment_Name*" ("*string(Elevation[i])*"m)", titlefont = font(20))
         end
@@ -696,7 +696,7 @@ function plot_ecdf_magnitude_min_flow_proj_all_years(All_Catchment_Names, Area_C
         elseif Catchment_Name == "IllSugadin"
             title!("Silbertal ("*string(Elevation[i])*"m)", titlefont = font(20))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[i])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[i])*"m)", titlefont = font(20))
         else
             title!(Catchment_Name*" ("*string(Elevation[i])*"m)", titlefont = font(20))
         end
@@ -841,7 +841,7 @@ function plot_ecdf_prec_temp_all_catchments(All_Catchment_Names, Elevation, nr_r
         elseif Catchment_Name == "IllSugadin"
             title!("Silbertal ("*string(Elevation[h])*"m)", titlefont = font(20))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[h])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[h])*"m)", titlefont = font(20))
         else
             title!(Catchment_Name*" ("*string(Elevation[h])*"m)", titlefont = font(20))
         end
@@ -902,7 +902,7 @@ function plot_ecdf_prec_temp_all_catchments(All_Catchment_Names, Elevation, nr_r
         elseif Catchment_Name == "IllSugadin"
             title!("Silbertal ("*string(Elevation[h])*"m)", titlefont = font(20))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[h])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[h])*"m)", titlefont = font(20))
         else
             title!(Catchment_Name*" ("*string(Elevation[h])*"m)", titlefont = font(20))
         end
@@ -966,7 +966,7 @@ function plot_ecdf_monthly_discharge_all_catchments(All_Catchment_Names, Elevati
         elseif Catchment_Name == "IllSugadin"
             title!("Silbertal ("*string(Elevation[i])*"m)", titlefont = font(20))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[i])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[i])*"m)", titlefont = font(20))
         else
             title!(Catchment_Name*" ("*string(Elevation[i])*"m)", titlefont = font(20))
         end

@@ -685,7 +685,7 @@ Precipitation_Observed, Temperature_Observed, Timeseries =load_historic_data(ID_
 All_Projections_Prec, All_Projections_Temp = load_temp_prec_projections(path, Catchment_Name_Proj, Area_Zones_Percent_Silbertal, ID_Prec_Zones, ID_Temp, startyear, endyear)
 # Catchment_Name = "IllSugadin"
 
-# ------------- Paltental---------------------------------------------
+# ------------- Palten---------------------------------------------
 
 function load_historic_data_palten(startyear, endyear)
         ID_Prec_Zones = [106120, 111815, 9900]

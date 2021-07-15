@@ -6,7 +6,7 @@ $(SIGNATURES)
 The function returns the past and future aridity index (Array length: Number of climate projections) and past and future evaporative index (Array Length: Number Climate Projections x Number Parameter Sets).
     It takes as input the path to the projections.
 """
-function aridity_evaporative_index_Paltental(startyear,endyear)
+function aridity_evaporative_index_Palten(startyear,endyear)
 
     local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
             # ------------ CATCHMENT SPECIFIC INPUTS----------------
@@ -172,7 +172,7 @@ function aridity_evaporative_index_Paltental(startyear,endyear)
             # xlabel!("Date")
             # ylabel!("Epot")
             #
-            # Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/PotentialEvaporation/Paltental_Epot_past.png")
+            # Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/PotentialEvaporation/Palten_Epot_past.png")
 
             # ------------ LOAD OBSERVED DISCHARGE DATA ----------------
             Discharge = CSV.read(local_path*"HBVModel/Palten/Q-Tagesmittel-210815.csv", DataFrame, header= false, skipto=21, decimal=',', delim = ';', types=[String, Float64])
@@ -302,8 +302,8 @@ function aridity_evaporative_index_Paltental(startyear,endyear)
     return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_, mean(P_observed), mean(Epot_observed_tw), mean(Epot_observed_hg)#Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 
-print(aridity_evaporative_index_Paltental(1983,2005))
-function runoff_coefficient_Paltental(path_to_projection, startyear, endyear)
+print(aridity_evaporative_index_Palten(1983,2005))
+function runoff_coefficient_Palten(path_to_projection, startyear, endyear)
 
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
                     # ------------ CATCHMENT SPECIFIC INPUTS----------------
@@ -402,7 +402,7 @@ function runoff_coefficient_Paltental(path_to_projection, startyear, endyear)
         w_hg=Float64[]
         Catchment_data =  CSV.read(local_path*"Results/Projections/Budyko/Past/All_catchments_omega_all.csv", DataFrame, header= true, decimal='.', delim = ',', types=[String, Float64, Float64, Float64, Float64, Float64])
         for i in 1:length(Catchment_data[:,1])
-            if Catchment_data.Catchment[i] == "Paltental"
+            if Catchment_data.Catchment[i] == "Palten"
                 append!(w_tw, Catchment_data.w_specific_tw[i])
                 append!(w_hg, Catchment_data.w_specific_hg[i])
             end
@@ -436,7 +436,7 @@ function runoff_coefficient_Paltental(path_to_projection, startyear, endyear)
         # return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_ #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 
-function future_indices_Paltental(path_to_projection, startyear, endyear)
+function future_indices_Palten(path_to_projection, startyear, endyear)
 
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
                     # ------------ CATCHMENT SPECIFIC INPUTS----------------
@@ -537,4 +537,4 @@ function future_indices_Paltental(path_to_projection, startyear, endyear)
 end
 
 
-#runoff_coefficient_Paltental("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Palten/")
+#runoff_coefficient_Palten("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Palten/")

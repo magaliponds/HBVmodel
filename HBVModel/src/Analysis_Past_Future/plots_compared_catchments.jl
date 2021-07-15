@@ -1098,7 +1098,7 @@ function plot_monthly_runoff_coefficient_change(All_Catchment_Names, Elevation, 
             elseif Catchment_Name == "IllSugadin"
                 title!("Silbertal ("*string(Elevation[i])*"m)", titlefont = font(20))
             elseif Catchment_Name == "Palten"
-                title!("Paltental ("*string(Elevation[i])*"m)", titlefont = font(20))
+                title!("Palten ("*string(Elevation[i])*"m)", titlefont = font(20))
             else
                 title!(Catchment_Name*" ("*string(Elevation[i])*"m)", titlefont = font(20))
             end
@@ -1700,7 +1700,7 @@ function plot_timing_changes_AMF_all_Catchments_fraction_4585(All_Catchment_Name
         elseif Catchment_Name == "IllSugadin"
             title!("Silbertal ("*string(Elevation[j])*"m)", titlefont = font(20))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[j])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[j])*"m)", titlefont = font(20))
         else
             title!(Catchment_Name*" ("*string(Elevation[j])*"m)", titlefont = font(20))
         end
@@ -2619,7 +2619,7 @@ function plot_timing_changes_low_flows_all_Catchments_fraction_4585(All_Catchmen
         elseif Catchment_Name == "IllSugadin"
             title!("Silbertal ("*string(Elevation[j])*"m)", titlefont = font(20))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[j])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[j])*"m)", titlefont = font(20))
         else
             title!(Catchment_Name*" ("*string(Elevation[j])*"m)", titlefont = font(20))
         end
@@ -3099,7 +3099,7 @@ function plot_monthly_snowmelt_all_catchments_std(All_Catchment_Names, Elevation
         elseif Catchment_Name == "IllSugadin"
             title!("Silbertal ("*string(Elevation[i])*"m)", titlefont = font(20))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[i])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[i])*"m)", titlefont = font(20))
         else
             title!(Catchment_Name*" ("*string(Elevation[i])*"m)", titlefont = font(20))
         end
@@ -3298,7 +3298,7 @@ function plot_hydrographs_proj_all_catchment(All_Catchment_Names, Area_Catchment
             title!("Silbertal ("*string(Elevation[k])*"m)", titlefont = font(20))
             ylims!((0,23))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[k])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[k])*"m)", titlefont = font(20))
             ylims!((0,7.5))
         else
             title!(Catchment_Name*" ("*string(Elevation[k])*"m)", titlefont = font(20))
@@ -3374,7 +3374,7 @@ function plot_hydrographs_proj_all_catchment(All_Catchment_Names, Area_Catchment
             title!("Silbertal ("*string(Elevation[k])*"m)", titlefont = font(20))
             ylims!((0,23))
         elseif Catchment_Name == "Palten"
-            title!("Paltental ("*string(Elevation[k])*"m)", titlefont = font(20))
+            title!("Palten ("*string(Elevation[k])*"m)", titlefont = font(20))
             ylims!((0,7.5))
         else
             title!(Catchment_Name*" ("*string(Elevation[k])*"m)", titlefont = font(20))

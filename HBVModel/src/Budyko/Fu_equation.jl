@@ -67,7 +67,7 @@ function budyko_plot(startyear,endyear)#All_Catchment_Names, Area_Catchments)
     plot!(Epot_Prec, Budyko_Eact_P, label="Original Budyko", linecolor="black")
     # plot!(Epot_Prec, Budyko_Eact_P_fu, label="Fu", linecolor="black")
 
-    All_Catchments = ["Defreggental", "Gailtal", "Feistritz", "Paltental", "Pitztal", "Silbertal"]
+    All_Catchments = ["Defreggental", "Gailtal", "Feistritz", "Palten", "Pitztal", "Silbertal"]
     AI_all_tw = Float64[]
     AI_all_hg = Float64[]
     EI_all = Float64[]
@@ -112,8 +112,8 @@ function budyko_plot(startyear,endyear)#All_Catchment_Names, Area_Catchments)
             # push!(Epot_observed_all_mean_tw, Epot_observed_mean_tw)
             # push!(Epot_observed_all_mean_hg, Epot_observed_mean_hg)
             end
-        if catchment == "Paltental"
-            AI_tw, AI_hg, EI, P_observed_mean, Epot_observed_mean_tw, Epot_observed_mean_hg = aridity_evaporative_index_Paltental(startyear,endyear)
+        if catchment == "Palten"
+            AI_tw, AI_hg, EI, P_observed_mean, Epot_observed_mean_tw, Epot_observed_mean_hg = aridity_evaporative_index_Palten(startyear,endyear)
             # push!(EI_all, EI)
             # push!(AI_all_tw, AI_tw)
             # push!(AI_all_hg, AI_hg)
