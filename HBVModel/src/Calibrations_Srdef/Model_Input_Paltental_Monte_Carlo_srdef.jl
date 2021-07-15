@@ -8,8 +8,9 @@ using Distributed
 @everywhere using DataFrames
 @everywhere using Random
 
+
 """
-These functions runs the obtained parametersets, using Sr,def ranges for Sr,def values, and validates them to observed streamflow data]
+OLD: These functions recalibrates the stationary parametersets, using Sr,def ranges for Sr,def values. It does so for OP, MP, MF data
 $SIGNATURES
 """
 

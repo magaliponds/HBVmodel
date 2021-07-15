@@ -16,8 +16,9 @@ function loss(Discharge, loss_parameter)
       loss[loss.>12.1] .= 12.1
       return loss
 end
+
 """
-These functions runs the obtained parametersets, using Sr,def ranges for Sr,def values, and validates them to observed streamflow data]
+OLD: These functions recalibrates the stationary parametersets, using Sr,def ranges for Sr,def values. It does so for OP, MP, MF data
 $SIGNATURES
 """
 # # load list of structs

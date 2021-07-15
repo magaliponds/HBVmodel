@@ -34,8 +34,9 @@ using Distributed
 #
 #
 
+
 """
-These functions runs the obtained parametersets, using Sr,def ranges for Sr,def values, and validates them to observed streamflow data]
+OLD: These functions recalibrates the stationary parametersets, using Sr,def ranges for Sr,def values. It does so for OP, MP, MF data
 $SIGNATURES
 """
 @everywhere function run_MC(ID, nmax, min_srdef_Grass, min_srdef_Forest, min_srdef_Bare, min_srdef_Rip, max_srdef_Grass, max_srdef_Forest, max_srdef_Bare, max_srdef_Rip, ep_method, timeframes)

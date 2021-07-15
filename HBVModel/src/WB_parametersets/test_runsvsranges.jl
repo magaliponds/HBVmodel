@@ -57,7 +57,7 @@ function ranges_srdef_test()
         #maxima_hg = zeros(6)
         maxima_tw=zeros(6)
 
-        PE= ["Thorntwaite"]#, "Hargreaves"]
+        PE= ["Thorntwaite"]
         for (e,ep_method) in enumerate(PE)
 
                 OP_min_grass = minimum(-obs_past[:,2*e])
