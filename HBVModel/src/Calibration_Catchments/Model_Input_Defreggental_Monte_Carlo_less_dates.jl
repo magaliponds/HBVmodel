@@ -287,12 +287,12 @@ using Distributed
                                 All_Goodness = transpose(All_Goodness[:, 2:end])
                                 #stores matrices in sets of 100, new file for every
                                 if count != 100
-                                        open(local_path*"Calibrations/Defreggental/Defreggental_Parameterfit_less_dates_snow_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations/Defreggental/Defreggental_Parameterfit_less_dates_snow_"*string(ID)*"_"*string(number_Files)*"_test.csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count+= 1
                                 else
-                                        open(local_path*"Calibrations/Defreggental/Defreggental_Parameterfit_less_dates_snow_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations/Defreggental/Defreggental_Parameterfit_less_dates_snow_"*string(ID)*"_"*string(number_Files)*"_test.csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count = 1
@@ -313,13 +313,13 @@ using Distributed
         #transform shape from (29,n(passed)) to (n(passed),29)
         All_Goodness = transpose(All_Goodness[:, 2:end])
         #println(length(All_Goodness))
-        open(local_path*"Calibrations/Defreggental/Defreggental_Parameterfit_less_dates_snow_redistr_"*string(ID)*".csv", "a") do io
+        open(local_path*"Calibrations/Defreggental/Defreggental_Parameterfit_less_dates_snow_redistr_"*string(ID)*"_test.csv", "a") do io
                 writedlm(io, All_Goodness,",")
         #println(ID, "file saved")
         end
 end
 #nmax = readdlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental_less_dates/Defreggental_Parameterfit_All_runs_less_dates_best_5000.csv", ',')[:,10:29]
-nmax = 300
+nmax = 5000
 @time begin
 #transorm collection ID using function run_MC, whereas process is distributed over all computer workers except for 1
 pmap(ID -> run_MC(ID, nmax) , [1])
