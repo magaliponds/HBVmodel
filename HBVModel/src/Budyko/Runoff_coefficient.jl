@@ -4,8 +4,7 @@ using DelimitedFiles
 using Plots.PlotMeasures
 using DocStringExtensions
 """
-This function generates all combined budyko data and plots it
-
+This function generates runoff coefficients for all future projections. It does so for each RCP and RCM. It uses future_indices_catchment() functions
     $(SIGNATURES)
 final runoff coefficient is calculated here
 """
@@ -291,6 +290,11 @@ function Fu_run_all_projections()
 end
 
 #Fu_run_all_projections()
+
+"""
+This function plots past and future AI and EI indices in de budyko space
+    $SIGNATURES
+    """
 
 function Budyko_plot_catchment(startyear_hist, startyear_proj)
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/"

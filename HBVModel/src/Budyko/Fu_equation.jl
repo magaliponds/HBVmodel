@@ -47,7 +47,8 @@ function budyko_parameter(AI, EI)
 end
 
 """
-FUnction iterates for all catchments and plots them in the Budyko space, inlcuding Fu_curve
+This functions determines catchment specific parameter for all catchments. It uses the function It does so for TW and HG.
+    aridity_evaporative_index() for the input data. FUnction iterates for all catchments and plots them in the Budyko space, inlcuding Fu_curve
     $(SIGNATURES)
 Uses AI and EI from specifically defined input functions and calculates omega, to plot it. It also return mean Potential evapotranspiration values, P_observed data for the future projections"""
 

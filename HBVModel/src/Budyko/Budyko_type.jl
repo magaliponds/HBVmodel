@@ -10,7 +10,7 @@ include("loadfunctions.jl")
 # ------------------- Budyko Framework -------------------------
 #Obtained from plots_compared_catchments
 """
-This function plots the Budyko framework for all catchments, after comparing them
+This function plots the Budyko framework for all catchments, after comparing them. Not included for further calculations
 
     $(SIGNATURES)
 

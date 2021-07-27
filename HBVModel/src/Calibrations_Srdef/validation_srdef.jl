@@ -7,7 +7,10 @@ using StatsPlots
 using Plots.PlotMeasures
 using CSV
 using PyPlot
-
+"""
+These functions run the validations for each catchment according to Wb,srdef parameters and validate to obsreved streamflow data
+        $SIGNATURES
+"""
 function runmodelprecipitationzones_validation_srdef(Potential_Evaporation::Array{Float64,1}, Precipitation_All_Zones::Array{Array{Float64,2},1}, Temperature_Elevation_Catchment::Array{Float64,2}, Inputs_All_Zones::Array{Array{HRU_Input,1},1}, Storages_All_Zones::Array{Array{Storages,1},1}, SlowStorage::Float64, parameters::Array{Parameters,1}, slow_parameters::Slow_Paramters, Area_Zones::Array{Float64,1}, Area_Zones_Percent::Array{Float64,1}, Elevation_Percentage::Array{Array{Float64,1},1}, Elevation_Zone_Catchment::Array{Float64,1}, ID_Prec_Zones::Array{Int64,1}, Nr_Elevationbands_All_Zones::Array{Int64,1}, observed_snow_cover::Array{Array{Float64,2},1}, index_spinup::Int64, index_last::Int64)
         Total_Discharge = zeros(length(Precipitation_All_Zones[1][:,1]))
         count = zeros(length(Precipitation_All_Zones[1][:,1]), length(Elevation_Zone_Catchment))
@@ -1752,7 +1755,7 @@ end
 
 
 function run_All_Goodness()
-        catchment = ["Silbertal"]#["Defreggental", "Feistritz", "Gailtal", "Palten", "Pitztal", "Silbertal"]
+        catchment = ["Defreggental"]#, "Feistritz", "Gailtal", "Palten", "Pitztal", "Silbertal"]
         timeframe = ["OP", "MP", "MF"]
         ep_method = ["HG", "TW"]
         All_Goodness = Float64[]
@@ -1771,11 +1774,11 @@ function run_All_Goodness()
                                 if go == 1
 
                                         #when palten whene paltental
-                                        path_to_calibration = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_"*tf*"_1.csv"
-
+                                        # path_to_calibration = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_"*tf*"_1.csv"
+                                        path_to_calibration = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_retry_"*ep*"_"*tf*"_1.csv"
                                         #getbest_parametersets_srdef(path_to_calibration, "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/Best/", nr_best)
                                         #calibration_sorted = sortslices(path_to_calibration, dims=1)#5:end,:]
-                                        validation_title = "Parameterfit_best_10_validation_5years"*ep*"_"*tf*".csv"
+                                        validation_title = "Parameterfit_retry_validation_5years"*ep*"_"*tf*".csv"
                                         save_validation = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/Validation/"*validation_title
                                         save_plot = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations_Srdef/"*cm*"/Validation/Plots/"
 
@@ -1785,7 +1788,7 @@ function run_All_Goodness()
                                                 All_Goodness = run_validation_feistritz_srdef(path_to_calibration, 2003,2010)
                                         elseif cm == "Gailtal"
                                                 All_Goodness = run_validation_gailtal_srdef(path_to_calibration, 2003,2013)
-                                        elseif cm == "Paltental"
+                                        elseif cm == "Palten"
                                                 All_Goodness = run_validation_palten_srdef(path_to_calibration, 2003,2013)
                                         elseif cm == "Pitztal"
                                                 All_Goodness = run_validation_pitztal_srdef(path_to_calibration, 2003,2013)
@@ -1794,7 +1797,7 @@ function run_All_Goodness()
                                         end
 
                                         writedlm(save_validation, All_Goodness,',')
-                                        plot_validation_srdef(path_to_calibration, save_validation, save_plot, ep, tf)
+                                        #plot_validation_srdef(path_to_calibration, save_validation, save_plot, ep, tf)
                                 end
                         end
                 end
@@ -1808,7 +1811,7 @@ end
 
 function plot_total_validation_srdef() #path_to_Calibration_1000, path_to_Validation_1000, path_to_save)
         local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
-        catchment = ["Defreggental", "Feistritz", "Gailtal", "Pitztal", "Silbertal"] #, "Palten"
+        catchment = ["Defreggental"]#, "Feistritz", "Gailtal", "Pitztal", "Silbertal"] #, "Palten"
         #timeframe = ["OP", "MP", "MF"]
         ep_method = ["HG", "TW"]
         for (c,cm) in enumerate(catchment)
@@ -1827,9 +1830,10 @@ function plot_total_validation_srdef() #path_to_Calibration_1000, path_to_Valida
                                 exclude= 2
                         elseif cm =="Silbertal" && ep=="HG"
                                 # cal_S = readdlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Defreggental_Parameterfit_less_dates_snow_redistr_try_total1.csv", ',')[:,1:9]
-                                cal_S = local_path*"Calibrations/"*cm*"/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", ',')[:,1:9]
+                                cal_S = readdlm(local_path*"Calibrations/"*cm*"/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", ',')[:,1:9]
                                 # val_S = readdlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Defreggental/Validation/Parameterfit_validation_try_8years.csv", ',')[:,1:9]
                                 val_S = readdlm(local_path*"Calibrations/"*cm*"/Validation/Parameterfit_best_100_validation_"*string(years)*"years.csv", ',')[:,1:9]
+
                                 cal_MP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_MP_1.csv", ',')[:,1:9]
                                 val_MP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/Validation/Parameterfit_best_10_validation_5years"*ep*"_MP.csv", ',')[:,1:9]
                                 # cal_MF = readdlm(local_path*"Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_MF_1.csv", ',')[:,1:9]
@@ -1841,10 +1845,16 @@ function plot_total_validation_srdef() #path_to_Calibration_1000, path_to_Valida
 
                                 cal_S = readdlm(local_path*"Calibrations/"*cm*"/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", ',')[:,1:9]
                                 val_S = readdlm(local_path*"Calibrations/"*cm*"/Validation/Parameterfit_best_100_validation_"*string(years)*"years.csv", ',')[:,1:9]
-                                cal_OP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_OP_1.csv", ',')[:,1:9]
-                                val_OP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/Validation/Parameterfit_best_10_validation_5years"*ep*"_OP.csv", ',')[:,1:9]
-                                cal_MP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_MP_1.csv", ',')[:,1:9]
-                                val_MP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/Validation/Parameterfit_best_10_validation_5years"*ep*"_MP.csv", ',')[:,1:9]
+                                # cal_OP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_OP_1.csv", ',')[:,1:9]
+                                # val_OP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/Validation/Parameterfit_best_10_validation_5years"*ep*"_OP.csv", ',')[:,1:9]
+                                # cal_MP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_MP_1.csv", ',')[:,1:9]
+                                # val_MP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/Validation/Parameterfit_best_10_validation_5years"*ep*"_MP.csv", ',')[:,1:9]
+
+                                cal_OP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_retry_"*ep*"_OP_1.csv", ',')[:,1:9]
+                                val_OP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/Validation/Parameterfit_retry_validation_5years"*ep*"_OP.csv", ',')[:,1:9]
+                                cal_MP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_retry_"*ep*"_MP_1.csv", ',')[:,1:9]
+                                val_MP = readdlm(local_path*"Calibrations_Srdef/"*cm*"/Validation/Parameterfit_retry_validation_5years"*ep*"_MP.csv", ',')[:,1:9]
+
                                 # cal_MF = readdlm(local_path*"Calibrations_Srdef/"*cm*"/"*cm*"_Parameterfit_srdef_"*ep*"_MF_1.csv", ',')[:,1:9]
                                 # val_MF = readdlm(local_path*"Calibrations_Srdef/"*cm*"/Validation/Parameterfit_best_10_validation_5years"*ep*"_MF.csv", ',')[:,1:9]
                                 exclude=0
@@ -1878,10 +1888,10 @@ function plot_total_validation_srdef() #path_to_Calibration_1000, path_to_Valida
 
                                 Plots.plot(plots_obj[2], plots_obj[3], plots_obj[4], plots_obj[5], plots_obj[6], plots_obj[7], plots_obj[8], plots_obj[9], layout= (4,2), legend = false, size=(1900,1500), left_margin = [8mm 8mm], bottom_margin = 20px, xrotation = 60, title=cm*" "*ep)
                                 # Plots.savefig(path_to_save * "obj_"*ep*"_Calibration_Validation_limits__Boxplot.png")
-                                Plots.savefig(path_to_save*"trial"*ep*".png")
+                                Plots.savefig(path_to_save*"trial21"*ep*".png")
                                 Plots.plot(plots_obj[1], left_margin = [8mm 8mm], bottom_margin = 20px, xrotation = 60, title=cm*" "*ep)
                                 # Plots.savefig(path_to_save*"ED_"*ep*"_Calibration_Validation_limits_Boxplot.png")
-                                Plots.savefig(path_to_save*"trial2"*ep*".png")
+                                Plots.savefig(path_to_save*"trial22"*ep*".png")
                                 plots_obj = []
                                 for obj in 1:size(Objective_Functions)[1]
 
@@ -1903,11 +1913,11 @@ function plot_total_validation_srdef() #path_to_Calibration_1000, path_to_Valida
 
                                 Plots.plot(plots_obj[2], plots_obj[3], plots_obj[4], plots_obj[5], plots_obj[6], plots_obj[7], plots_obj[8], plots_obj[9], layout= (4,2), legend = false, size=(1900,1500), left_margin = [8mm 8mm], bottom_margin = 20px, xrotation = 60, title=cm*" "*ep)
                                 # Plots.savefig(path_to_save*"obj_"*ep*"_Calibration_Validation_limits_Violin.png")
-                                Plots.savefig(path_to_save*"trial3"*ep*".png")
+                                Plots.savefig(path_to_save*"trial23"*ep*".png")
 
                                 Plots.plot(plots_obj[1], left_margin = [8mm 8mm], bottom_margin = 20px, xrotation = 60, title=cm*" "*ep)
                                 # Plots.savefig(path_to_save*"ED_"*ep*"_Calibration_Validation_limits_Violin.png")
-                                Plots.savefig(path_to_save*"trial4"*ep*".png")
+                                Plots.savefig(path_to_save*"trial24"*ep*".png")
 
                         end
                 end
@@ -1920,7 +1930,7 @@ plot_total_validation_srdef()
 # writedlm(save_validation*validation_title, All_Goodness,',')
 # plot_validation(path_to_calibration, save_validation*validation_title, save_validation"Plots/")
 # #
-# #Paltental
+# #Palten
 # All_Goodness = run_validation_palten(path_to_calibration, 2003, 2013)
 # writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Validation/Parameterfit_best_100_validation_8years.csv", All_Goodness,',')
 # plot_validation("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Best/Parameterfit_less_dates_snow_redistr_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Validation/Parameterfit_best_100_validation_8years.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten/Plots/")
@@ -1948,7 +1958,7 @@ plot_total_validation_srdef()
 
 
 
-# plot_validation_srdef("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_All_less_dates_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_best100_validation.csv","/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_All_less_dates_unique_best_300.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Paltental_less_dates/Paltental_Parameterfit_unique_best300_validation.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Calibration/Paltental/Validation/")# All_Goodness = run_validation_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_Snow_Redistribution/Silbertal_Parameterfit_All_runs_snow_redistr_best_300.csv",2003,2013)
+# plot_validation_srdef("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten_less_dates/Palten_Parameterfit_All_less_dates_best_100.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten_less_dates/Palten_Parameterfit_best100_validation.csv","/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten_less_dates/Palten_Parameterfit_All_less_dates_unique_best_300.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Palten_less_dates/Palten_Parameterfit_unique_best300_validation.csv", "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Calibration/Palten/Validation/")# All_Goodness = run_validation_silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_Snow_Redistribution/Silbertal_Parameterfit_All_runs_snow_redistr_best_300.csv",2003,2013)
 # writedlm("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Calibrations/Silbertal_Snow_Redistribution/Silbertal_Parameterfit_b
 
 

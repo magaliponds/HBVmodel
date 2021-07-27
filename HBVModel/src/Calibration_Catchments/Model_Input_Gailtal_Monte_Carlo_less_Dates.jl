@@ -243,12 +243,12 @@ using Distributed
                         if size(All_Goodness)[2]-1 == 100
                                 All_Goodness = transpose(All_Goodness[:, 2:end])
                                 if count != 100
-                                        open(local_path*"Calibrations/Gailtal/Gailtal_Parameterfit_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations/Gailtal/Gailtal_Parameterfit_"*string(ID)*"_"*string(number_Files)*"_1M.csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count+= 1
                                 else
-                                        open(local_path*"Calibrations/Gailtal/Gailtal_Parameterfit_"*string(ID)*"_"*string(number_Files)*".csv", "a") do io
+                                        open(local_path*"Calibrations/Gailtal/Gailtal_Parameterfit_"*string(ID)*"_"*string(number_Files)*"_1M.csv", "a") do io
                                                 writedlm(io, All_Goodness,",")
                                         end
                                         count = 1
@@ -264,13 +264,13 @@ using Distributed
                 end
         end
         All_Goodness = transpose(All_Goodness[:, 2:end])
-        open(local_path*"Calibrations/Gailtal/Gailtal_Parameterfit_"*string(ID)*".csv", "a") do io
+        open(local_path*"Calibrations/Gailtal/Gailtal_Parameterfit_"*string(ID)*"_1M.csv", "a") do io
                 writedlm(io, All_Goodness,",")
         end
 end
 #
-nmax = 500
+nmax = 1000000
 @time begin
 #run_MC(1,100)
-pmap(ID -> run_MC(ID, nmax) , [1])
+pmap(ID -> run_MC(ID, nmax) , [1,2,3,4,5,6,7])
 end
