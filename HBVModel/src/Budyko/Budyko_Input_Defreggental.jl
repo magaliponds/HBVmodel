@@ -174,7 +174,7 @@ function aridity_evaporative_index_Defreggental(startyear, endyear)
         return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_, mean(P_observed), mean(Epot_observed_tw), mean(Epot_observed_hg) #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 
-print(aridity_evaporative_index_Defreggental(1983,2005))
+# print(aridity_evaporative_index_Defreggental(1983,2005))
 
 """
 Calculates the aridity (Ep/P) and evaporative index(Ea/P) & runoff coefficient(Q/P) for all climate projections, with best parameter sets for the given path.

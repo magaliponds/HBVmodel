@@ -288,6 +288,180 @@ function aridity_evaporative_index_Pitztal(startyear, endyear)
 end
 
 print(aridity_evaporative_index_Pitztal(1983,2005))
+
+"""
+Calculates the aridity and evaporative index for all climate projections with best parameter sets for the given path.
+For the calculations the mean discharge, potential evaporation and precipitation over the whole time period is taken.
+
+$(SIGNATURES)
+
+The function returns the past and future aridity index (Array length: Number of climate projections) and past and future evaporative index (Array Length: Number Climate Projections x Number Parameter Sets).
+    It takes as input the path to the projections. In the Pitztal water is diverted from the catchment for the use of hydropower, hence this is corrected for using a loss term.
+"""
+
+function aridity_evaporative_index_Pitztal_loss(startyear, endyear)
+
+    local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
+        # ------------ CATCHMENT SPECIFIC INPUTS----------------
+        # 102061 im Norden
+        ID_Prec_Zones = [102061, 102046]
+        # size of the area of precipitation zones
+        Area_Zones = [20651736.0, 145191864.0]
+        Area_Catchment = sum(Area_Zones)
+        Area_Zones_Percent = Area_Zones / Area_Catchment
+        Snow_Threshold = 600
+        Height_Threshold = 2700
+        Latitude = 47.516231 #Austria general
+        Latitude_pitztal = 47.1202
+
+        Mean_Elevation_Catchment = 2500 # in reality 2558
+        # elevation of catchment and height of temp measurement
+        # temp measurement since 1.1.1983 at 1462 m height (ID 14621)
+        Elevations_Catchment = Elevations(200.0, 1200.0, 3800.0, 1462.0, 1462.0)
+        Sunhours_Vienna = [8.83, 10.26, 11.95, 13.75, 15.28, 16.11, 15.75, 14.36, 12.63, 10.9, 9.28, 8.43]
+        # where to skip to in data file of precipitation measurements
+        Skipto = [26, 26]
+        # get the areal percentage of all elevation zones in the HRUs in the precipitation zones
+        Areas_HRUs =  CSV.read(local_path*"HBVModel/Pitztal/HBV_Area_Elevation_round.csv", DataFrame, skipto=2, decimal='.', delim = ',')
+        # get the percentage of each HRU of the precipitation zone
+        Percentage_HRU = CSV.read(local_path*"HBVModel/Pitztal/HRU_Prec_Zones.csv", DataFrame, header=[1], decimal='.', delim = ',')
+        Elevation_Catchment = convert(Vector, Areas_HRUs[2:end,1])
+
+        # timeperiod for which model should be run (look if timeseries of data has same length)
+        Timeseries = collect(Date(startyear, 1, 1):Day(1):Date(endyear,12,31))
+        #------------ TEMPERATURE AND POT. EVAPORATION CALCULATIONS ---------------------
+        #Temperature is the same in whole catchment
+        Temperature = CSV.read(local_path*"HBVModel/Pitztal/prenner_tag_14621.dat", DataFrame, header = true, skipto = 3, delim = ' ', ignorerepeated = true)
+
+        # get data for 20 years: from 1987 to end of 2006
+        # from 1986 to 2005 13669: 20973
+        #hydrological year 13577:20881
+        Temperature = dropmissing(Temperature)
+        Temperature_Array = Temperature.t / 10
+        Temperature_Min = Temperature.tmin /10
+        Temperature_Max = Temperature.tmax/10
+
+        Timeseries_Temp = Date.(Temperature.datum, Dates.DateFormat("yyyymmdd"))
+        startindex = findfirst(isequal(Date(startyear, 1, 1)), Timeseries_Temp)
+        endindex = findfirst(isequal(Date(endyear, 12, 31)), Timeseries_Temp)
+        Temperature_Daily = Temperature_Array[startindex[1]:endindex[1]]
+        Temperature_Daily_Min = Temperature_Min[startindex[1]:endindex[1]]
+        Temperature_Daily_Max = Temperature_Max[startindex[1]:endindex[1]]
+
+
+        #Timeseries_Temp = Timeseries[startindex[1]:endindex[1]]
+        Dates_Temperature_Daily = Timeseries_Temp[startindex[1]:endindex[1]]
+        Dates_missing_Temp = Dates_Temperature_Daily[findall(x-> x == 999.9, Temperature_Daily)]
+        @assert Dates_Temperature_Daily == Timeseries
+        Elevation_Zone_Catchment, Temperature_Elevation_Catchment, Total_Elevationbands_Catchment = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily)
+        Elevation_Zone_Catchment_Min, Temperature_Elevation_Catchment_Min, Total_Elevationbands_Catchment_Min = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily_Min)
+        Elevation_Zone_Catchment_Max, Temperature_Elevation_Catchment_Max, Total_Elevationbands_Catchment_Max = gettemperatureatelevation(Elevations_Catchment, Temperature_Daily_Max)
+
+        # get the temperature data at the mean elevation to calculate the mean potential evaporation
+        Temperature_Mean_Elevation = Temperature_Elevation_Catchment[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment)]
+        Temperature_Mean_Elevation_Min = Temperature_Elevation_Catchment_Min[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Min)]
+        Temperature_Mean_Elevation_Max = Temperature_Elevation_Catchment_Max[:,findfirst(x-> x==Mean_Elevation_Catchment, Elevation_Zone_Catchment_Max)]
+
+        Epot_observed_tw = getEpot_Daily_thornthwaite(Temperature_Mean_Elevation, Timeseries, Sunhours_Vienna)
+        Epot_observed_hg, radiation = getEpot(Temperature_Mean_Elevation_Min, Temperature_Mean_Elevation, Temperature_Mean_Elevation_Max, 0.162, Dates_Temperature_Daily, Latitude)
+
+        # Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/PotentialEvaporation/Pitztal_Epot_past.png")
+
+        # ------------ LOAD OBSERVED DISCHARGE DATA ----------------
+        Discharge = CSV.read(local_path*"HBVModel/Pitztal/Q-Tagesmittel-201335.csv", DataFrame, header= false, skipto=23, decimal=',', delim = ';', types=[String, Float64])
+        Discharge = Matrix(Discharge)
+        startindex = findfirst(isequal("01.01."*string(startyear)*" 00:00:00"), Discharge)
+        endindex = findfirst(isequal("31.12."*string(endyear)*" 00:00:00"), Discharge)
+        Observed_Discharge = Array{Float64,1}[]
+        push!(Observed_Discharge, Discharge[startindex[1]:endindex[1],2])
+        Observed_Discharge = Observed_Discharge[1]
+        #scale_factor_Discharge = 1.02
+        Q_observed = Observed_Discharge * 1000 / Area_Catchment * (3600 * 24) #* scale_factor_Discharge
+        #Part of the discharge is diverted from the Pitztal catchment for hydrolopower generation.
+        #This is corrected for in a loss term, that ranges between 0.01 and 0.08. For the sake of simplicity this loss term is fixed to the mean value
+        #The corrected discharge combines the measures + loss discharges
+        loss_parameter = mean([0.01,0.08])
+        Q_loss = loss(Q_observed, loss_parameter)
+        Q_corrected = Q_observed + Q_loss
+
+        # ------------ LOAD TIMESERIES DATA AS DATES ------------------
+        #Timeseries = Date.(Discharge[startindex[1]:endindex[1],1], Dates.DateFormat("d.m.y H:M:S"))
+        firstyear = Dates.year(Timeseries[1])
+        lastyear = Dates.year(Timeseries[end])
+
+        # ------------- LOAD OBSERVED SNOW COVER DATA PER PRECIPITATION ZONE ------------
+        # find day wehere 2000 starts for snow cover calculations
+        start2000 = findfirst(x -> x == Date(2000, 01, 01), Timeseries)
+        length_2000_end = length(Timeseries) - start2000 + 1
+        observed_snow_cover = Array{Float64,2}[]
+        for ID in ID_Prec_Zones
+                current_observed_snow = readdlm(local_path*"HBVModel/Pitztal/snow_cover_fixed_Zone"*string(ID)*".csv",',', Float64)
+                current_observed_snow = current_observed_snow[1:length_2000_end,3: end]
+                push!(observed_snow_cover, current_observed_snow)
+        end
+
+        # ------------- LOAD PRECIPITATION DATA OF EACH PRECIPITATION ZONE ----------------------
+        # get elevations at which precipitation was measured in each precipitation zone
+        # changed to 1400 in 2003
+        Elevations_102061= Elevations(200., 1200., 3400., 1335.,1462.0)
+        Elevations_102046 = Elevations(200, 1400, 3800, 1620., 1462.0)
+        #Elevations_9900 = Elevations(200, 600, 2400, 648., 648.)
+        Elevations_All_Zones = [Elevations_102061, Elevations_102046]
+
+        #get the total discharge
+        Total_Discharge = zeros(length(Temperature_Daily))
+        Inputs_All_Zones = Array{HRU_Input, 1}[]
+        Storages_All_Zones = Array{Storages, 1}[]
+        Precipitation_All_Zones = Array{Float64, 2}[]
+        Glacier_All_Zones = Array{Float64, 2}[]
+        Precipitation_Gradient = 0.0
+        Elevation_Percentage = Array{Float64, 1}[]
+        Nr_Elevationbands_All_Zones = Int64[]
+        Elevations_Each_Precipitation_Zone = Array{Float64, 1}[]
+
+        for i in 1: length(ID_Prec_Zones)
+                Precipitation = CSV.read(local_path*"HBVModel/Pitztal/N-Tagessummen-"*string(ID_Prec_Zones[i])*".csv", DataFrame, header= false, skipto=Skipto[i], missingstring = "L\xfccke", decimal=',', delim = ';')
+                Precipitation_Array = Matrix(Precipitation)
+                startindex = findfirst(isequal("01.01."*string(startyear)*" 07:00:00   "), Precipitation_Array)
+                endindex = findfirst(isequal("31.12."*string(endyear)*" 07:00:00   "), Precipitation_Array)
+                Precipitation_Array = Precipitation_Array[startindex[1]:endindex[1],:]
+                Precipitation_Array[:,1] = Date.(Precipitation_Array[:,1], Dates.DateFormat("d.m.y H:M:S   "))
+                # find duplicates and remove them
+                df = DataFrame(Precipitation_Array, :auto)
+                df = unique!(df)
+                # drop missing values
+                df = dropmissing(df)
+                Precipitation_Array = Matrix(df)
+                Elevation_HRUs, Precipitation, Nr_Elevationbands = getprecipitationatelevation(Elevations_All_Zones[i], Precipitation_Gradient, Precipitation_Array[:,2])
+                push!(Precipitation_All_Zones, Precipitation)
+                push!(Nr_Elevationbands_All_Zones, Nr_Elevationbands)
+                push!(Elevations_Each_Precipitation_Zone, Elevation_HRUs)
+
+            end
+        # ---------------- CALCULATE OBSERVED OBJECTIVE FUNCTIONS -------------------------------------
+        # calculate the sum of precipitation of all precipitation zones to calculate objective functions
+        P_observed = Precipitation_All_Zones[1][:,1]*Area_Zones_Percent[1] + Precipitation_All_Zones[2][:,1]*Area_Zones_Percent[2]
+
+    Aridity_Index_observed_tw = Float64[]
+    Aridity_Index_tw = mean(Epot_observed_tw) / mean(P_observed)
+    append!(Aridity_Index_observed_tw, Aridity_Index_tw)
+    #print(Aridity_Index_observed)
+
+    Aridity_Index_observed_hg = Float64[]
+    Aridity_Index_hg = mean(Epot_observed_hg) / mean(P_observed)
+    append!(Aridity_Index_observed_hg, Aridity_Index_hg)
+    #print(Aridity_Index_observed)
+
+    Evaporative_Index_corrected = Float64[]
+    Evaporative_Index = 1 - (mean(Q_corrected) / mean(P_observed))
+    append!(Evaporative_Index_corrected, Evaporative_Index)
+
+    return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_corrected[1], mean(P_observed), mean(Epot_observed_tw), mean(Epot_observed_hg)#, Evaporative_Index_c #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
+end
+
+print(aridity_evaporative_index_Pitztal_loss(1983,2005))
+
+
 function runoff_coefficient_Pitztal(path_to_projection, startyear, endyear)
 
     local_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/"
@@ -414,7 +588,7 @@ function runoff_coefficient_Pitztal(path_to_projection, startyear, endyear)
     end
 
 
-runoff_coefficient_Pitztal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Pitztal/", 1983,2005)
+#runoff_coefficient_Pitztal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Pitztal/", 1983,2005)
 
 function future_indices_Pitztal(path_to_projection, startyear, endyear)
 
@@ -514,4 +688,4 @@ function future_indices_Pitztal(path_to_projection, startyear, endyear)
     end
 
 
-print(future_indices_Pitztal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Pitztal/", 1981, 2010))
+#print(future_indices_Pitztal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/Pitztal/", 1981, 2010))

@@ -179,7 +179,7 @@ function aridity_evaporative_index_Gailtal(startyear,endyear)
         return Aridity_Index_, Evaporative_Index_, mean(P_observed), mean(Epot_observed) #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 
-print(aridity_evaporative_index_Gailtal(1983,2005))
+#print(aridity_evaporative_index_Gailtal(1983,2005))
 
 function runoff_coefficient_Gailtal(path_to_projection, startyear, endyear)
 

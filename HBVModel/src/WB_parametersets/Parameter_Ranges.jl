@@ -1,3 +1,8 @@
+using Plots
+using StatsPlots
+using DelimitedFiles
+using Plots.PlotMeasures
+using DocStringExtensions
 """
 This function selects the maxima and minima of all WB Sr,def estimates for each catchment
     $SIGNATURES
@@ -6,13 +11,13 @@ This function selects the maxima and minima of all WB Sr,def estimates for each 
 function ranges_srdef(rcp, rcm)
     local_path="/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/"
     folder_path = "/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Rootzone/Srdef_ranges/"
-    catchments = ["Defreggental"]#, "Feistritz", "Gailtal", "Palten", "Pitztal", "Silbertal"]
+    catchments = ["Defreggental", "Feistritz", "Gailtal", "Palten", "Pitztal", "Silbertal"]
     mode =0
     for (c, catchment_name) in enumerate(catchments)
 
-        mod_past = CSV.read(local_path*catchment_name*"/"*rcp*"/"*rcm*"/1981_GEV_T_total_titled_test.csv", DataFrame, decimal = '.', delim = ',')
-        mod_future = CSV.read(local_path*catchment_name*"/"*rcp*"/"*rcm*"/2068_GEV_T_total_titled_test.csv",DataFrame, decimal = '.', delim = ',')
-        obs_past = CSV.read(local_path*catchment_name*"/"*rcp*"/"*rcm*"/Past_GEV_T_total_titled_test.csv", DataFrame, decimal = '.', delim = ',')
+        mod_past = CSV.read(local_path*catchment_name*"/"*rcp*"/"*rcm*"/1981_GEV_T_total_titled.csv", DataFrame, decimal = '.', delim = ',')
+        mod_future = CSV.read(local_path*catchment_name*"/"*rcp*"/"*rcm*"/2068_GEV_T_total_titled.csv",DataFrame, decimal = '.', delim = ',')
+        obs_past = CSV.read(local_path*catchment_name*"/"*rcp*"/"*rcm*"/Past_GEV_T_total_titled.csv", DataFrame, decimal = '.', delim = ',')
 
         minima_hg = zeros(6)
         minima_tw=zeros(6)
@@ -24,8 +29,8 @@ function ranges_srdef(rcp, rcm)
 
             if catchment_name == "Gailtal"
                 if e==2
-                    minima_hg = zeros(6)
-                    maxima_hg = zeros(6)
+                    minima_hg = zeros(4)
+                    maxima_hg = zeros(4)
                 elseif e==1
                     OP_min_grass = minimum(-obs_past[:,2*e])
                     MP_min_grass = minimum(-mod_past[:,2*e])
@@ -40,8 +45,8 @@ function ranges_srdef(rcp, rcm)
                     OP_max_forest = maximum(-obs_past[:,2*e+1])
                     MP_max_forest = maximum(-mod_past[:,2*e+1])
                     MF_max_forest = maximum(-mod_future[:,2*e+1])
-                    minima_tw = [OP_min_grass, MP_min_grass, MF_min_grass, OP_min_forest, MP_min_forest, MF_min_forest]
-                    maxima_tw = [OP_max_grass, MP_max_grass, MF_max_grass, OP_max_forest, MP_max_forest, MF_max_forest]
+                    minima_tw = [OP_min_grass, (OP_min_grass+MP_min_grass-MF_min_grass), OP_min_forest, (OP_min_forest+MP_min_forest- MF_min_forest)]
+                    maxima_tw = [OP_max_grass, (OP_max_grass+MP_max_grass-MF_max_grass), OP_max_forest, (OP_max_forest+MP_max_forest-MF_max_forest)]
                 end
             elseif catchment_name =="Silbertal"
                 if e==1
@@ -65,12 +70,13 @@ function ranges_srdef(rcp, rcm)
                 MP_max_forest = maximum(-mod_past[:,2*e+1])
                 MF_max_forest = maximum(-mod_future[:,2*e+1])
                 if e==1
-                    minima_tw = [OP_min_grass, MP_min_grass, MF_min_grass, OP_min_forest, MP_min_forest, MF_min_forest]
-                    maxima_tw = [OP_max_grass, MP_max_grass, MF_max_grass, OP_max_forest, MP_max_forest, MF_max_forest]
-                else
-                    minima_hg = [OP_min_grass, MP_min_grass, MF_min_grass, OP_min_forest, MP_min_forest, MF_min_forest]
-                    maxima_hg = [OP_max_grass, MP_max_grass, MF_max_grass, OP_max_forest, MP_max_forest, MF_max_forest]
+                    minima_tw = [OP_min_grass, (OP_min_grass+MP_min_grass-MF_min_grass), OP_min_forest, (OP_min_forest+MP_min_forest- MF_min_forest)]
+                    maxima_tw = [OP_max_grass, (OP_max_grass+MP_max_grass-MF_max_grass), OP_max_forest, (OP_max_forest+MP_max_forest-MF_max_forest)]
                 end
+                # else
+                #     minima_hg = [OP_min_grass, MP_min_grass, MF_min_grass, OP_min_forest, MP_min_forest, MF_min_forest]
+                #     maxima_hg = [OP_max_grass, MP_max_grass, MF_max_grass, OP_max_forest, MP_max_forest, MF_max_forest]
+                # end
             else
                 OP_min_grass = minimum(-obs_past[:,2*e])
                 MP_min_grass = minimum(-mod_past[:,2*e])
@@ -87,22 +93,22 @@ function ranges_srdef(rcp, rcm)
                 MF_max_forest = maximum(-mod_future[:,2*e+1])
 
                 if e==1
-                    minima_tw = [OP_min_grass, MP_min_grass, MF_min_grass, OP_min_forest, MP_min_forest, MF_min_forest]
-                    maxima_tw = [OP_max_grass, MP_max_grass, MF_max_grass, OP_max_forest, MP_max_forest, MF_max_forest]
-                else
-                    minima_hg = [OP_min_grass, MP_min_grass, MF_min_grass, OP_min_forest, MP_min_forest, MF_min_forest]
-                    maxima_hg = [OP_max_grass, MP_max_grass, MF_max_grass, OP_max_forest, MP_max_forest, MF_max_forest]
+                    minima_tw = [OP_min_grass, (OP_min_grass+MP_min_grass-MF_min_grass), OP_min_forest, (OP_min_forest+MP_min_forest- MF_min_forest)]
+                    maxima_tw = [OP_max_grass, (OP_max_grass+MP_max_grass-MF_max_grass), OP_max_forest, (OP_max_forest+MP_max_forest-MF_max_forest)]
+                # else
+                #     minima_hg = [OP_min_grass, MP_min_grass, MF_min_grass, OP_min_forest, MP_min_forest, MF_min_forest]
+                #     maxima_hg = [OP_max_grass, MP_max_grass, MF_max_grass, OP_max_forest, MP_max_forest, MF_max_forest]
                 end
             end
-        index = ["OP_grass", "MP_grass", "MF_grass", "OP_forest", "MP_forest", "MF_forest"]
+        index = ["OP_grass", "MF_grass", "OP_forest", "MF_forest"]#, "MF_forest"]
         df = DataFrame(index = index, TW_min = minima_tw, TW_max = maxima_tw)#, HG_min = minima_hg, HG_max = maxima_hg)
-        CSV.write( folder_path*"/"*rcp*"/"*rcm*"/"*catchment_name* "_srdef_range_test.csv", df)
+        CSV.write( folder_path*"/"*rcp*"/"*rcm*"/"*catchment_name* "_srdef_range.csv", df)
     end
     end
     return
 end
 
-#ranges_srdef("rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
+ranges_srdef("rcp45", "CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day")
 
 function loop_ranges_srdef()
     rcps=["rcp45", "rcp85"]
@@ -176,4 +182,4 @@ function plot_parameter_range()
     Plots.savefig(folder_path*"Runs_vs_range_comparison.png")
 end
 
-plot_parameter_range()
+#plot_parameter_range()

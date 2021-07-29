@@ -245,7 +245,7 @@ function aridity_evaporative_index_Silbertal(startyear,endyear)
     return Aridity_Index_tw, Aridity_Index_hg, Evaporative_Index_, mean(P_observed), mean(Epot_observed_tw), mean(Epot_observed_hg) #Aridity_Index_past, Aridity_Index_future, Evaporative_Index_past_all_runs, Evaporative_Index_future_all_runs, Past_Precipitation_all_runs, Future_Precipitation_all_runs
 end
 
-print(aridity_evaporative_index_Silbertal(1983,2005))
+#print(aridity_evaporative_index_Silbertal(1983,2005))
 
 function runoff_coefficient_Silbertal(path_to_projection, startyear, endyear)
 
@@ -459,5 +459,5 @@ function future_indices_Silbertal(path_to_projection, startyear, endyear)
 end
 
 
-println(future_indices_Silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/IllSugadin/", 1983, 2005))
+#println(future_indices_Silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/IllSugadin/", 1983, 2005))
 # print(runoff_coefficient_Silbertal("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Data/Projections/rcp45/CNRM-CERFACS-CNRM-CM5_rcp45_r1i1p1_CLMcom-CCLM4-8-17_v1_day/IllSugadin/", 2071, 2100))

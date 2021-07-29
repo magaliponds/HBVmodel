@@ -63,7 +63,7 @@ function budyko_plot(startyear,endyear)#All_Catchment_Names, Area_Catchments)
     Epot_Prec = collect(0:0.1:5)
     w = 2.65
     Budyko_Eact_P_fu = (ones(length(Epot_Prec))) + Epot_Prec .* ones(length(Epot_Prec)) - ((ones(length(Epot_Prec)))+ Epot_Prec.^w).^(1/w)
-    Budyko_Eact_P = ( Epot_Prec .* tanh.(1 ./Epot_Prec) .* (ones(length(Epot_Prec)) - exp.(-Epot_Prec))).^0.5
+    #Budyko_Eact_P = ( Epot_Prec .* tanh.(1 ./Epot_Prec) .* (ones(length(Epot_Prec)) - exp.(-Epot_Prec))).^0.5
 
     plot!(Epot_Prec, Budyko_Eact_P, label="Original Budyko", linecolor="black")
     # plot!(Epot_Prec, Budyko_Eact_P_fu, label="Fu", linecolor="black")
@@ -278,4 +278,30 @@ function budyko_plot(startyear,endyear)#All_Catchment_Names, Area_Catchments)
     return #Catchment_observed_data_all
 end
 
-print(budyko_plot(1981,2010))
+# print(budyko_plot(1981,2010))
+
+function Budyko_plain_plot()
+        Color = palette(:tab10)
+        Markers = [:rect, :circle, :dtriangle, :cross]
+        budyko_plain = Plots.plot()
+        # plotlyjs()
+        plot!(collect(0:5),collect(0:5), linestyle=:dot, linecolor="black", label="Energy Limit", size=(700,470))
+        plot!(collect(1:5), ones(5), linestyle=:dot, linecolor="black", label="Water Limit")
+        Epot_Prec = collect(0:0.1:5)
+        w = 2.65
+        Budyko_Eact_P_fu = (ones(length(Epot_Prec))) + Epot_Prec .* ones(length(Epot_Prec)) - ((ones(length(Epot_Prec)))+ Epot_Prec.^w).^(1/w)
+        #Budyko_Eact_P = ( Epot_Prec .* tanh.(1 ./Epot_Prec) .* (ones(length(Epot_Prec)) - exp.(-Epot_Prec))).^0.5
+
+        plot!(Epot_Prec, Budyko_Eact_P_fu, label="Budyko curve", linecolor="black", legend=:bottomright)
+        xaxis!("Ep/P")
+        yaxis!("Ea/P")
+        #vline!([0.406])
+        xlims!((0,2))
+        ylims!((0.2,1))
+        display(budyko_plain)
+
+        Plots.savefig("/Users/magali/Documents/1. Master/1.4 Thesis/02 Execution/01 Model Sarah/Results/Projections/Budyko/Results/Plain_Budyko.png")
+        return
+    end
+
+Budyko_plain_plot()
